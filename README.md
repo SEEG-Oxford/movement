@@ -28,7 +28,7 @@ install_github('movement', 'SEEG-Oxford')
 and load the package and you're ready to go
 
 ```
-library(seegSDM)
+library(movement)
 ```
 
 ### reporting bugs
