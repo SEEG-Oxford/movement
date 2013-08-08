@@ -3,38 +3,24 @@
 \alias{movement}
 \docType{package}
 \title{
-What the package does (short line)
-~~ package title ~~
+Functions to analyse and model movement data for epidemiology.
 }
 \description{
-More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+Movement of humans and animals has a crucial role in the epidemiology of a number of diseases. Movement data is increasingly available to epidemiologists and its incorporation in models and maps of disease is increasingly popular. This package is a collaborative effort to improve our ability to analyses movement data and to build and apply epidemiological movement models.
+
 }
 \details{
 \tabular{ll}{
 Package: \tab movement\cr
 Type: \tab Package\cr
-Version: \tab 1.0\cr
+Version: \tab 0.1\cr
 Date: \tab 2013-08-08\cr
-License: \tab What license is it under?\cr
+License: \tab GPL (>=2)\cr
 }
-~~ An overview of how to use the package, including the most important functions ~~
+
 }
 \author{
-Who wrote it
+Nick Golding + others (to be added)
 
-Maintainer: Who to complain to <yourfault@somewhere.net>
-~~ The author and/or maintainer of the package ~~
-}
-\references{
-~~ Literature or other references for background information ~~
-}
-~~ Optionally other standard keywords, one per line, from file KEYWORDS in the R documentation directory ~~
-\keyword{ package }
-\seealso{
-~~ Optional links to other man pages, e.g. ~~
-~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
-}
-\examples{
-~~ simple examples of the most important functions ~~
+Maintainer: Nick Golding <nick.golding@zoo.ox.ac.uk>
 }

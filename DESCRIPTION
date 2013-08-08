@@ -5,5 +5,5 @@ Version: 0.1
 Date: 2013-08-08
 Author: Nick Golding + others (to be added here)
 Maintainer: Nick Golding <nick.golding@zoo.ox.ac.uk>
-Description: Movement of humans and animals has a crucial role in the epidemiology of a number of diseases. Movement data is increasingly available to epidemiologists and its incorporation in models and maps of disease is increasingly popular. this package is a collaboration to improve our ability to analyses movement data and to build and apply epidemiological movement models.
+Description: Movement of humans and animals has a crucial role in the epidemiology of a number of diseases. Movement data is increasingly available to epidemiologists and its incorporation in models and maps of disease is increasingly popular. This package is a collaborative effort to improve our ability to analyses movement data and to build and apply epidemiological movement models.
 License: GPL(>=2)
