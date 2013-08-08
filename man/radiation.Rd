@@ -35,5 +35,33 @@ A (dense) symmetric matrix giving predicted movements between all sites
 }
 
 \examples{
-# to do
+
+# generate random coordinates and populations
+n <- 30
+coords <- matrix(runif(n * 2), ncol = 2)
+pop <- round(runif(n) * 1000)
+
+# calculate the distance between pairs of sites
+d <- as.matrix(dist(coords))
+
+# predict movement between them using the radiation model
+move <- radiation(d, pop)
+
+# plot the points
+plot(coords, pch = 16, cex = pop / 500,
+     col = 'grey40', axes = FALSE,
+     xlab = '', ylab = '')
+
+# and add arrows showing movement
+for(i in 2:n) {
+  for(j in  (i - 1):n) {
+    arrows(coords[i, 1],
+           coords[i, 2],
+           coords[j, 1],
+           coords[j, 2],
+           lwd = 2,
+           length = 0.1,
+           col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
+  }
+}
 }

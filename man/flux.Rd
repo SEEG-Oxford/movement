@@ -35,6 +35,16 @@ A scalar value giving the predicted number of people mmoving between the two sit
 }
 
 \examples{
-# to do
+# generate random coordinates and populations
+n <- 30
+coords <- matrix(runif(n * 2), ncol = 2)
+pop <- round(runif(n) * 1000)
+
+# calculate the distance between pairs of sites
+d <- as.matrix(dist(coords))
+
+# predict movement between sites 3 and 4 using the radiation model
+T_ij <- flux(3, 4, d, pop)
+T_ij
 }
 
