@@ -19,6 +19,12 @@ License: \tab GPL (>=2)\cr
 }
 
 }
+
+
+\seealso{
+\code{\link{flux}}, \code{\link{radiation}}
+}
+
 \author{
 Nick Golding + others (to be added)
 
