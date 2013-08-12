@@ -1,5 +1,5 @@
-\name{radiation}
-\alias{radiation}
+\name{gravity.movement}
+\alias{gravity.movement}
 
 \title{
   Use the gravity model to predict movements across a landscape.

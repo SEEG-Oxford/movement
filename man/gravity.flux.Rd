@@ -1,5 +1,5 @@
-\name{flux}
-\alias{flux}
+\name{gravity.flux}
+\alias{gravity.flux}
 
 \title{
   Use the Viboud et al. 2006 (relatively simple) gravitation model to predict movement between two sites
