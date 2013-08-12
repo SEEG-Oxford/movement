@@ -22,7 +22,7 @@ License: \tab GPL (>=2)\cr
 
 
 \seealso{
-\code{\link{flux}}, \code{\link{radiation}}
+\code{\link{movement.model}}
 }
 
 \author{
