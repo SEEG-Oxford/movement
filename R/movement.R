@@ -200,82 +200,33 @@ movement.model <- function(distance, population,
   return (movement)
 }
 
-# 
-# 
-# # run gravity model
-# gravity.movement <- function(distance, population, theta,
-#                              minpop = 0, maxrange = Inf,
-#                              progress = TRUE) {
-#   # Given a euclidean distance matrix 'distance', a vector
-#   # 'population' giving population sizes for the nodes and
-#   # a set of parameters 'theta',
-#   # use Viboud et al. (2006)'s gravity model to
-#   # predict movement between nodes. The model can be restricted
-#   # to a maximum range 'maxrange', (beyond which people are assumed not
-#   # to travel). A minimum cell population size can aslo be set via 'minpop'.
-#   # If the cell at the centre of the radius has a population less than minpop
-#   # the cell is considered unimportant and a 0 returned. This can save some
-#   # computation time.
-# 
-#   # create a movement matrix in which to store movement numbers
-#   movement <- matrix(NA,
-#                      nrow = nrow(distance),
-#                      ncol = ncol(distance))
-#   # set diagonal to 0
-#   movement[col(movement) == row(movement)] <- 0
-# 
-#   # get the all $i, j$ pairs
-#   indices <- which(upper.tri(distance), arr.ind = TRUE)
-# 
-#   # set up optional text progress bar
-#   if (progress) {
-#     start <- Sys.time()
-#     cat(paste('started processing at',
-#               start,
-#               '\n\nprogress:\n\n'))
-# 
-#     bar <- txtProgressBar(min = 1,
-#                           max = nrow(indices),
-#                           style = 3)
-#   }
-# 
-#   for (idx in 1:nrow(indices)) {
-#     # for each array index (given as a row of idx), get the pair of nodes
-#     pair <- indices[idx, ]
-#     i <- pair[1]
-#     j <- pair[2]
-# 
-#     # calculate the number of commuters between them
-#     T_ij <- gravity.flux(i = pair[1],
-#                          j = pair[2],
-#                          distance = distance,
-#                          population = population,
-#                          theta=theta,
-#                          minpop = minpop,
-#                          maxrange = maxrange)
-# 
-#     # and stick it in the results matrix
-#     movement[pair[1], pair[2]] <- movement[pair[2], pair[1]] <- T_ij
-# 
-#     if (progress) setTxtProgressBar(bar, idx)
-# 
-#   }
-# 
-#   if (progress) {
-#     end <- Sys.time()
-# 
-#     cat(paste('\n\nstarted processing at',
-#               start,
-#               '\n\ntime taken:',
-#               round(end - start),
-#               'seconds\n'))
-# 
-#     close(bar)
-#   }
-# 
-#   return (movement)
-# 
-# }
-# 
 
-
+get.network <- function(raster, min = 1, matrix = TRUE) {
+  # extract necessary components for movement modelling
+  # from a population raster
+  
+  # find non-na cells
+  keep <- which(!is.na(raster[]))
+  
+  # of these, find those above the minimum
+  keep <- keep[raster[keep] >= min]
+  
+  # get population
+  pop <- raster[keep]
+  
+  # get coordinates
+  coords <- xyFromCell(raster, keep)
+  
+  # build distance matrix
+  dis <- dist(coords)
+  
+  # if we want a matrix, not a 'dist' object convert it
+  if (matrix) {
+    dis <- as.matrix(dis)
+  }
+  
+  return (list(population = pop,
+               distance_matrix = dis,
+               coordinates = coords))
+  
+}

@@ -25,7 +25,7 @@ movement.model(distance, population, flux = radiation.flux, symmetric = FALSE, p
   \item{flux}{a flux function (currently either \code{\link{radiation.flux}} or \code{\link{gravity.flux}}) used to predict movements}
   \item{symmetric}{whether to calculate symmetric or asymmetric (summed across both directions) movement}
   \item{progress}{whether to display a progress bar and start and end times - can be useful for big model runs}
-  \item{dots}{arguments to pass to the flux function}
+  \item{\dots}{arguments to pass to the flux function}
 }
 
 \value{
