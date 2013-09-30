@@ -64,14 +64,14 @@ radiation.flux <- function(i, j, distance, population,
 #   if (i_ s_ij == 0) return (0)
 
   # calculate the number of commuters T_{ij} moving between sites
-  # $i$ and $j$ using equation 2 in Semini et al. (2013)
+  # $i$ and $j$ using equation 2 in Simini et al. (2012)
   m_i_times_n_j <- m_i * n_j
   m_i_plus_n_j <- m_i + n_j
   
-  T_ij <- T_i * m_i_times_n_j / (m_i + i_s_ij) * (m_i_plus_n_j + i_s_ij)
+  T_ij <- T_i * m_i_times_n_j / ((m_i + i_s_ij) * (m_i_plus_n_j + i_s_ij))
   
   # and in the opposite direction
-  T_ji <- T_j * m_i_times_n_j / (n_j + j_s_ij) * (m_i_plus_n_j + j_s_ij)
+  T_ji <- T_j * m_i_times_n_j / ((n_j + j_s_ij) * (m_i_plus_n_j + j_s_ij))
   
   
   # return this
