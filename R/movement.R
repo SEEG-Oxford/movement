@@ -1,3 +1,119 @@
+# calculate flux between two points using the continuum
+# generalization of the radiation model
+continuum.flux <- function(i, j, distance, population,
+                           model = 'original radiation',
+                           theta = c(1), symmetric = FALSE,
+                           minpop = 1, maxrange = Inf) {
+
+  # get model parameters
+  p <- theta[1]
+  if(model == 'intervening opportunities'){
+    L <- theta[2]
+  } else if(model == 'radiation with selection'){
+    lambda <- theta[2]
+  }
+  
+  # get the population sizes $m_i$ and $n_j$
+  m_i <- population[i]
+  n_j <- population[j]
+
+  # if the population at the centre is below the minimum,
+  # return 0 (saves some calculation time)
+  if (m_i < minpop | n_j < minpop) {
+  # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
+  }
+
+  # calculate the total number of people commuting from i -
+  # the proportion (p) multiplied by the population $m_i$
+  T_i <- m_i * p
+  
+  # and from j
+  T_j <- n_j * p
+  
+  # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
+  r_ij <- distance[i, j]
+
+  # if it's beyond the maximum range return 0
+  if (r_ij > maxrange) {
+    # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
+  }
+
+  # get indices of points within this range
+  i_in_radius <- distance[i, ] <= r_ij
+  j_in_radius <- distance[j, ] <= r_ij
+  
+  # sum the total population in this radius (excluding i & j)
+
+  # calculate $s_{ij}$, the total population in the search radius
+  # (excluding $i$ and $j$)
+
+  # which to include in the sum
+  i_pop_sum_idx <- i_in_radius
+  # not i or j
+  i_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  i_s_ij <- sum(population[i_pop_sum_idx])
+  
+  # which to include in the sum
+  j_pop_sum_idx <- j_in_radius
+  # not i or j
+  j_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  j_s_ij <- sum(population[j_pop_sum_idx])
+
+#   # if the sum is 0 (no populations in that range) return 0 movement
+#   if (i_ s_ij == 0) return (0)
+
+  # calculate the number of commuters T_{ij} moving between sites
+  # $i$ and $j$
+  #
+  # this number is calculated as the expectation of a multinomial process
+  # of T_i and T_j individuals moving to each other possible site
+  # $j$ or $i$ with probabilities P_nam_ij and P_nam_ji, which were
+  # derived in Simini et al. (2013)
+
+  m_i_times_n_j <- m_i * n_j
+  m_i_plus_n_j <- m_i + n_j
+  
+  if(model == 'original radiation'){
+    P_nam_ij <- m_i_times_n_j / ((m_i + i_s_ij) * (m_i_plus_n_j + i_s_ij))
+    P_nam_ji <- m_i_times_n_j / ((n_j + j_s_ij) * (m_i_plus_n_j + j_s_ij))
+  } else if(model == 'intervening opportunities'){
+    P_nam_ij <- (exp(-L * (m_i + i_s_ij)) - exp(-L * (m_i_plus_n_j + i_s_ij))) / exp(-L * m_i)
+    P_nam_ji <- (exp(-L * (n_j + j_s_ij)) - exp(-L * (m_i_plus_n_j + j_s_ij))) / exp(-L * n_j)
+  } else if(model == 'uniform selection'){
+    N <- sum(population)
+    P_nam_ij <- n_j / (N - m_i)
+    P_nam_ji <- m_i / (N - n_j)
+  } else if(model == 'radiation with selection'){
+    P_nam_ij <- 
+      ((1 - lambda ^ (m_i + i_s_ij + 1)) / (m_i + i_s_ij + 1) -
+       (1 - lambda ^ (m_i_plus_n_j + i_s_ij + 1)) / (m_i_plus_n_j + i_s_ij + 1)) /
+      ((1 - lambda ^ (m_i + 1)) / (m_i + 1))
+    P_nam_ji <- 
+      ((1 - lambda ^ (n_j + j_s_ij + 1)) / (n_j + j_s_ij + 1) -
+       (1 - lambda ^ (m_i_plus_n_j + j_s_ij + 1)) / (m_i_plus_n_j + j_s_ij + 1)) /
+      ((1 - lambda ^ (n_j + 1)) / (n_j + 1))
+  }
+  
+  T_ij <- T_i * P_nam_ij
+  
+  # and in the opposite direction
+  T_ji <- T_j * P_nam_ji
+  
+  
+  # return this
+  if (symmetric) return (T_ij + T_ji)
+  else return (c(T_ij, T_ji))
+}
+
+
 # calculate flux between two points using the radiation model
 radiation.flux <- function(i, j, distance, population,
                            theta = c(1), symmetric = FALSE,
