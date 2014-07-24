@@ -33,7 +33,7 @@ A (dense) matrix giving predicted movements between all sites
 }
 
 \seealso{
-\code{\link{radiation.flux}}, \code{\link{gravity.flux}}
+\code{\link{radiation.flux}}, \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
 }
 
 \examples{
