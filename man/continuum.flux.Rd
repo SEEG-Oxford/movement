@@ -43,7 +43,7 @@ A vector (of length either 1 or 2) giving the predicted number of people moving 
 }
 
 \references{
-Simini F, Maritan A, N\`{e}da Z (2013) Human mobility in a continuum approach. \emph{PLoS ONE} 8(3): e60069. http://dx.doi.org/10.1371/journal.pone.0060069
+Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach. \emph{PLoS ONE} 8(3): e60069. \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 }
 
 \examples{

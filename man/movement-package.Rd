@@ -22,7 +22,7 @@ License: \tab GPL (>=2)\cr
 
 
 \seealso{
-\code{\link{movement.model}}, \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}}, \code{\link{radiation.flux}}
+\code{\link{movement.model}}, \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}}, \code{\link{radiation.flux}}, \code{\link{continuum.flux}}
 }
 
 \author{
