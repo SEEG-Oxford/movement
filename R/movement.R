@@ -304,8 +304,8 @@ movement.model <- function(distance, population,
   if (progress) {
     end <- Sys.time()
 
-    cat(paste('\n\nstarted processing at',
-              start,
+    cat(paste('\n\nfinished processing at',
+              end,
               '\n\ntime taken:',
               round(end - start),
               'seconds\n'))
@@ -345,4 +345,37 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
                distance_matrix = dis,
                coordinates = coords))
   
+}
+
+# plots the movements within a network onto a raster layer
+show_movements <- function(network, raster_layer) {
+	# visualise the distance matrix
+	plot(raster(network$distance_matrix))
+
+	# plot the raster layer
+	plot(raster_layer)
+
+	# rescale the population of those pixels for plotting
+	size <- 0.1 + 2 * network$population / max(network$population)
+
+	# plot the pixels selected, with point size proportional to population size
+	points(network$coordinates, pch = 16,
+		  cex = size,
+		  col = rgb(0, 0, 1, 0.6))
+
+	# get the number of locations included
+	n <- nrow(network$coordinates)
+
+	# and add arrows showing movement
+	for(i in 2:n) {
+	  for(j in  (i - 1):n) {
+		arrows(network$coordinates[i, 1],
+			   network$coordinates[i, 2],
+			   network$coordinates[j, 1],
+			   network$coordinates[j, 2],
+			   lwd = 4,
+			   length = 0,
+			   col = rgb(0, 0, 1, move[i, j] / (max(move) + 0)))
+	  }
+	}
 }
