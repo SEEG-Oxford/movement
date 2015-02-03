@@ -119,7 +119,7 @@ radiation.flux <- function(i, j, distance, population,
                            theta = c(1), symmetric = FALSE,
                            minpop = 1, maxrange = Inf) {
 
-  return continuum.flux(i, j, distance, population, model = 'original radiation', theta = theta, symmetric = symmetric, minpop = minpop, maxrange = maxrange)
+  return (continuum.flux(i, j, distance, population, model = 'original radiation', theta = theta, symmetric = symmetric, minpop = minpop, maxrange = maxrange))
 }
 
 
