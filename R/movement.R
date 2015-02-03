@@ -304,7 +304,7 @@ show_movements <- function(network, raster_layer, predictedMovements) {
 }
 
 # code to set up the movementmodel class
-
+# create a new instance of the MovementModel class. Sensible defaults are selected and only the raster dataset is required
 MovementModel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
 	me <- list(
 		dataset = dataset,
@@ -317,15 +317,19 @@ MovementModel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 	return (me)
 }
 
+# base predict function, used to register the method
 Predict <- function(object) {
 	UseMethod("Predict", object)
 }
 
+# called if predict is run on an unsupported type
 Predict.default <- function(object) {
 	print("Predict doesn't know how to handle this object.")
 	return (object)
 }
 
+# Predict the movements in the network based on the MovementModel provided
+# Returns a MovementModel object with the network and prediction fields populated
 Predict.MovementModel <- function(object) {
 	net <- get.network(object$dataset, min = object$min_network_pop)
 	object$net = net
@@ -333,15 +337,18 @@ Predict.MovementModel <- function(object) {
 	return (object)
 }
 
+# base showprediction function, used to register the method
 ShowPrediction <- function(object) {
 	UseMethod("ShowPrediction", object)
 }
 
+# called if showprediction is run on an unsupported type
 ShowPrediction.default <- function(object) {
 	print("ShowPrediction doesn't know how to handle this object.")
 	return (object)
 }
 
+# Show a plot of the predicted MovementModel. Shows the underlying raster plot in addition to the predicted movements.
 ShowPrediction.MovementModel <- function(object) {
 	network <- object$net
 	move <- object$prediction
