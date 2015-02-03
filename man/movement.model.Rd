@@ -6,7 +6,7 @@
 }
 
 \description{
-Given a (dense) distance matrix \code{distance} giving the euclidean distances beween all pairs of sites, a vector of population sizes at these sites \code{population}, use a flux function \code{flux} to predict movement between all sites.
+Given a (dense) distance matrix \code{distance} giving the euclidean distances between all pairs of sites, a vector of population sizes at these sites \code{population}, use a flux function \code{flux} to predict movement between all sites.
 
 
 
@@ -33,7 +33,7 @@ A (dense) matrix giving predicted movements between all sites
 }
 
 \seealso{
-\code{\link{radiation.flux}}, \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
+\code{\link{gravity.flux}}, \code{\link{continuum.flux}}
 }
 
 \examples{
