@@ -271,7 +271,7 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 }
 
 # plots the movements within a network onto a raster layer
-show_movements <- function(network, raster_layer) {
+show_movements <- function(network, raster_layer, predictedMovements) {
 	# visualise the distance matrix
 	plot(raster(network$distance_matrix))
 
@@ -298,7 +298,53 @@ show_movements <- function(network, raster_layer) {
 			   network$coordinates[j, 2],
 			   lwd = 4,
 			   length = 0,
-			   col = rgb(0, 0, 1, move[i, j] / (max(move) + 0)))
+			   col = rgb(0, 0, 1, predictedMovements[i, j] / (max(predictedMovements) + 0)))
 	  }
 	}
+}
+
+# code to set up the movementmodel class
+
+MovementModel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
+	me <- list(
+		dataset = dataset,
+		min_network_pop = min_network_pop,
+		predictionmodel = predictionmodel,
+		symmetric = symmetric,
+		modelparams = modelparams
+		)
+	class(me) <- append(class(me), "MovementModel")
+	return (me)
+}
+
+Predict <- function(object) {
+	UseMethod("Predict", object)
+}
+
+Predict.default <- function(object) {
+	print("Predict doesn't know how to handle this object.")
+	return (object)
+}
+
+Predict.MovementModel <- function(object) {
+	net <- get.network(object$dataset, min = object$min_network_pop)
+	object$net = net
+	object$prediction = movement.model(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams)
+	return (object)
+}
+
+ShowPrediction <- function(object) {
+	UseMethod("ShowPrediction", object)
+}
+
+ShowPrediction.default <- function(object) {
+	print("ShowPrediction doesn't know how to handle this object.")
+	return (object)
+}
+
+ShowPrediction.MovementModel <- function(object) {
+	network <- object$net
+	move <- object$prediction
+	raster <- object$dataset
+	show_movements(network, raster, move)
 }
