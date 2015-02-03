@@ -12,7 +12,7 @@ continuum.flux <- function(i, j, distance, population,
   } else if(model == 'radiation with selection'){
     lambda <- theta[2]
   }
-  
+
   # get the population sizes $m_i$ and $n_j$
   m_i <- population[i]
   n_j <- population[j]
@@ -29,10 +29,10 @@ continuum.flux <- function(i, j, distance, population,
   # calculate the total number of people commuting from i -
   # the proportion (p) multiplied by the population $m_i$
   T_i <- m_i * p
-  
+
   # and from j
   T_j <- n_j * p
-  
+
   # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
   r_ij <- distance[i, j]
 
@@ -47,7 +47,7 @@ continuum.flux <- function(i, j, distance, population,
   # get indices of points within this range
   i_in_radius <- distance[i, ] <= r_ij
   j_in_radius <- distance[j, ] <= r_ij
-  
+
   # sum the total population in this radius (excluding i & j)
 
   # calculate $s_{ij}$, the total population in the search radius
@@ -59,7 +59,7 @@ continuum.flux <- function(i, j, distance, population,
   i_pop_sum_idx[c(i, j)] <- FALSE
   # get sum
   i_s_ij <- sum(population[i_pop_sum_idx])
-  
+
   # which to include in the sum
   j_pop_sum_idx <- j_in_radius
   # not i or j
@@ -80,7 +80,7 @@ continuum.flux <- function(i, j, distance, population,
 
   m_i_times_n_j <- m_i * n_j
   m_i_plus_n_j <- m_i + n_j
-  
+
   if(model == 'original radiation'){
     P_nam_ij <- m_i_times_n_j / ((m_i + i_s_ij) * (m_i_plus_n_j + i_s_ij))
     P_nam_ji <- m_i_times_n_j / ((n_j + j_s_ij) * (m_i_plus_n_j + j_s_ij))
@@ -92,22 +92,22 @@ continuum.flux <- function(i, j, distance, population,
     P_nam_ij <- n_j / (N - m_i)
     P_nam_ji <- m_i / (N - n_j)
   } else if(model == 'radiation with selection'){
-    P_nam_ij <- 
+    P_nam_ij <-
       ((1 - lambda ^ (m_i + i_s_ij + 1)) / (m_i + i_s_ij + 1) -
        (1 - lambda ^ (m_i_plus_n_j + i_s_ij + 1)) / (m_i_plus_n_j + i_s_ij + 1)) /
       ((1 - lambda ^ (m_i + 1)) / (m_i + 1))
-    P_nam_ji <- 
+    P_nam_ji <-
       ((1 - lambda ^ (n_j + j_s_ij + 1)) / (n_j + j_s_ij + 1) -
        (1 - lambda ^ (m_i_plus_n_j + j_s_ij + 1)) / (m_i_plus_n_j + j_s_ij + 1)) /
       ((1 - lambda ^ (n_j + 1)) / (n_j + 1))
   }
-  
+
   T_ij <- T_i * P_nam_ij
-  
+
   # and in the opposite direction
   T_ji <- T_j * P_nam_ji
-  
-  
+
+
   # return this
   if (symmetric) return (T_ij + T_ji)
   else return (c(T_ij, T_ji))
@@ -133,28 +133,28 @@ gravity.flux <- function(i, j, distance, population,
   # travelling between $i$ and $j$. If the pairwise distance is greater than
   # 'max' it is assumed that no travel occurs between these points. This can
   # speed up the model.
-  
+
   # get the population sizes $m_i$ and $n_j$
   m_i <- population[i]
   n_j <- population[j]
-  
+
   # if the population at the centre is below the minimum,
   # return 0 (saves some calculation time)
   m_i[m_i < minpop] <- 0
-  
+
   # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
   r_ij <- distance[i, j]
-  
+
   # if it's beyond the maximum range return 0 - this way to vectorize with ease...
   r_ij[r_ij > maxrange] <- 0
-  
+
   # calculate the number of commuters T_{ij} moving between sites
   # $i$ and $j$ using equation 1 in Viboud et al. (2006)
   T_ij <- theta[1] * (m_i ^ theta[2]) * (n_j ^ theta[3]) / (r_ij ^ theta[4])
-  
+
   # and the opposite direction
   T_ji <- theta[1] * (n_j ^ theta[2]) * (m_i ^ theta[3]) / (r_ij ^ theta[4])
-  
+
   # return this
   if (symmetric) return (T_ij + T_ji)
   else return (c(T_ij, T_ji))
@@ -204,21 +204,21 @@ movement.model <- function(distance, population,
                  ...)
 
     # and stick it in the results matrix
-    
+
     # if the symmetric distance was calculated (sum of i to j and j to i)
     # stick it in both triangles
     if (symmetric) {
-      
+
       movement[pair[1], pair[2]] <- movement[pair[2], pair[1]] <- T_ij
-      
+
     } else {
-      
+
       # otherwise stick one in the upper and one in the the lower
       # (flux returns two numbers in this case)
       # i.e. rows are from (i), columns are to (j)
       movement[pair[1], pair[2]] <- T_ij[1]
       movement[pair[2], pair[1]] <- T_ij[2]
-      
+
     }
 
     if (progress) setTxtProgressBar(bar, idx)
@@ -243,31 +243,31 @@ movement.model <- function(distance, population,
 get.network <- function(raster, min = 1, matrix = TRUE) {
   # extract necessary components for movement modelling
   # from a population raster
-  
+
   # find non-na cells
   keep <- which(!is.na(raster[]))
-  
+
   # of these, find those above the minimum
   keep <- keep[raster[keep] >= min]
-  
+
   # get population
   pop <- raster[keep]
-  
+
   # get coordinates
   coords <- xyFromCell(raster, keep)
-  
+
   # build distance matrix
   dis <- dist(coords)
-  
+
   # if we want a matrix, not a 'dist' object convert it
   if (matrix) {
     dis <- as.matrix(dis)
   }
-  
+
   return (list(population = pop,
                distance_matrix = dis,
                coordinates = coords))
-  
+
 }
 
 # plots the movements within a network onto a raster layer
