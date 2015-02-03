@@ -304,8 +304,8 @@ movement.model <- function(distance, population,
   if (progress) {
     end <- Sys.time()
 
-    cat(paste('\n\nstarted processing at',
-              start,
+    cat(paste('\n\nfinished processing at',
+              end,
               '\n\ntime taken:',
               round(end - start),
               'seconds\n'))
