@@ -162,8 +162,7 @@ gravity.flux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-
-# fit a movement model
+# predict movements according to a particular model
 movement.model <- function(distance, population,
                            flux = radiation.flux,
                            symmetric = FALSE,
