@@ -113,7 +113,6 @@ continuum.flux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-
 # calculate flux between two points using the original radiation model
 radiation.flux <- function(i, j, distance, population,
                            theta = c(1), symmetric = FALSE,
@@ -121,7 +120,6 @@ radiation.flux <- function(i, j, distance, population,
 
   return (continuum.flux(i, j, distance, population, model = 'original radiation', theta = theta, symmetric = symmetric, minpop = minpop, maxrange = maxrange))
 }
-
 
 # calculate flux between two points according to a classic gravity model
 gravity.flux <- function(i, j, distance, population,
@@ -241,7 +239,6 @@ movement.model <- function(distance, population,
 
   return (movement)
 }
-
 
 get.network <- function(raster, min = 1, matrix = TRUE) {
   # extract necessary components for movement modelling
