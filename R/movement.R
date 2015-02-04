@@ -315,7 +315,7 @@ predict <- function(object, ...) {
 }
 
 # called if predict is run on an unsupported type
-predict.default <- function(objec, ...t) {
+predict.default <- function(object, ...) {
 	print("predict doesn't know how to handle this object.")
 	return (object)
 }
