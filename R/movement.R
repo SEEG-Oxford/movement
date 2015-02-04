@@ -113,14 +113,6 @@ continuum.flux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-# calculate flux between two points using the original radiation model
-radiation.flux <- function(i, j, distance, population,
-                           theta = c(1), symmetric = FALSE,
-                           minpop = 1, maxrange = Inf) {
-
-  return (continuum.flux(i, j, distance, population, model = 'original radiation', theta = theta, symmetric = symmetric, minpop = minpop, maxrange = maxrange))
-}
-
 # calculate flux between two points according to a classic gravity model
 gravity.flux <- function(i, j, distance, population,
                          theta = c(1, 0.6, 0.3, 3),
