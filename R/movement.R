@@ -162,7 +162,7 @@ gravity.flux <- function(i, j, distance, population,
 
 # predict movements according to a particular model
 movement.model <- function(distance, population,
-                           flux = radiation.flux,
+                           flux = continuum.flux,
                            symmetric = FALSE,
                            progress = TRUE,
                            ...) {

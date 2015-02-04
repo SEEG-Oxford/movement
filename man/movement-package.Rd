@@ -40,7 +40,7 @@ data(kenya)
 kenya10 <- aggregate(kenya, 10, sum)
 
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-predictionModel <- MovementModel(dataset=kenya10, min_network_population = 50000, predictionmodel= 'original radiation', symmetric = TRUE, theta = 0.1)
+predictionModel <- MovementModel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
 
 # predict the population movement from the model
 predictedMovements = Predict(predictionModel)
