@@ -41,7 +41,7 @@ Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread of 
 }
 
 \seealso{
-\code{\link{movement.model}}
+\code{\link{movement.predict}}
 }
 
 \examples{

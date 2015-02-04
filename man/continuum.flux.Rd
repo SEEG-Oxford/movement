@@ -16,7 +16,7 @@ The flux can be calculated either for both directions (by setting \code{symmetri
 
 The model can be sped up somewhat by setting \code{minpop} and \code{maxrange}. If either of the two sites has a population lower than \code{minpop} (minimum population size), or if the distance betweent the two sites is greater than \code{maxrange} (the maximum range) it is assumed that no travel occurs between these points.
 
-Note that this function only works for individual site pairs. To calculate movements across a whole landscape, use \code{\link{movement.model}}.
+Note that this function only works for individual site pairs. To calculate movements across a whole landscape, use \code{\link{movement.predict}}.
 }
 
 \usage{
