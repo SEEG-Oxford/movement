@@ -40,15 +40,15 @@ data(kenya)
 kenya10 <- aggregate(kenya, 10, sum)
 
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-predictionModel <- MovementModel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
+predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
 
 # predict the population movement from the model
-predictedMovements = Predict(predictionModel)
+predictedMovements = predict(predictionModel)
 
 # visualise the distance matrix
 plot(raster(predictedMovements$net$distance_matrix))
 
 # visualise the predicted movements overlaid onto the original raster
-ShowPrediction(predictedMovements)
+showprediction(predictedMovements)
 
 }
