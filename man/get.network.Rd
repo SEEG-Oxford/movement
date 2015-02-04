@@ -31,7 +31,7 @@ A list with three components:
 }
 
 \seealso{
-\code{\link{raster}}, \code{\link{dist}}, \code{\link{movement.model}}
+\code{\link{raster}}, \code{\link{dist}}, \code{\link{movement.predict}}
 }
 \examples{
 # load kenya raster

@@ -113,14 +113,6 @@ continuum.flux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-# calculate flux between two points using the original radiation model
-radiation.flux <- function(i, j, distance, population,
-                           theta = c(1), symmetric = FALSE,
-                           minpop = 1, maxrange = Inf) {
-
-  return (continuum.flux(i, j, distance, population, model = 'original radiation', theta = theta, symmetric = symmetric, minpop = minpop, maxrange = maxrange))
-}
-
 # calculate flux between two points according to a classic gravity model
 gravity.flux <- function(i, j, distance, population,
                          theta = c(1, 0.6, 0.3, 3),
@@ -161,8 +153,8 @@ gravity.flux <- function(i, j, distance, population,
 }
 
 # predict movements according to a particular model
-movement.model <- function(distance, population,
-                           flux = radiation.flux,
+movement.predict <- function(distance, population,
+                           flux = continuum.flux,
                            symmetric = FALSE,
                            progress = TRUE,
                            ...) {
@@ -271,7 +263,7 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 }
 
 # plots the movements within a network onto a raster layer
-show_movements <- function(network, raster_layer, predictedMovements) {
+show.prediction <- function(network, raster_layer, predictedMovements) {
 	# visualise the distance matrix
 	plot(raster(network$distance_matrix))
 
@@ -304,8 +296,8 @@ show_movements <- function(network, raster_layer, predictedMovements) {
 }
 
 # code to set up the movementmodel class
-# create a new instance of the MovementModel class. Sensible defaults are selected and only the raster dataset is required
-MovementModel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
+# create a new instance of the movementmodel class. Sensible defaults are selected and only the raster dataset is required
+movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
 	me <- list(
 		dataset = dataset,
 		min_network_pop = min_network_pop,
@@ -313,45 +305,50 @@ MovementModel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 		symmetric = symmetric,
 		modelparams = modelparams
 		)
-	class(me) <- append(class(me), "MovementModel")
+	class(me) <- append(class(me), "movementmodel")
 	return (me)
 }
 
 # base predict function, used to register the method
-Predict <- function(object) {
-	UseMethod("Predict", object)
+predict <- function(object, ...) {
+	UseMethod("predict", object)
 }
 
 # called if predict is run on an unsupported type
-Predict.default <- function(object) {
-	print("Predict doesn't know how to handle this object.")
+predict.default <- function(object, ...) {
+	print("predict doesn't know how to handle this object.")
 	return (object)
 }
 
-# Predict the movements in the network based on the MovementModel provided
-# Returns a MovementModel object with the network and prediction fields populated
-Predict.MovementModel <- function(object) {
+# predict the movements in the network based on the movementmodel provided
+# Returns a movementmodel object with the network and prediction fields populated
+predict.movementmodel <- function(object, ...) {
 	net <- get.network(object$dataset, min = object$min_network_pop)
 	object$net = net
-	object$prediction = movement.model(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams)
+	if(object$predictionmodel == 'gravity'){
+		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
+	} else {
+		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
+	}
+	
 	return (object)
 }
 
 # base showprediction function, used to register the method
-ShowPrediction <- function(object) {
-	UseMethod("ShowPrediction", object)
+showprediction <- function(object) {
+	UseMethod("showprediction", object)
 }
 
 # called if showprediction is run on an unsupported type
-ShowPrediction.default <- function(object) {
-	print("ShowPrediction doesn't know how to handle this object.")
+showprediction.default <- function(object) {
+	print("showprediction doesn't know how to handle this object.")
 	return (object)
 }
 
-# Show a plot of the predicted MovementModel. Shows the underlying raster plot in addition to the predicted movements.
-ShowPrediction.MovementModel <- function(object) {
+# Show a plot of the predicted movementmodel. Shows the underlying raster plot in addition to the predicted movements.
+showprediction.movementmodel <- function(object) {
 	network <- object$net
 	move <- object$prediction
 	raster <- object$dataset
-	show_movements(network, raster, move)
+	show.prediction(network, raster, move)
 }

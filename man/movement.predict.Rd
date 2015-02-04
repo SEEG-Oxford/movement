@@ -1,5 +1,5 @@
-\name{movement.model}
-\alias{movement.model}
+\name{movement.predict}
+\alias{movement.predict}
 
 \title{
   Use a movement model to predict movements across a landscape.
@@ -16,13 +16,13 @@ Note that this is a pretty shitty prototype at the moment and will be re-written
 }
 
 \usage{
-movement.model(distance, population, flux = radiation.flux, symmetric = FALSE, progress = TRUE, ...)
+movement.predict(distance, population, flux = continuum.flux, symmetric = FALSE, progress = TRUE, ...)
 }
 
 \arguments{
   \item{distance}{a distance matrix giving the euclidean distance between pairs of sites}
   \item{population}{a vector giving the population at all sites}
-  \item{flux}{a flux function (currently either \code{\link{radiation.flux}} or \code{\link{gravity.flux}}) used to predict movements}
+  \item{flux}{a flux function (currently either \code{\link{continuum.flux}} or \code{\link{gravity.flux}}) used to predict movements}
   \item{symmetric}{whether to calculate symmetric or asymmetric (summed across both directions) movement}
   \item{progress}{whether to display a progress bar and start and end times - can be useful for big model runs}
   \item{\dots}{arguments to pass to the flux function}
@@ -47,7 +47,7 @@ pop <- round(runif(n) * 1000)
 d <- as.matrix(dist(coords))
 
 # predict total movement between them using the radiation model
-move <- movement.model(d, pop, flux = radiation.flux, symmetric = TRUE,
+move <- movement.predict(d, pop, flux = continuum.flux, symmetric = TRUE,
     theta = 0.1)
 
 # plot the points

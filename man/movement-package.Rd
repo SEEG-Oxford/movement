@@ -22,7 +22,7 @@ License: \tab GPL (>=2)\cr
 
 
 \seealso{
-\code{\link{movement.model}}, \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
+\code{\link{movementmodel}}, \code{\link{predict}}, \code{\link{showprediction}}, \code{\link{movement.predict}}, \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
 }
 
 \author{
@@ -40,15 +40,15 @@ data(kenya)
 kenya10 <- aggregate(kenya, 10, sum)
 
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-predictionModel <- MovementModel(dataset=kenya10, min_network_population = 50000, predictionmodel= 'original radiation', symmetric = TRUE, theta = 0.1)
+predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
 
 # predict the population movement from the model
-predictedMovements = Predict(predictionModel)
+predictedMovements = predict(predictionModel)
 
 # visualise the distance matrix
 plot(raster(predictedMovements$net$distance_matrix))
 
 # visualise the predicted movements overlaid onto the original raster
-ShowPrediction(predictedMovements)
+showprediction(predictedMovements)
 
 }

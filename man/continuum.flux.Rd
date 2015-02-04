@@ -16,11 +16,11 @@ The flux can be calculated either for both directions (by setting \code{symmetri
 
 The model can be sped up somewhat by setting \code{minpop} and \code{maxrange}. If either of the two sites has a population lower than \code{minpop} (minimum population size), or if the distance betweent the two sites is greater than \code{maxrange} (the maximum range) it is assumed that no travel occurs between these points.
 
-Note that this function only works for individual site pairs. To calculate movements across a whole landscape, use \code{\link{movement.model}}.
+Note that this function only works for individual site pairs. To calculate movements across a whole landscape, use \code{\link{movement.predict}}.
 }
 
 \usage{
-  continuum.flux(i, j, distance, population, theta = c(1), symmetric = FALSE,
+  continuum.flux(i, j, distance, population, model = 'original radiation', theta = c(1), symmetric = FALSE,
                   minpop = 1, maxrange = Inf)
 }
 
@@ -28,6 +28,7 @@ Note that this function only works for individual site pairs. To calculate movem
   \item{i, j}{indices for \code{population} and \code{distance} giving the first and second sites}
   \item{distance}{a distance matrix giving the euclidean distance between pairs of sites}
   \item{population}{a vector giving the population at all sites}
+  \item{model}{the type of continuum model to use}
   \item{theta}{a vector of parameters in the order: proportion of all inhabitants in the region commuting, parameter required for either the intervening opportunities or radiation with selection model variants.}
   \item{symmetric}{whether to return a single value giving the total predicted movements from i to j and j to i (if \code{TRUE}) or vector of length 2 giving movements from i to j (first element) and from j to i (second element)}
   \item{minpop}{the minimum population size to consider (by default 1, consider all sites)}
@@ -39,7 +40,7 @@ A vector (of length either 1 or 2) giving the predicted number of people moving 
 }
 
 \seealso{
-\code{\link{movement.model}}
+\code{\link{movement.predict}}
 }
 
 \references{
