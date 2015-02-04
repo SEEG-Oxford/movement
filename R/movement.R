@@ -310,22 +310,22 @@ MovementModel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 }
 
 # base predict function, used to register the method
-Predict <- function(object) {
+Predict <- function(object, ...) {
 	UseMethod("Predict", object)
 }
 
 # called if predict is run on an unsupported type
-Predict.default <- function(object) {
+Predict.default <- function(objec, ...t) {
 	print("Predict doesn't know how to handle this object.")
 	return (object)
 }
 
 # Predict the movements in the network based on the MovementModel provided
 # Returns a MovementModel object with the network and prediction fields populated
-Predict.MovementModel <- function(object) {
+Predict.MovementModel <- function(object, ...) {
 	net <- get.network(object$dataset, min = object$min_network_pop)
 	object$net = net
-	object$prediction = movement.model(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams)
+	object$prediction = movement.model(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
 	return (object)
 }
 
