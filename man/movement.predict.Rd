@@ -1,5 +1,5 @@
-\name{movement.model}
-\alias{movement.model}
+\name{movement.predict}
+\alias{movement.predict}
 
 \title{
   Use a movement model to predict movements across a landscape.
@@ -16,7 +16,7 @@ Note that this is a pretty shitty prototype at the moment and will be re-written
 }
 
 \usage{
-movement.model(distance, population, flux = continuum.flux, symmetric = FALSE, progress = TRUE, ...)
+movement.predict(distance, population, flux = continuum.flux, symmetric = FALSE, progress = TRUE, ...)
 }
 
 \arguments{
@@ -47,7 +47,7 @@ pop <- round(runif(n) * 1000)
 d <- as.matrix(dist(coords))
 
 # predict total movement between them using the radiation model
-move <- movement.model(d, pop, flux = continuum.flux, symmetric = TRUE,
+move <- movement.predict(d, pop, flux = continuum.flux, symmetric = TRUE,
     theta = 0.1)
 
 # plot the points

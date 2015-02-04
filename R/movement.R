@@ -153,7 +153,7 @@ gravity.flux <- function(i, j, distance, population,
 }
 
 # predict movements according to a particular model
-movement.model <- function(distance, population,
+movement.predict <- function(distance, population,
                            flux = continuum.flux,
                            symmetric = FALSE,
                            progress = TRUE,
@@ -325,7 +325,7 @@ Predict.default <- function(objec, ...t) {
 Predict.MovementModel <- function(object, ...) {
 	net <- get.network(object$dataset, min = object$min_network_pop)
 	object$net = net
-	object$prediction = movement.model(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
+	object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
 	return (object)
 }
 

@@ -40,7 +40,7 @@ A vector (of length either 1 or 2) giving the predicted number of people moving 
 }
 
 \seealso{
-\code{\link{movement.model}}
+\code{\link{movement.predict}}
 }
 
 \references{
