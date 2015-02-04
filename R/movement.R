@@ -325,7 +325,12 @@ predict.default <- function(object, ...) {
 predict.movementmodel <- function(object, ...) {
 	net <- get.network(object$dataset, min = object$min_network_pop)
 	object$net = net
-	object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
+	if(object$predictionmodel == 'gravity'){
+		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
+	} else {
+		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
+	}
+	
 	return (object)
 }
 

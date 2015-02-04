@@ -18,7 +18,7 @@ movementmodel(dataset, min_network_pop = 50000, predictionmodel = 'original radi
 \arguments{
   \item{dataset}{a raster dataset of population data}
   \item{min_network_pop}{the minimum population of a site in order for it to be processed}
-  \item{predictionmodel}{the name of a prediction model used to calculated predicted flux between locations}
+  \item{predictionmodel}{the name of a prediction model used to calculated predicted flux between locations. Currently supported prediction models are \code{gravity}, \code{original radiation}, \code{intervening opportunities}, \code{radiation with selection} and \code{uniform selection}}
   \item{symmetric}{whether to calculate symmetric or asymmetric (summed across both directions) movement}
   \item{modelparams}{model parameter values to pass to the prediction model (such as exponents, scale factors etc.)}
 }
