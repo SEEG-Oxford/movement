@@ -1,3 +1,15 @@
+require(raster)
+require(rgdal)
+require(Matrix)
+require(tools)
+require(elasticnet)
+require(lars)
+require(caret)
+require(stats)
+require(pls)
+require(MASS)
+
+
 # calculate flux between two points using the continuum
 # generalization of the radiation model
 continuum.flux <- function(i, j, distance, population,
@@ -262,13 +274,33 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 
 }
 
+get.network.fromfile <- function(filename, min = 1, matrix = TRUE) {
+  data <- read.csv(file=filename,head=TRUE,sep=",")
+  data <- data[!duplicated(data$origin),]
+  pop <- as.numeric(data["pop_origin"]$pop_origin)
+  coords <- as.matrix(data[c("long_origin", "lat_origin")])
+  coords <- matrix(coords, ncol=2)
+  colnames(coords)  <- c("x","y")
+  dis <- dist(coords)
+
+  # if we want a matrix, not a 'dist' object convert it
+  if (matrix) {
+    dis <- as.matrix(dis)
+  }
+
+  return (list(population = pop,
+               distance_matrix = dis,
+               coordinates = coords))
+	
+}
+
 # plots the movements within a network onto a raster layer
-show.prediction <- function(network, raster_layer, predictedMovements) {
+show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 	# visualise the distance matrix
 	plot(raster(network$distance_matrix))
 
 	# plot the raster layer
-	plot(raster_layer)
+	plot(raster_layer, ...)
 
 	# rescale the population of those pixels for plotting
 	size <- 0.1 + 2 * network$population / max(network$population)
@@ -322,8 +354,13 @@ predict.default <- function(object, ...) {
 
 # predict the movements in the network based on the movementmodel provided
 # Returns a movementmodel object with the network and prediction fields populated
-predict.movementmodel <- function(object, ...) {
-	net <- get.network(object$dataset, min = object$min_network_pop)
+predict.movementmodel <- function(object, filename='', ...) {
+	if(filename == "") {
+	  net <- get.network(object$dataset, min = object$min_network_pop)
+	}
+	else {
+	  net <- get.network.fromfile(filename = filename, min = object$min_network_pop)
+	}
 	object$net = net
 	if(object$predictionmodel == 'gravity'){
 		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
@@ -335,20 +372,94 @@ predict.movementmodel <- function(object, ...) {
 }
 
 # base showprediction function, used to register the method
-showprediction <- function(object) {
+showprediction <- function(object, ...) {
 	UseMethod("showprediction", object)
 }
 
 # called if showprediction is run on an unsupported type
-showprediction.default <- function(object) {
+showprediction.default <- function(object, ...) {
 	print("showprediction doesn't know how to handle this object.")
 	return (object)
 }
 
 # Show a plot of the predicted movementmodel. Shows the underlying raster plot in addition to the predicted movements.
-showprediction.movementmodel <- function(object) {
+showprediction.movementmodel <- function(object, ...) {
 	network <- object$net
 	move <- object$prediction
 	raster <- object$dataset
-	show.prediction(network, raster, move)
+	show.prediction(network, raster, move, ...)
+}
+
+rasterizeShapeFile <- function(filename, keeplist)  {
+	# load the shapefile into a SpatialPolygonsDataFrame
+	dsn = dirname(filename)
+	filename = basename(filename)
+	layer = file_path_sans_ext(filename)
+	shapeObject = readOGR(dsn = dsn, layer = layer)
+	shapeObject <- shapeObject[keeplist]
+	
+	#data <- read.csv(file='../SEEG/France/odmatrix.csv',head=TRUE,sep=",")
+	#data <- data[!duplicated(data$origin),]
+	#data <- data[c('origin', 'pop_origin')]
+	
+	#shapeObject$population <- addPopulationForLocationIds(shapeObject$ID_3, data$pop_origin)
+	#shapeObject <- shapeObject["population", drop=TRUE]
+	
+	# get the extents of the dataframe
+	extents = extent(shapeObject)
+	xmin = extents@xmin
+	xmax = extents@xmax
+	ymin = extents@ymin
+	ymax = extents@ymax
+	
+	# set up a raster template to use in rasterize()
+	ext <- extent (xmin, xmax, ymin, ymax)
+	xy <- abs(apply(as.matrix(bbox(ext)), 1, diff))
+	n <- 5
+	r <- raster(ext, ncol=xy[1]*50, nrow=xy[2]*50)
+	
+	rr <- rasterize(shapeObject, r)
+	## create a population only rasterlayer (i.e. remove the RAT table)
+	rr <- deratify(rr, keeplist)
+	return (rr)
+}
+
+addPopulationForLocationIds <- function(locationIds, populations) {
+	output <- numeric(length(locationIds))
+	for (idx in 1:length(locationIds)) {
+		output[idx] <- populations[locationIds[idx]]
+	}
+	
+	return (output)
+}
+
+createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
+	data <- read.csv(file=filename,head=TRUE,sep=",")
+	nrows = length(unique(data[origincolname])[,1])
+	ncols = length(unique(data[destcolname])[,1])
+	
+	origins = as.numeric(unique(data[origincolname])[,1])
+	destinations = as.numeric(unique(data[destcolname])[,1])
+	
+	sparseMatrix <- matrix(nrow = nrows, ncol = ncols)
+	for (idx in 1:length(data$X)) {
+		sparseMatrix[match(data[idx,origincolname],origins),match(data[idx,destcolname],destinations)] = data[idx,valcolname]
+	}
+	return (sparseMatrix)
+}
+
+createcomparisondataframe <- function(observedmatrix, predictedmatrix) {
+	data <- data.frame(as.vector(observedmatrix), as.vector(predictedmatrix))
+	colnames(data) <- c("observed", "predicted")
+	
+	return (data)
+}
+
+analysepredictionusingglm <- function(prediction, filename, origincolname, destcolname, valcolname) {
+	observed <- createobservedmatrixfromcsv(filename, origincolname, destcolname, valcolname)
+	df <- createcomparisondataframe(observed, prediction$prediction)
+	data <- glm(observed ~ predicted, data = df)
+	
+	xyplot(observed ~ predicted, data = df, type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
+	return (data)
 }
