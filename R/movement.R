@@ -445,6 +445,10 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 	for (idx in 1:length(data$X)) {
 		sparseMatrix[match(data[idx,origincolname],origins),match(data[idx,destcolname],destinations)] = data[idx,valcolname]
 	}
+	
+	# set any remaining NAs to 0
+	sparseMatrix[is.na(sparseMatrix)] <- 0
+	
 	return (sparseMatrix)
 }
 
