@@ -275,13 +275,14 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 }
 
 get.network.fromfile <- function(filename, min = 1, matrix = TRUE) {
-  data <- read.csv(file=filename,head=TRUE,sep=",")
+  data <- read.csv(file=filename,head=TRUE,sep=",",row.names=1)
   data <- data[!duplicated(data$origin),]
   pop <- as.numeric(data["pop_origin"]$pop_origin)
   coords <- as.matrix(data[c("long_origin", "lat_origin")])
   coords <- matrix(coords, ncol=2)
   colnames(coords)  <- c("x","y")
   dis <- dist(coords)
+  locations <- as.numeric(data["origin"]$origin)
 
   # if we want a matrix, not a 'dist' object convert it
   if (matrix) {
@@ -290,7 +291,8 @@ get.network.fromfile <- function(filename, min = 1, matrix = TRUE) {
 
   return (list(population = pop,
                distance_matrix = dis,
-               coordinates = coords))
+               coordinates = coords,
+			   locations = locations))
 	
 }
 
