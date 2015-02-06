@@ -342,12 +342,12 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 }
 
 # base predict function, used to register the method
-predict <- function(object, ...) {
+predict <- function(object, filename, ...) {
 	UseMethod("predict", object)
 }
 
 # called if predict is run on an unsupported type
-predict.default <- function(object, ...) {
+predict.default <- function(object, filename, ...) {
 	print("predict doesn't know how to handle this object.")
 	return (object)
 }
