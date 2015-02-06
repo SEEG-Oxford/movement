@@ -440,8 +440,9 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 	nrows = length(unique(data[origincolname])[,1])
 	ncols = length(unique(data[destcolname])[,1])
 	
-	origins = as.numeric(unique(data[origincolname])[,1])
-	destinations = as.numeric(unique(data[destcolname])[,1])
+	# mapping locationids to matrix row or column ids to cope with missing locationids
+	origins = sort(as.numeric(unique(data[origincolname])[,1]))
+	destinations = sort(as.numeric(unique(data[destcolname])[,1]))
 	
 	sparseMatrix <- matrix(nrow = nrows, ncol = ncols)
 	for (idx in 1:length(data$X)) {
