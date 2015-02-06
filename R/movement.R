@@ -485,5 +485,5 @@ fittingwrapper <- function(par) {
 }
 
 attemptoptimisation <- function() {
-	optim(c(1, 0.1), fittingwrapper, method = "SANN")
+	optim(c(1, 0.99), fittingwrapper, control = list(maxit = 100, temp = c(0.01,0.01), parscale = c(1,-0.1)))
 }
