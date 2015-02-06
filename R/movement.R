@@ -467,16 +467,17 @@ analysepredictionusingdpois <- function(prediction, filename, origincolname, des
 	df <- createcomparisondataframe(observed, prediction$prediction)
 	data <- glm(observed ~ predicted, data = df)
 	
-	xyplot(observed ~ predicted, data = df, type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
+	# xyplot(observed ~ predicted, data = df, type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
 		
 	# retval <- sum(dpois(prediction$prediction, observed, log = TRUE)) * -2;
-	retval <- glm$deviance
+	retval <- data$deviance
 
 	return (retval)
 }
 
 fittingwrapper <- function(par) {
 	predictionModel <- movementmodel(dataset=france, min_network_pop = 50000, predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams = par)
+	print (par)
 	predictedResults <- predict.movementmodel(predictionModel, filename="../SEEG/France/odmatrix.csv")
 	glmresults <- analysepredictionusingdpois(predictedResults, "../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
 	print (glmresults)
