@@ -459,11 +459,27 @@ createcomparisondataframe <- function(observedmatrix, predictedmatrix) {
 	return (data)
 }
 
-analysepredictionusingglm <- function(prediction, filename, origincolname, destcolname, valcolname) {
+analysepredictionusingdpois <- function(prediction, filename, origincolname, destcolname, valcolname) {
 	observed <- createobservedmatrixfromcsv(filename, origincolname, destcolname, valcolname)
 	df <- createcomparisondataframe(observed, prediction$prediction)
 	data <- glm(observed ~ predicted, data = df)
 	
 	xyplot(observed ~ predicted, data = df, type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
-	return (data)
+		
+	# retval <- sum(dpois(prediction$prediction, observed, log = TRUE)) * -2;
+	retval <- glm$deviance
+
+	return (retval)
+}
+
+fittingwrapper <- function(par) {
+	predictionModel <- movementmodel(dataset=france, min_network_pop = 50000, predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams = par)
+	predictedResults <- predict.movementmodel(predictionModel, filename="../SEEG/France/odmatrix.csv")
+	glmresults <- analysepredictionusingdpois(predictedResults, "../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
+	print (glmresults)
+	return (glmresults)
+}
+
+attemptoptimisation <- function() {
+	optim(c(1, 0.1), fittingwrapper, method = "SANN")
 }
