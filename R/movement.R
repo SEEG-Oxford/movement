@@ -184,9 +184,9 @@ movement.predict <- function(distance, population,
   # set up optional text progress bar
   if (progress) {
     start <- Sys.time()
-    cat(paste('started processing at',
+    cat(paste('Started processing at',
               start,
-              '\n\nprogress:\n\n'))
+              '\nProgress:\n\n'))
 
     bar <- txtProgressBar(min = 1,
                           max = nrow(indices),
@@ -232,10 +232,10 @@ movement.predict <- function(distance, population,
   if (progress) {
     end <- Sys.time()
 
-    cat(paste('\n\nfinished processing at',
+    cat(paste('\nFinished processing at',
               end,
-              '\n\ntime taken:',
-              round(end - start),
+              '\nTime taken:',
+              round(difftime(end,start,units="secs")),
               'seconds\n'))
 
     close(bar)
@@ -455,18 +455,29 @@ analysepredictionusingdpois <- function(prediction, observed) {
 	return (retval)
 }
 
-fittingwrapper <- function(par, observedmatrix, populationdata) {
-	predictionModel <- movementmodel(dataset=france, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = par)
-	print (par)
+fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata) {
+	cat(paste('========\n'))
+	cat(paste('Parameters: ',
+              par,
+              '\n'))
+	# set the initial model params to par
+	predictionModel$modelparams = par
 	predictedResults <- predict.movementmodel(predictionModel, populationdata)
 	loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
-	print (loglikelihood)
+	cat(paste('Log Likelihood: ',
+              loglikelihood,
+              '\n'))
 	return (loglikelihood)
 }
 
-attemptoptimisation <- function() {
-	observedmatrix <- createobservedmatrixfromcsv("../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
-	populationdata <- createpopulationfromcsv("../SEEG/France/odmatrix.csv")
-	optim(c(1), fittingwrapper, method="BFGS", observedmatrix = observedmatrix, populationdata = populationdata)
+attemptoptimisation <- function(predictionModel, populationdata, observedmatrix) {
+	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
+	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata)
 	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
+
+## example code for creating the population data and observed matrix
+##
+##	observedmatrix <- createobservedmatrixfromcsv("../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
+##	populationdata <- createpopulationfromcsv("../SEEG/France/odmatrix.csv")
+##
