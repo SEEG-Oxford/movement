@@ -1,3 +1,9 @@
+require(raster)
+require(rgdal)
+require(Matrix)
+require(tools)
+
+
 # calculate flux between two points using the continuum
 # generalization of the radiation model
 continuum.flux <- function(i, j, distance, population,
@@ -172,14 +178,16 @@ movement.predict <- function(distance, population,
   # set up optional text progress bar
   if (progress) {
     start <- Sys.time()
-    cat(paste('started processing at',
+    cat(paste('Started processing at',
               start,
-              '\n\nprogress:\n\n'))
+              '\nProgress:\n\n'))
 
     bar <- txtProgressBar(min = 1,
                           max = nrow(indices),
                           style = 3)
   }
+  
+  T_ijs <- apply(indices, 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
 
   for (idx in 1:nrow(indices)) {
     # for each array index (given as a row of idx), get the pair of nodes
@@ -188,12 +196,12 @@ movement.predict <- function(distance, population,
     j <- pair[2]
 
     # calculate the number of commuters between them
-    T_ij <- flux(i = pair[1],
-                 j = pair[2],
-                 distance = distance,
-                 population = population,
-                 symmetric = symmetric,
-                 ...)
+    #T_ij <- flux(i = i,
+    #             j = j,
+    #             distance = distance,
+    #             population = population,
+    #             symmetric = symmetric,
+    #             ...)
 
     # and stick it in the results matrix
 
@@ -201,15 +209,15 @@ movement.predict <- function(distance, population,
     # stick it in both triangles
     if (symmetric) {
 
-      movement[pair[1], pair[2]] <- movement[pair[2], pair[1]] <- T_ij
+      movement[i, j] <- movement[j, i] <- T_ijs[idx]
 
     } else {
 
       # otherwise stick one in the upper and one in the the lower
       # (flux returns two numbers in this case)
       # i.e. rows are from (i), columns are to (j)
-      movement[pair[1], pair[2]] <- T_ij[1]
-      movement[pair[2], pair[1]] <- T_ij[2]
+      movement[i, j] <- T_ijs[idx][1]
+      movement[j, i] <- T_ijs[idx][2]
 
     }
 
@@ -220,10 +228,10 @@ movement.predict <- function(distance, population,
   if (progress) {
     end <- Sys.time()
 
-    cat(paste('\n\nfinished processing at',
+    cat(paste('\nFinished processing at',
               end,
-              '\n\ntime taken:',
-              round(end - start),
+              '\nTime taken:',
+              round(difftime(end,start,units="secs")),
               'seconds\n'))
 
     close(bar)
@@ -262,13 +270,35 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 
 }
 
+# expects a dataframe with origin, long_origin, lat_origin and pop_origin
+get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
+  dataframe <- dataframe[!duplicated(dataframe$origin),]
+  pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
+  coords <- as.matrix(dataframe[c("long_origin", "lat_origin")])
+  coords <- matrix(coords, ncol=2)
+  colnames(coords)  <- c("x","y")
+  dis <- dist(coords)
+  locations <- as.numeric(dataframe["origin"]$origin)
+
+  # if we want a matrix, not a 'dist' object convert it
+  if (matrix) {
+    dis <- as.matrix(dis)
+  }
+
+  return (list(population = pop,
+               distance_matrix = dis,
+               coordinates = coords,
+			   locations = locations))
+	
+}
+
 # plots the movements within a network onto a raster layer
-show.prediction <- function(network, raster_layer, predictedMovements) {
+show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 	# visualise the distance matrix
 	plot(raster(network$distance_matrix))
 
 	# plot the raster layer
-	plot(raster_layer)
+	plot(raster_layer, ...)
 
 	# rescale the population of those pixels for plotting
 	size <- 0.1 + 2 * network$population / max(network$population)
@@ -310,45 +340,146 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 }
 
 # base predict function, used to register the method
-predict <- function(object, ...) {
+predict <- function(predictionModel, dataframe, ...) {
 	UseMethod("predict", object)
 }
 
 # called if predict is run on an unsupported type
-predict.default <- function(object, ...) {
+predict.default <- function(predictionModel, dataframe, ...) {
 	print("predict doesn't know how to handle this object.")
-	return (object)
+	return (predictionModel)
 }
 
 # predict the movements in the network based on the movementmodel provided
 # Returns a movementmodel object with the network and prediction fields populated
-predict.movementmodel <- function(object, ...) {
-	net <- get.network(object$dataset, min = object$min_network_pop)
-	object$net = net
-	if(object$predictionmodel == 'gravity'){
-		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
+predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
+	if(is.null(dataframe)) {
+	  net <- get.network(predictionModel$dataset, min = predictionModel$min_network_pop)
+	}
+	else {
+	  net <- get.network.fromdataframe(dataframe = dataframe, min = predictionModel$min_network_pop)
+	}
+	predictionModel$net = net
+	if(predictionModel$predictionmodel == 'gravity'){
+		predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = predictionModel$symmetric, theta = predictionModel$modelparams, ...)
 	} else {
-		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
+		predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = predictionModel$symmetric, model = predictionModel$predictionmodel, theta = predictionModel$modelparams, ...)
 	}
 	
-	return (object)
+	return (predictionModel)
 }
 
 # base showprediction function, used to register the method
-showprediction <- function(object) {
-	UseMethod("showprediction", object)
+showprediction <- function(predictionModel, ...) {
+	UseMethod("showprediction", predictionModel)
 }
 
 # called if showprediction is run on an unsupported type
-showprediction.default <- function(object) {
+showprediction.default <- function(predictionModel, ...) {
 	print("showprediction doesn't know how to handle this object.")
-	return (object)
+	return (predictionModel)
 }
 
 # Show a plot of the predicted movementmodel. Shows the underlying raster plot in addition to the predicted movements.
-showprediction.movementmodel <- function(object) {
-	network <- object$net
-	move <- object$prediction
-	raster <- object$dataset
-	show.prediction(network, raster, move)
+showprediction.movementmodel <- function(predictionModel, ...) {
+	network <- predictionModel$net
+	move <- predictionModel$prediction
+	raster <- predictionModel$dataset
+	show.prediction(network, raster, move, ...)
 }
+
+# utility function to rasterize a shape file an discard unnecessary layers
+rasterizeShapeFile <- function(filename, keeplist)  {
+	# load the shapefile into a SpatialPolygonsDataFrame
+	dsn = dirname(filename)
+	filename = basename(filename)
+	layer = file_path_sans_ext(filename)
+	shapeObject = readOGR(dsn = dsn, layer = layer)
+	shapeObject <- shapeObject[keeplist]
+	
+	# get the extents of the dataframe
+	extents = extent(shapeObject)
+	xmin = extents@xmin
+	xmax = extents@xmax
+	ymin = extents@ymin
+	ymax = extents@ymax
+	
+	# set up a raster template to use in rasterize()
+	ext <- extent (xmin, xmax, ymin, ymax)
+	xy <- abs(apply(as.matrix(bbox(ext)), 1, diff))
+	n <- 5
+	r <- raster(ext, ncol=xy[1]*50, nrow=xy[2]*50)
+	
+	rr <- rasterize(shapeObject, r)
+	## create a population only rasterlayer (i.e. remove the RAT table)
+	rr <- deratify(rr, keeplist)
+	return (rr)
+}
+
+createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
+	data <- read.csv(file=filename,header=TRUE,sep=",")
+	nrows = length(unique(data[origincolname])[,1])
+	ncols = length(unique(data[destcolname])[,1])
+	
+	# mapping locationids to matrix row or column ids to cope with missing locationids
+	origins = sort(as.numeric(unique(data[origincolname])[,1]))
+	destinations = sort(as.numeric(unique(data[destcolname])[,1]))
+	
+	sparseMatrix <- matrix(nrow = nrows, ncol = ncols)
+	for (idx in 1:length(data$X)) {
+		sparseMatrix[match(data[idx,origincolname],origins),match(data[idx,destcolname],destinations)] = data[idx,valcolname]
+	}
+	
+	# set any remaining NAs to 0
+	sparseMatrix[is.na(sparseMatrix)] <- 0
+	
+	return (sparseMatrix)
+}
+
+createpopulationfromcsv <- function(filename) {
+	data <- read.csv(file=filename,header=TRUE,sep=",")
+	
+	return (data)
+}
+
+analysepredictionusingdpois <- function(prediction, observed) {	
+	observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
+	predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
+	
+	retval <- sum(dpois(observed, predicted, log = TRUE)) * -2;
+	if(is.nan(retval)) {
+		cat(paste('Warning: Likelihood was NaN, changing to Max Value to allow simulation to continue\n'))
+		retval <- .Machine$integer.max
+	}
+
+	return (retval)
+}
+
+# wrapper around our real simulation which returns a log likelihood which can be used by optim
+fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata) {
+	cat(paste('========\n'))
+	cat(paste('Parameters: ',
+              par,
+              '\n'))
+	# set the initial model params to par
+	predictionModel$modelparams = par
+	predictedResults <- predict.movementmodel(predictionModel, populationdata)
+	loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
+	cat(paste('Log Likelihood: ',
+              loglikelihood,
+              '\n'))
+	return (loglikelihood)
+}
+
+# simple call to optim passing in a prediction model, the associated population data and the observed data to use in the log likelihood calculations
+attemptoptimisation <- function(predictionModel, populationdata, observedmatrix) {
+	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
+	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata)
+	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
+}
+
+## example code for creating the population data and observed matrix
+##
+##	observedmatrix <- createobservedmatrixfromcsv("../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
+##	populationdata <- createpopulationfromcsv("../SEEG/France/odmatrix.csv")
+##

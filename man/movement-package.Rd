@@ -22,7 +22,7 @@ License: \tab GPL (>=2)\cr
 
 
 \seealso{
-\code{\link{movementmodel}}, \code{\link{predict}}, \code{\link{showprediction}}, \code{\link{movement.predict}}, \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
+\code{\link{movementmodel}}, \code{\link{predict}}, \code{\link{showprediction}}, \code{\link{movement.predict}}, \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}}, \code{\link{continuum.flux}}, \code{\link{attemptoptimisation}}
 }
 
 \author{
