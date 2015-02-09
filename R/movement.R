@@ -400,13 +400,6 @@ rasterizeShapeFile <- function(filename, keeplist)  {
 	shapeObject = readOGR(dsn = dsn, layer = layer)
 	shapeObject <- shapeObject[keeplist]
 	
-	#data <- read.csv(file='../SEEG/France/odmatrix.csv',head=TRUE,sep=",")
-	#data <- data[!duplicated(data$origin),]
-	#data <- data[c('origin', 'pop_origin')]
-	
-	#shapeObject$population <- addPopulationForLocationIds(shapeObject$ID_3, data$pop_origin)
-	#shapeObject <- shapeObject["population", drop=TRUE]
-	
 	# get the extents of the dataframe
 	extents = extent(shapeObject)
 	xmin = extents@xmin
@@ -463,19 +456,12 @@ createcomparisondataframe <- function(observedmatrix, predictedmatrix) {
 }
 
 analysepredictionusingdpois <- function(prediction, filename, origincolname, destcolname, valcolname) {
-	observed <- createobservedmatrixfromcsv(filename, origincolname, destcolname, valcolname)
-	df <- createcomparisondataframe(observed, prediction$prediction)
-	#data <- glm(observed ~ predicted, data = df)
-	
-	xyplot(observed ~ predicted, data = df, type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
-		
+	observed <- createobservedmatrixfromcsv(filename, origincolname, destcolname, valcolname)		
 	
 	observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
 	predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
 	
 	retval <- sum(dpois(observed, predicted, log = TRUE)) * -2;
-	
-	# retval <- data$deviance
 
 	return (retval)
 }
