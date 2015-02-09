@@ -356,7 +356,7 @@ predict.default <- function(object, dataframe, ...) {
 
 # predict the movements in the network based on the movementmodel provided
 # Returns a movementmodel object with the network and prediction fields populated
-predict.movementmodel <- function(object, dataframe, ...) {
+predict.movementmodel <- function(object, dataframe = NULL, ...) {
 	if(is.null(dataframe)) {
 	  net <- get.network(object$dataset, min = object$min_network_pop)
 	}
@@ -455,6 +455,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 	return (retval)
 }
 
+# wrapper around our real simulation which returns a log likelihood which can be used by optim
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata) {
 	cat(paste('========\n'))
 	cat(paste('Parameters: ',
@@ -470,6 +471,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata)
 	return (loglikelihood)
 }
 
+# simple call to optim passing in a prediction model, the associated population data and the observed data to use in the log likelihood calculations
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix) {
 	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
 	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata)
