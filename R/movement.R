@@ -465,25 +465,32 @@ createcomparisondataframe <- function(observedmatrix, predictedmatrix) {
 analysepredictionusingdpois <- function(prediction, filename, origincolname, destcolname, valcolname) {
 	observed <- createobservedmatrixfromcsv(filename, origincolname, destcolname, valcolname)
 	df <- createcomparisondataframe(observed, prediction$prediction)
-	data <- glm(observed ~ predicted, data = df)
+	#data <- glm(observed ~ predicted, data = df)
 	
-	# xyplot(observed ~ predicted, data = df, type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
+	xyplot(observed ~ predicted, data = df, type = c("p", "g"), xlab = "Predicted", ylab = "Observed")
 		
-	# retval <- sum(dpois(prediction$prediction, observed, log = TRUE)) * -2;
-	retval <- data$deviance
+	
+	observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
+	predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
+	
+	retval <- sum(dpois(observed, predicted, log = TRUE)) * -2;
+	
+	# retval <- data$deviance
 
 	return (retval)
 }
 
 fittingwrapper <- function(par) {
-	predictionModel <- movementmodel(dataset=france, min_network_pop = 50000, predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams = par)
+	predictionModel <- movementmodel(dataset=france, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = par)
 	print (par)
 	predictedResults <- predict.movementmodel(predictionModel, filename="../SEEG/France/odmatrix.csv")
 	glmresults <- analysepredictionusingdpois(predictedResults, "../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
 	print (glmresults)
+	#print (summary(predictedResults$prediction))
 	return (glmresults)
 }
 
 attemptoptimisation <- function() {
-	optim(c(1, 0.99), fittingwrapper, control = list(maxit = 100, temp = c(0.01,0.01), parscale = c(1,-0.1)))
+	optim(c(1), fittingwrapper, method="BFGS")
+	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
