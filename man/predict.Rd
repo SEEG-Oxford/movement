@@ -12,11 +12,12 @@ Any extra arguments of the flux functions can specified using the \code{dots} ar
 }
 
 \usage{
-predict(predictionModel)
+predict(predictionModel, dataframe)
 }
 
 \arguments{
   \item{predictionModel}{a configured prediction model}
+  \item{dataframe}{an optional data frame containing population data}
 }
 
 \value{
