@@ -274,15 +274,15 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 
 }
 
-get.network.fromfile <- function(filename, min = 1, matrix = TRUE) {
-  data <- read.csv(file=filename,head=TRUE,sep=",",row.names=1)
-  data <- data[!duplicated(data$origin),]
-  pop <- as.numeric(data["pop_origin"]$pop_origin)
-  coords <- as.matrix(data[c("long_origin", "lat_origin")])
+# expects a dataframe with origin, long_origin, lat_origin and pop_origin
+get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
+  dataframe <- dataframe[!duplicated(dataframe$origin),]
+  pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
+  coords <- as.matrix(dataframe[c("long_origin", "lat_origin")])
   coords <- matrix(coords, ncol=2)
   colnames(coords)  <- c("x","y")
   dis <- dist(coords)
-  locations <- as.numeric(data["origin"]$origin)
+  locations <- as.numeric(dataframe["origin"]$origin)
 
   # if we want a matrix, not a 'dist' object convert it
   if (matrix) {
@@ -344,24 +344,24 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 }
 
 # base predict function, used to register the method
-predict <- function(object, filename, ...) {
+predict <- function(object, dataframe, ...) {
 	UseMethod("predict", object)
 }
 
 # called if predict is run on an unsupported type
-predict.default <- function(object, filename, ...) {
+predict.default <- function(object, dataframe, ...) {
 	print("predict doesn't know how to handle this object.")
 	return (object)
 }
 
 # predict the movements in the network based on the movementmodel provided
 # Returns a movementmodel object with the network and prediction fields populated
-predict.movementmodel <- function(object, filename='', ...) {
-	if(filename == "") {
+predict.movementmodel <- function(object, dataframe, ...) {
+	if(is.null(dataframe)) {
 	  net <- get.network(object$dataset, min = object$min_network_pop)
 	}
 	else {
-	  net <- get.network.fromfile(filename = filename, min = object$min_network_pop)
+	  net <- get.network.fromdataframe(dataframe = dataframe, min = object$min_network_pop)
 	}
 	object$net = net
 	if(object$predictionmodel == 'gravity'){
@@ -448,6 +448,11 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 	return (sparseMatrix)
 }
 
+createpopulationfromcsv <- function(filename) {
+	data <- read.csv(file=filename,head=TRUE,sep=",")
+	return (data)
+}
+
 createcomparisondataframe <- function(observedmatrix, predictedmatrix) {
 	data <- data.frame(as.vector(observedmatrix), as.vector(predictedmatrix))
 	colnames(data) <- c("observed", "predicted")
@@ -455,9 +460,7 @@ createcomparisondataframe <- function(observedmatrix, predictedmatrix) {
 	return (data)
 }
 
-analysepredictionusingdpois <- function(prediction, filename, origincolname, destcolname, valcolname) {
-	observed <- createobservedmatrixfromcsv(filename, origincolname, destcolname, valcolname)		
-	
+analysepredictionusingdpois <- function(prediction, observed) {	
 	observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
 	predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
 	
@@ -466,17 +469,18 @@ analysepredictionusingdpois <- function(prediction, filename, origincolname, des
 	return (retval)
 }
 
-fittingwrapper <- function(par) {
+fittingwrapper <- function(par, observedmatrix, populationdata) {
 	predictionModel <- movementmodel(dataset=france, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = par)
 	print (par)
-	predictedResults <- predict.movementmodel(predictionModel, filename="../SEEG/France/odmatrix.csv")
-	glmresults <- analysepredictionusingdpois(predictedResults, "../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
+	predictedResults <- predict.movementmodel(predictionModel, populationdata)
+	glmresults <- analysepredictionusingdpois(predictedResults, observedmatrix)
 	print (glmresults)
-	#print (summary(predictedResults$prediction))
 	return (glmresults)
 }
 
 attemptoptimisation <- function() {
-	optim(c(1), fittingwrapper, method="BFGS")
+	observedmatrix <- createobservedmatrixfromcsv("../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
+	populationdata <- createpopulationfromcsv("../SEEG/France/odmatrix.csv")
+	optim(c(1), fittingwrapper, method="BFGS", observedmatrix = observedmatrix, populationdata = populationdata)
 	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
