@@ -392,6 +392,7 @@ showprediction.movementmodel <- function(object, ...) {
 	show.prediction(network, raster, move, ...)
 }
 
+# utility function to rasterize a shape file an discard unnecessary layers
 rasterizeShapeFile <- function(filename, keeplist)  {
 	# load the shapefile into a SpatialPolygonsDataFrame
 	dsn = dirname(filename)
@@ -419,15 +420,6 @@ rasterizeShapeFile <- function(filename, keeplist)  {
 	return (rr)
 }
 
-addPopulationForLocationIds <- function(locationIds, populations) {
-	output <- numeric(length(locationIds))
-	for (idx in 1:length(locationIds)) {
-		output[idx] <- populations[locationIds[idx]]
-	}
-	
-	return (output)
-}
-
 createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
 	data <- read.csv(file=filename,head=TRUE,sep=",")
 	nrows = length(unique(data[origincolname])[,1])
@@ -450,12 +442,6 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 
 createpopulationfromcsv <- function(filename) {
 	data <- read.csv(file=filename,head=TRUE,sep=",")
-	return (data)
-}
-
-createcomparisondataframe <- function(observedmatrix, predictedmatrix) {
-	data <- data.frame(as.vector(observedmatrix), as.vector(predictedmatrix))
-	colnames(data) <- c("observed", "predicted")
 	
 	return (data)
 }
@@ -473,9 +459,9 @@ fittingwrapper <- function(par, observedmatrix, populationdata) {
 	predictionModel <- movementmodel(dataset=france, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = par)
 	print (par)
 	predictedResults <- predict.movementmodel(predictionModel, populationdata)
-	glmresults <- analysepredictionusingdpois(predictedResults, observedmatrix)
-	print (glmresults)
-	return (glmresults)
+	loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
+	print (loglikelihood)
+	return (loglikelihood)
 }
 
 attemptoptimisation <- function() {
