@@ -456,14 +456,14 @@ analysepredictionusingdpois <- function(prediction, observed) {
 }
 
 # wrapper around our real simulation which returns a log likelihood which can be used by optim
-fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata) {
+fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
 	cat(paste('========\n'))
 	cat(paste('Parameters: ',
               par,
               '\n'))
 	# set the initial model params to par
 	predictionModel$modelparams = par
-	predictedResults <- predict.movementmodel(predictionModel, populationdata)
+	predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
 	loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
 	cat(paste('Log Likelihood: ',
               loglikelihood,
@@ -472,9 +472,9 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata)
 }
 
 # simple call to optim passing in a prediction model, the associated population data and the observed data to use in the log likelihood calculations
-attemptoptimisation <- function(predictionModel, populationdata, observedmatrix) {
+attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata)
+	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
 
