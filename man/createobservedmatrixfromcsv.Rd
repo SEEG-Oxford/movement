@@ -1,0 +1,28 @@
+\name{createobservedmatrixfromcsv}
+\alias{createobservedmatrixfromcsv}
+
+\title{
+  Create a matrix of observed population movements
+}
+
+\description{
+Reads a correctly formatted csv file and creates a matrix containing observed movement between different indexed locations
+}
+
+\usage{
+createobservedmatrixfromcsv(filename, origincolname, destcolname, valcolname)
+}
+
+\arguments{
+  \item{filename}{File path of the csv file to process}
+  \item{origincolname}{The name of the column containing origin IDs}
+  \item{destcolname}{The name of the column containing destination IDs}
+  \item{valcolname}{The name of the column containing population movement values}
+}
+
+\value{
+A matrix containing observed population movements. Row and column numbers correspond to the indexes of a sorted list of the origins found in the csv file. Values are the actual population movements.
+}
+
+\seealso{
+}

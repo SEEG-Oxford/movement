@@ -24,7 +24,7 @@ See \code{\link{optim}}
 }
 
 \seealso{
-\code{\link{movementmodel}}, \code{\link{showprediction}}
+\code{\link{movementmodel}}, \code{\link{createobservedmatrixfromcsv}}, \code{\link{createpopulationfromcsv}}, \code{\link{analysepredictionusingdpois}}
 }
 
 \examples{

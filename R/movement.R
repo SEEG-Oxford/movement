@@ -2,12 +2,6 @@ require(raster)
 require(rgdal)
 require(Matrix)
 require(tools)
-require(elasticnet)
-require(lars)
-require(caret)
-require(stats)
-require(pls)
-require(MASS)
 
 
 # calculate flux between two points using the continuum
