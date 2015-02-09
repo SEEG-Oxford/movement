@@ -192,6 +192,8 @@ movement.predict <- function(distance, population,
                           max = nrow(indices),
                           style = 3)
   }
+  
+  T_ijs <- apply(indices, 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
 
   for (idx in 1:nrow(indices)) {
     # for each array index (given as a row of idx), get the pair of nodes
@@ -200,12 +202,12 @@ movement.predict <- function(distance, population,
     j <- pair[2]
 
     # calculate the number of commuters between them
-    T_ij <- flux(i = pair[1],
-                 j = pair[2],
-                 distance = distance,
-                 population = population,
-                 symmetric = symmetric,
-                 ...)
+    #T_ij <- flux(i = i,
+    #             j = j,
+    #             distance = distance,
+    #             population = population,
+    #             symmetric = symmetric,
+    #             ...)
 
     # and stick it in the results matrix
 
@@ -213,15 +215,15 @@ movement.predict <- function(distance, population,
     # stick it in both triangles
     if (symmetric) {
 
-      movement[pair[1], pair[2]] <- movement[pair[2], pair[1]] <- T_ij
+      movement[i, j] <- movement[j, i] <- T_ijs[idx]
 
     } else {
 
       # otherwise stick one in the upper and one in the the lower
       # (flux returns two numbers in this case)
       # i.e. rows are from (i), columns are to (j)
-      movement[pair[1], pair[2]] <- T_ij[1]
-      movement[pair[2], pair[1]] <- T_ij[2]
+      movement[i, j] <- T_ijs[idx][1]
+      movement[j, i] <- T_ijs[idx][2]
 
     }
 
