@@ -346,51 +346,51 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 }
 
 # base predict function, used to register the method
-predict <- function(object, dataframe, ...) {
+predict <- function(predictionModel, dataframe, ...) {
 	UseMethod("predict", object)
 }
 
 # called if predict is run on an unsupported type
-predict.default <- function(object, dataframe, ...) {
+predict.default <- function(predictionModel, dataframe, ...) {
 	print("predict doesn't know how to handle this object.")
-	return (object)
+	return (predictionModel)
 }
 
 # predict the movements in the network based on the movementmodel provided
 # Returns a movementmodel object with the network and prediction fields populated
-predict.movementmodel <- function(object, dataframe = NULL, ...) {
+predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 	if(is.null(dataframe)) {
-	  net <- get.network(object$dataset, min = object$min_network_pop)
+	  net <- get.network(predictionModel$dataset, min = predictionModel$min_network_pop)
 	}
 	else {
-	  net <- get.network.fromdataframe(dataframe = dataframe, min = object$min_network_pop)
+	  net <- get.network.fromdataframe(dataframe = dataframe, min = predictionModel$min_network_pop)
 	}
-	object$net = net
-	if(object$predictionmodel == 'gravity'){
-		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
+	predictionModel$net = net
+	if(predictionModel$predictionmodel == 'gravity'){
+		predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = predictionModel$symmetric, theta = predictionModel$modelparams, ...)
 	} else {
-		object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
+		predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = predictionModel$symmetric, model = predictionModel$predictionmodel, theta = predictionModel$modelparams, ...)
 	}
 	
-	return (object)
+	return (predictionModel)
 }
 
 # base showprediction function, used to register the method
-showprediction <- function(object, ...) {
-	UseMethod("showprediction", object)
+showprediction <- function(predictionModel, ...) {
+	UseMethod("showprediction", predictionModel)
 }
 
 # called if showprediction is run on an unsupported type
-showprediction.default <- function(object, ...) {
+showprediction.default <- function(predictionModel, ...) {
 	print("showprediction doesn't know how to handle this object.")
-	return (object)
+	return (predictionModel)
 }
 
 # Show a plot of the predicted movementmodel. Shows the underlying raster plot in addition to the predicted movements.
-showprediction.movementmodel <- function(object, ...) {
-	network <- object$net
-	move <- object$prediction
-	raster <- object$dataset
+showprediction.movementmodel <- function(predictionModel, ...) {
+	network <- predictionModel$net
+	move <- predictionModel$prediction
+	raster <- predictionModel$dataset
 	show.prediction(network, raster, move, ...)
 }
 
@@ -423,7 +423,7 @@ rasterizeShapeFile <- function(filename, keeplist)  {
 }
 
 createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
-	data <- read.csv(file=filename,head=TRUE,sep=",")
+	data <- read.csv(file=filename,header=TRUE,sep=",")
 	nrows = length(unique(data[origincolname])[,1])
 	ncols = length(unique(data[destcolname])[,1])
 	
@@ -443,7 +443,7 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 }
 
 createpopulationfromcsv <- function(filename) {
-	data <- read.csv(file=filename,head=TRUE,sep=",")
+	data <- read.csv(file=filename,header=TRUE,sep=",")
 	
 	return (data)
 }

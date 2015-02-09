@@ -2,7 +2,7 @@
 \alias{attemptoptimisation}
 
 \title{
-  Attempt to optimsise the parameters of a given movement model based on log likelihoods against observed data
+  Attempt to optimise the parameters of a given movement model based on log likelihoods against observed data
 }
 
 \description{

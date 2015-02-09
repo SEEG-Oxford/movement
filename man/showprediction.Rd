@@ -10,11 +10,12 @@ Given a movement model, plot the underlying raster, the configured location poin
 }
 
 \usage{
-showprediction(predictionModel)
+showprediction(predictionModel, \dots)
 }
 
 \arguments{
   \item{predictionModel}{a configured prediction model}
+  \item{\dots}{Extra parameters to pass to plot}
 }
 
 \seealso{
