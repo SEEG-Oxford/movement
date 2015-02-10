@@ -187,8 +187,10 @@ movement.predict <- function(distance, population,
                           style = 3)
   }
   
-  T_ijs <- apply(indices, 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
+  # this is where parallelisation should be possible as there is a parApply. It seems that the nodes of the cluster need to know about the flux function.
+  # T_ijs <- apply(indices, 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
 
+  # This can probably be vectorized which should help speed up the population of the movement matrix
   for (idx in 1:nrow(indices)) {
     # for each array index (given as a row of idx), get the pair of nodes
     pair <- indices[idx, ]
@@ -196,28 +198,28 @@ movement.predict <- function(distance, population,
     j <- pair[2]
 
     # calculate the number of commuters between them
-    #T_ij <- flux(i = i,
-    #             j = j,
-    #             distance = distance,
-    #             population = population,
-    #             symmetric = symmetric,
-    #             ...)
+    T_ij <- flux(i = i,
+                 j = j,
+                 distance = distance,
+                 population = population,
+                 symmetric = symmetric,
+                 ...)
 
-    # and stick it in the results matrix
+	# and stick it in the results matrix
 
     # if the symmetric distance was calculated (sum of i to j and j to i)
     # stick it in both triangles
     if (symmetric) {
 
-      movement[i, j] <- movement[j, i] <- T_ijs[idx]
+      movement[i, j] <- movement[j, i] <- T_ij
 
     } else {
 
       # otherwise stick one in the upper and one in the the lower
       # (flux returns two numbers in this case)
       # i.e. rows are from (i), columns are to (j)
-      movement[i, j] <- T_ijs[idx][1]
-      movement[j, i] <- T_ijs[idx][2]
+      movement[i, j] <- T_ij[1]
+      movement[j, i] <- T_ij[2]
 
     }
 
