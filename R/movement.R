@@ -3,9 +3,76 @@ require(rgdal)
 require(Matrix)
 require(tools)
 
-
-# calculate flux between two points using the continuum
-# generalization of the radiation model
+#' Use the continuum model of Simini et al. (2013) to predict movement between
+#' two sites based on population and distance.
+#'
+#' Given indices \code{i} and \code{j}, a (dense) distance matrix
+#' \code{distance} giving the euclidean distances beween all pairs of sites, a
+#' vector of population sizes \code{population} and a set of parameters, use
+#' any of three variants of the continuum model (Simini et al. 2013) to predict
+#' movements between sites \code{i} and \code{j}.
+#' Specifying which variant of the continuum model to use is achieved by
+#' passing one of three character-string arguments to the \code{model}. The
+#' three options are 'intervening opportunities', 'radiation with selection',
+#' and 'original radiation', which is the default. The mathematical definition
+#' of each variant of the model and an explanation of how they are related can
+#' be found in Simini et al. (2013).
+#' The first parameter, which is required, is supplied as the first element of
+#' the vector \code{theta}. This parameter describes the proportion of all
+#' inhabitants in the region commuting. The default is that everyone commutes
+#' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
+#' supplies a parameter that is necessary for both the intervening
+#' opportunities and radiation with selection variants of the model.
+#' The flux can be calculated either for both directions (by setting
+#' \code{symmetric = FALSE}, returning movements for each direction) or for the
+#' summed movement between the two (\code{symmetric = TRUE}).
+#' The model can be sped up somewhat by setting \code{minpop} and
+#' \code{maxrange}. If either of the two sites has a population lower than
+#' \code{minpop} (minimum population size), or if the distance betweent the two
+#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
+#' no travel occurs between these points.
+#' Note that this function only works for individual site pairs. To calculate
+#' movements across a whole landscape, use \code{\link{movement.predict}}.
+#'
+#' @param i Index for \code{population} and \code{distance} giving the first
+#' site
+#' @param j Index for \code{population} and \code{distance} giving the second
+#' site
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param model The type of continuum model to use
+#' @param theta A vector of parameters in the order: proportion of all
+#' inhabitants in the region commuting, parameter required for either the
+#' intervening opportunities or radiation with selection model variants.
+#' @param symmetric Whether to return a single value giving the total predicted
+#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
+#' giving movements from i to j (first element) and from j to i (second
+#' element)
+#' @param minpop The minimum population size to consider (by default 1,
+#' consider all sites)
+#' @param maxrange The maximum distance between sites to consider (by default
+#' \code{Inf}, consider all sites)
+#' @return A vector (of length either 1 or 2) giving the predicted number of
+#' people moving between the two sites.
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict movement between sites 3 and 4 using the original radiation model
+#' T_ij <- continuum.flux(3, 4, d, pop)
+#' T_ij
+#'
+#' @seealso \code{\link{movement.predict}}
+#'
+#' @references
+#' Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach.
+#' \emph{PLoS ONE} 8(3): e60069.
+#' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 continuum.flux <- function(i, j, distance, population,
                            model = 'original radiation',
                            theta = c(1), symmetric = FALSE,
@@ -119,7 +186,60 @@ continuum.flux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-# calculate flux between two points according to a classic gravity model
+#' Use the Viboud et al. 2006 (relatively simple) gravitation model to predict
+#' movement between two sites.
+#'
+#' Given indices \code{i} and \code{j}, a vector of population sizes
+#' \code{population}, a (dense) distance matrix \code{distance} giving the
+#' euclidean distances beween all pairs of sites, and a set of parameters
+#' \code{theta}, to predict movements between sites \code{i} and \code{j}.
+#' The flux can be calculated either for both directions (by setting
+#'  \code{symmetric = FALSE}, returning movements for each direction) or for
+#'  the summed movement between the two (\code{symmetric = TRUE}).
+#' The model can be sped up somewhat by setting \code{minpop} and
+#' \code{maxrange}. If either of the two sites has a population lower than
+#' \code{minpop} (minimum population size), or if the distance betweent the two
+#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
+#' no travel occurs between these points.
+#' Note that this function only works for individual sites, use
+#' \code{\link{movement.predict}} to calculate movements for multiple
+#' populations.
+#'
+#' @param i Index for \code{population} and \code{distance} giving the first
+#' site
+#' @param j Index for \code{population} and \code{distance} giving the second
+#' site
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param theta A vector of parameters in the order: scalar, exponent on donor
+#' pop, exponent on recipient pop, exponent on distance
+#' @param symmetric Whether to return a single value giving the total predicted
+#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
+#' giving movements from i to j (first element) and from j to i (second element)
+#' @param minpop The minimum population size to consider (by default 1, consider
+#' all sites)
+#' @param maxrange The maximum distance between sites to consider (by default
+#' \code{Inf}, consider all sites)
+#' @return A vector (of length either 1 or 2) giving the predicted number of
+#' people moving between the two sites.
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict movement between sites 3 and 4 using the radiation model
+#' T_ij <- gravity.flux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3))
+#' T_ij
+#'
+#' @seealso \code{\link{movement.predict}}
+#'
+#' @references
+#' Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
+#' of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
 gravity.flux <- function(i, j, distance, population,
                          theta = c(1, 0.6, 0.3, 3),
                          symmetric = FALSE,
@@ -158,7 +278,58 @@ gravity.flux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-# predict movements according to a particular model
+#' Use a movement model to predict movements across a landscape.
+#'
+#' Given a (dense) distance matrix \code{distance} giving the euclidean
+#' distances between all pairs of sites, a vector of population sizes at these
+#' sites \code{population}, use a flux function \code{flux} to predict movement
+#' between all sites.
+#' The model can be calculated either for both directions (by setting
+#' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
+#' the summed movement between the two (\code{symmetric = TRUE}, giving a
+#' symmetric matrix)). Progress and start and end times can be displayed by
+#' setting \code{progress = TRUE} and arguments of the flux functions can
+#' specified using the \code{dots} argument.
+#'
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param flux A flux function (currently either \code{\link{continuum.flux}}
+#' or \code{\link{gravity.flux}}) used to predict movements
+#' @param symmetric Whether to calculate symmetric or asymmetric (summed
+#' across both directions) movement
+#' @param progress Whether to display a progress bar and start and end times
+#' - can be useful for big model runs
+#' @param \dots Arguments to pass to the flux function
+#' @return A (dense) matrix giving predicted movements between all sites
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict total movement between them using the radiation model
+#' move <- movement.predict(d, pop, flux = continuum.flux, symmetric = TRUE,
+#'     theta = 0.1)
+#' # plot the points
+#' plot(coords, pch = 16, cex = pop / 500,
+#'      col = 'grey40', axes = FALSE,
+#'      xlab = '', ylab = '')
+#' # and add arrows showing movement
+#' for(i in 2:n) {
+#'   for(j in  (i - 1):n) {
+#'     arrows(coords[i, 1],
+#'            coords[i, 2],
+#'            coords[j, 1],
+#'            coords[j, 2],
+#'            lwd = 2,
+#'            length = 0,
+#'            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
+#'   }
+#' }
+#' @seealso \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
 movement.predict <- function(distance, population,
                            flux = continuum.flux,
                            symmetric = FALSE,
@@ -242,6 +413,50 @@ movement.predict <- function(distance, population,
   return (movement)
 }
 
+#' Extract the necessary components for movement modelling form a population
+#' density raster.
+#'
+#' Given raster map of population density, extract a distance matrix and vector
+#' of population sizes for all cells with population density above a minimum
+#' threshold. These can be used as network representation of the landscape for
+#' use in movement models.
+#'
+#' @param raster A \code{RasterLayer} object of population density.
+#' @param min The minimum population size for inclusion in the network. All
+#' cells with populations greater than or equal to \code{min} will be included
+#' and other excluded.
+#' @param matrix Whether the distance matrix should be returned as a
+#' \code{matrix} object (if \code{TRUE}) or as a \code{dist} object (if
+#' \code{FALSE}).
+#' @return A list with three components:
+#'  \item{population }{A vector giving the populations at the cells of
+#' interest}
+#'  \item{distance_matrix }{A distance matrix (eith of class \code{matrix} or
+#' \code{dist}) diving the pairwise euclidean distance between the cells of
+#' interest in the units of \code{raster}}
+#'  \item{coordinate }{A two-column matrix giving the coordinates of the cells
+#' of interest in the units of \code{raster}}
+#'
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- aggregate(kenya, 10, sum)
+#' # get the network for pixels with at least 50,000 inhabitants
+#' net <- get.network(kenya10, min = 50000)
+#' # visualise the distance matrix
+#' plot(raster(net$distance_matrix))
+#' # plot the raster layer
+#' plot(kenya10)
+#' # rescale the population of those pixels for plotting
+#' size <- 0.1 + 2 * net$population / max(net$population)
+#' # plot the pixels selected, with point size proportional to population size
+#' points(net$coordinates, pch = 16,
+#'      cex = size,
+#'      col = rgb(0, 0, 1, 0.6))
+#'
+#' @seealso \code{\link{raster}}, \code{\link{dist}},
+#' \code{\link{movement.predict}}
 get.network <- function(raster, min = 1, matrix = TRUE) {
   # extract necessary components for movement modelling
   # from a population raster
@@ -327,8 +542,45 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 	}
 }
 
-# code to set up the movementmodel class
-# create a new instance of the movementmodel class. Sensible defaults are selected and only the raster dataset is required
+#' Create a movement model to predict movements across a landscape.
+#'
+#' This sets up a movement model object which can then be used to predict
+#' population movements. It requires a \code{raster} dataset and a number of
+#' optional parameters to set up the basic configuration of the prediction
+#' model.
+#' The model can be calculated either for both directions (by setting
+#' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
+#' the summed movement between the two (\code{symmetric = TRUE}, giving a
+#' symmetric matrix)).
+#'
+#' @param dataset A raster dataset of population data
+#' @param min_network_pop The minimum population of a site in order for it to be
+#' processed
+#' @param predictionmodel The name of a prediction model used to calculated
+#' predicted flux between locations. Currently supported prediction models are
+#' \code{gravity}, \code{original radiation}, \code{intervening opportunities},
+#' \code{radiation with selection} and \code{uniform selection}
+#' @param symmetric Whether to calculate symmetric or asymmetric (summed across
+#' both directions) movement
+#' @param modelparams Model parameter values to pass to the prediction model
+#' (such as exponents, scale factors etc.)
+#' @return A movement model object which can be used to run flux predictions.
+#'
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- aggregate(kenya, 10, sum)
+#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
+#' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
+#' # predict the population movement from the model
+#' predictedMovements = predict(predictionModel)
+#' # visualise the distance matrix
+#' plot(raster(predictedMovements$net$distance_matrix))
+#' # visualise the predicted movements overlaid onto the original raster
+#' showprediction(predictedMovements)
+#'
+#' @seealso \code{\link{predict}}, \code{\link{showprediction}}
 movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
 	me <- list(
 		dataset = dataset,
