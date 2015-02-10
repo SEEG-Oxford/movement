@@ -593,19 +593,43 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 	return (me)
 }
 
-# base predict function, used to register the method
+#' Create a movement prediction based on a configured movement model
+#'
+#' @param predictionModel A configured prediction model
+#' @param dataframe An optional data frame containing population data
+#' @param \dots eExtra arguments to pass to the flux function
+#' @return A \code{movementmodel} containing a (dense) matrix giving predicted
+#' movements between all sites.
+#'
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- aggregate(kenya, 10, sum)
+#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
+#' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
+#' # predict the population movement from the model
+#' predictedMovements = predict(predictionModel)
+#' # visualise the distance matrix
+#' plot(raster(predictedMovements$net$distance_matrix))
+#' # visualise the predicted movements overlaid onto the original raster
+#' showprediction(predictedMovements)
+#'
+#' @seealso \code{\link{movementmodel}}, \code{\link{showprediction}}
 predict <- function(predictionModel, dataframe, ...) {
 	UseMethod("predict", object)
 }
 
-# called if predict is run on an unsupported type
+#' @describeIn predict Default action for predict
 predict.default <- function(predictionModel, dataframe, ...) {
 	print("predict doesn't know how to handle this object.")
 	return (predictionModel)
 }
 
-# predict the movements in the network based on the movementmodel provided
-# Returns a movementmodel object with the network and prediction fields populated
+#' @describeIn predict Given a movement model, use the configured distances and
+#' flux function to predict movement between all sites.
+#' Any extra arguments of the flux functions can specified using the
+#' \code{dots} argument.
 predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 	if(is.null(dataframe)) {
 	  net <- get.network(predictionModel$dataset, min = predictionModel$min_network_pop)
@@ -623,18 +647,39 @@ predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 	return (predictionModel)
 }
 
-# base showprediction function, used to register the method
+#' Display the movement predictions on a plot
+#'
+#' @param predictionModel A configured prediction model
+#' @param \dots Extra parameters to pass to plot
+#'
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- aggregate(kenya, 10, sum)
+#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
+#' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
+#' # predict the population movement from the model
+#' predictedMovements = predict(predictionModel)
+#' # visualise the distance matrix
+#' plot(raster(predictedMovements$net$distance_matrix))
+#' # visualise the predicted movements overlaid onto the original raster
+#' showprediction(predictedMovements)
+#'
+#' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
 showprediction <- function(predictionModel, ...) {
 	UseMethod("showprediction", predictionModel)
 }
 
-# called if showprediction is run on an unsupported type
+#' @describeIn showprediction Default action for showprediction
 showprediction.default <- function(predictionModel, ...) {
 	print("showprediction doesn't know how to handle this object.")
 	return (predictionModel)
 }
 
-# Show a plot of the predicted movementmodel. Shows the underlying raster plot in addition to the predicted movements.
+#' @describeIn showprediction Given a movement model, plot the underlying
+#' raster, the configured location points and the predicted movements
+#' between locations.
 showprediction.movementmodel <- function(predictionModel, ...) {
 	network <- predictionModel$net
 	move <- predictionModel$prediction
@@ -670,6 +715,19 @@ rasterizeShapeFile <- function(filename, keeplist)  {
 	return (rr)
 }
 
+#' Create a matrix of observed population movements
+#'
+#' Reads a correctly formatted csv file and creates a matrix containing
+#' observed movement between different indexed locations
+#'
+#' @param filename File path of the csv file to process
+#' @param origincolname The name of the column containing origin IDs
+#' @param destcolname The name of the column containing destination IDs
+#' @param valcolname The name of the column containing population movement
+#' values
+#' @return A matrix containing observed population movements. Row and column
+#' numbers correspond to the indexes of a sorted list of the origins found in
+#' the csv file. Values are the actual population movements.
 createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
 	data <- read.csv(file=filename,header=TRUE,sep=",")
 	nrows = length(unique(data[origincolname])[,1])
@@ -690,12 +748,28 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 	return (sparseMatrix)
 }
 
+#' Create a data frame of populations at particular coordinates
+#'
+#' Reads a correctly formatted csv file and creates a dataframe
+#'
+#' @param filename File path of the csv file to process
+#' @return A dataframe containing csv data.
 createpopulationfromcsv <- function(filename) {
 	data <- read.csv(file=filename,header=TRUE,sep=",")
 	
 	return (data)
 }
 
+#' Calculate the log likelihood of the prediction given the observed data.
+#'
+#' Processes an observed and predicted matrix, strips out the diagonals (which
+#' should be zero) and calculates the log likelihood.
+#'
+#' @param prediction A square matrix containing the predicted movements between location IDs
+#' @param observed A square matrix containing the observed movements between location IDs
+#' @return The log likelihood
+#'
+#' @seealso \code{\link{movementmodel}}, \code{\link{attemptoptimisation}}
 analysepredictionusingdpois <- function(prediction, observed) {	
 	observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
 	predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
@@ -709,7 +783,16 @@ analysepredictionusingdpois <- function(prediction, observed) {
 	return (retval)
 }
 
-# wrapper around our real simulation which returns a log likelihood which can be used by optim
+#' Internal helper function for optimisation
+#'
+#' Calls the model prediction code and then calculates a log likelihood metric
+#' used as the \code{\link{optim}} minimisation value
+#'
+#' @param par theta values for the flux function
+#' @param predictionModel The prediction model being optimised
+#' @param observedmatrix A matrix containing the observed population movements
+#' @param populationdata A dataframe containing population coordinate data
+#' @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
 	cat(paste('========\n'))
 	cat(paste('Parameters: ',
@@ -725,15 +808,65 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 	return (loglikelihood)
 }
 
-# simple call to optim passing in a prediction model, the associated population data and the observed data to use in the log likelihood calculations
+#' Attempt to optimise the parameters of a given movement model based on log
+#' likelihoods against observed data.
+#'
+#' Runs the optim function using the BFGS optimisation method to try and
+#' optimise the parameters of the given prediction model.
+#'
+#' @param predictionModel A configured prediction model
+#' @param populationdata A dataframe containing population data linked to the
+#' IDs in the predictionModel raster. Requires 4 columns named \code{origin},
+#' \code{pop_origin}, \code{long_origin}, \code{lat_origin}
+#' @param observedmatrix A matrix containing observed population movements. Row
+#' and column numbers correspond to the indexes of a sorted list of the origins
+#' and destinations used in populationdata. Values are the actual population
+#' movements.
+#' @return See \code{\link{optim}}
+#'
+#' @examples
+#' # convert france shapefile into raster, keeping layer ID_3
+#' france <- rasterizeShapeFile('france.shp', c('ID_3'))
+#' # create the prediction model for the dataset using the radiation with
+#' selection model
+#' predictionModel <- movementmodel(dataset=france, min_network_pop = 50000,
+#' predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
+#' = c(0.999, 0.998))
+#' # load the observed movement data into a matrix
+#' observedmatrix <- createobservedmatrixfromcsv("movementmatrix.csv",
+#' "origin", "destination", "movement")
+#' # load the population data into a dataframe
+#' populationdata <- createpopulationfromcsv("movementmatrix.csv")
+#' # attempt to optimise the model
+#' attemptoptimisation(predictionModel, populationdata, observedmatrix)
+#'
+#' @seealso \code{\link{movementmodel}},
+#' \code{\link{createobservedmatrixfromcsv}},
+#' \code{\link{createpopulationfromcsv}},
+#' \code{\link{analysepredictionusingdpois}}
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
 	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
 
-## example code for creating the population data and observed matrix
-##
-##	observedmatrix <- createobservedmatrixfromcsv("../SEEG/France/odmatrix.csv", "origin", "destination", "movement")
-##	populationdata <- createpopulationfromcsv("../SEEG/France/odmatrix.csv")
-##
+#' Kenya 2010 population raster
+#'
+#' An AfriPop raster of the modelled 2010 population in Kenya.
+#'
+#' @format A \code{RasterLayer} object in the WGS84 coordinate system at 1km
+#' resolution.
+#' @source This is a product of the AfriPop project
+#' \url{http://www.afripop.org} provided by Professor Andy Tatem.
+#'
+#' @examples
+#' data(kenya)
+#' plot(kenya)
+#'
+#' @references
+#' Linard C., Gilbert, M. Snow, R.W., Noor, A.M. & Tatem, A.J. (2010)
+#' Population Distribution, Settlement Patterns and Accessibility across
+#' Africa in 2010. PLoS ONE
+#' \url{http://www.plosone.org/article/info:doi/10.1371/journal.pone.0031743}
+#' @name kenya
+NULL
