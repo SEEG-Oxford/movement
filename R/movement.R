@@ -451,7 +451,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 	retval <- sum(dpois(observed, predicted, log = TRUE)) * -2;
 	if(is.nan(retval)) {
 		cat(paste('Warning: Likelihood was NaN, changing to Max Value to allow simulation to continue\n'))
-		retval <- .Machine$integer.max
+		retval <- .Machine$double.xmax
 	}
 
 	return (retval)
