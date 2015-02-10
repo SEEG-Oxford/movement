@@ -14,6 +14,8 @@ fittingwrapper(par, predictionModel, observedmatrix, populationdata, ...)
 \item{observedmatrix}{A matrix containing the observed population movements}
 
 \item{populationdata}{A dataframe containing population coordinate data}
+
+\item{\dots}{Parameters passed to \code{\link{movement.predict}}}
 }
 \value{
 The log likelihood of the prediction given the observed data.

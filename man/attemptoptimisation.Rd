@@ -18,6 +18,8 @@ IDs in the predictionModel raster. Requires 4 columns named \code{origin},
 and column numbers correspond to the indexes of a sorted list of the origins
 and destinations used in populationdata. Values are the actual population
 movements.}
+
+\item{\dots}{Parameters passed to \code{\link{movement.predict}}}
 }
 \value{
 See \code{\link{optim}}
@@ -30,7 +32,7 @@ optimise the parameters of the given prediction model.
 # convert france shapefile into raster, keeping layer ID_3
 france <- rasterizeShapeFile('france.shp', c('ID_3'))
 # create the prediction model for the dataset using the radiation with
-selection model
+# selection model
 predictionModel <- movementmodel(dataset=france, min_network_pop = 50000,
 predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
 = c(0.999, 0.998))

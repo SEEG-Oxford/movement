@@ -792,6 +792,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 #' @param predictionModel The prediction model being optimised
 #' @param observedmatrix A matrix containing the observed population movements
 #' @param populationdata A dataframe containing population coordinate data
+#' @param \dots Parameters passed to \code{\link{movement.predict}}
 #' @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
 	cat(paste('========\n'))
@@ -822,13 +823,14 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #' and column numbers correspond to the indexes of a sorted list of the origins
 #' and destinations used in populationdata. Values are the actual population
 #' movements.
+#' @param \dots Parameters passed to \code{\link{movement.predict}}
 #' @return See \code{\link{optim}}
 #'
 #' @examples
 #' # convert france shapefile into raster, keeping layer ID_3
 #' france <- rasterizeShapeFile('france.shp', c('ID_3'))
 #' # create the prediction model for the dataset using the radiation with
-#' selection model
+#' # selection model
 #' predictionModel <- movementmodel(dataset=france, min_network_pop = 50000,
 #' predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
 #' = c(0.999, 0.998))
