@@ -852,6 +852,41 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
 
+#' Convert a dataframe into a movement matrix
+#'
+#' Takes a dataframe listing movements between different locations and converts
+#' it into a square matrix using the same location ids.
+#' The dataframe does not need to include the a->a transitions as these are
+#' automatically filled with zero if missing. This results in a zero diagonal
+#' through the matrix.
+#' @param dataframe A data.frame of the format
+#' #   origin destination movement
+#' # 1      a           b       10
+#' # 2      a           c        8
+#' # 3      a           d       10
+#' # 4      a           e       11
+#' # 5      a           f        8
+#' (truncated)
+#' @return A square matrix
+as.movementmatrix <- function(dataframe) {
+	nrows <- length(unique(dataframe[1])[,])
+	ncols <- length(unique(dataframe[2])[,])
+	if(nrows != ncols) {
+		print ("Error: Expected a square matrix!")
+		return (NULL)
+	}
+	
+	mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(sort(unique(dataframe[1])[,]),sort(unique(dataframe[2])[,])))
+	
+	for(idx in 1:nrow(dataframe)) {
+		mat[dataframe[idx,1],dataframe[idx,2]] <- dataframe[idx,3]
+	}
+	
+	mat[is.na(mat)] <- 0
+	
+	return (mat)
+}
+
 #' Kenya 2010 population raster
 #'
 #' An AfriPop raster of the modelled 2010 population in Kenya.
