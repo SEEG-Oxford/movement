@@ -918,7 +918,16 @@ as.locationdataframe <- function(dataframe) {
 }
 
 movement <- function(locations, coords, population, movement_matrix, model) {
-	predictionModel <- movementmodel(dataset=NULL, min_network_pop=1, predictionmodel=model, symmetric=FALSE, modelparams=c(0.0260751,0.998))
+	if(model == "original radiation" || model == "uniform selection") {
+		params <- c(theta=0.9)
+	} else if(model == "radiation with selection") {
+		params <- c(theta=0.1, lambda=0.8)
+	} else if(model == "intervening opportunities") {
+		params <- c(theta=10, L=0.001)
+	} else if(model == "gravity") {
+		params <- c(theta=1, alpha=0.6, beta=0.3, lambda=3)
+	}
+	predictionModel <- movementmodel(dataset=NULL, min_network_pop=1, predictionmodel=model, symmetric=FALSE, modelparams=params)
 	# pop_origin, long_origin, lat_origin
 	
 	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
@@ -926,6 +935,7 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE)
 	print ("Training complete.")
 	training_results <- predict.movementmodel(predictionModel, population_data)
+	training_results$modelparams <- optimresults$par
 	me <- list(optimisationresults = optimresults,
 				trainingresults = training_results)
 	class(me) <- "optimisedmodel"
@@ -934,13 +944,16 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 
 print.optimisedmodel <- function(model) {
 	cat(paste('Model:  ', model$trainingresults$predictionmodel, '\n\n'))
-	cat(paste('Coefficients:\n', model$trainingresults$modelparams, '\n\n'))
-	cat(paste('Degrees of Freedom: ', '\n'))
+	cat(paste('Coefficients:\n'))
+	print(model$trainingresults$modelparams)
+	cat(paste('\nDegrees of Freedom: ', '\n'))
 	cat(paste('Null Deviance:      ', '\n'))
 	cat(paste('Residual Deviance:  ', '\n'))
 }
 
 summary.optimisedmodel <- function(model) {
+	coef.p <- model$trainingresults$modelparams
+	dn <- c("Estimate", "Std. Error")
 	ans <- list(
 		model = model$trainingresults$predictionmodel,
 		deviance.resid = 1,
