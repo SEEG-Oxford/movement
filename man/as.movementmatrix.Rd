@@ -2,7 +2,7 @@
 % Please edit documentation in R/movement.R
 \name{as.movementmatrix}
 \alias{as.movementmatrix}
-\title{Convert a dataframe into a movement matrix}
+\title{Convert a data.frame into a movement matrix}
 \usage{
 as.movementmatrix(dataframe)
 }

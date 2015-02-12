@@ -795,17 +795,10 @@ analysepredictionusingdpois <- function(prediction, observed) {
 #' @param \dots Parameters passed to \code{\link{movement.predict}}
 #' @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
-	cat(paste('========\n'))
-	cat(paste('Parameters: ',
-              par,
-              '\n'))
 	# set the initial model params to par
 	predictionModel$modelparams = par
 	predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
 	loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
-	cat(paste('Log Likelihood: ',
-              loglikelihood,
-              '\n'))
 	return (loglikelihood)
 }
 
@@ -852,7 +845,7 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
 
-#' Convert a dataframe into a movement matrix
+#' Convert a data.frame into a movement matrix
 #'
 #' Takes a dataframe listing movements between different locations and converts
 #' it into a square matrix using the same location ids.
@@ -885,6 +878,58 @@ as.movementmatrix <- function(dataframe) {
 	mat[is.na(mat)] <- 0
 	
 	return (mat)
+}
+
+#' Convert a merged data.frame into a single location data.frame
+#'
+#' Takes a data.frame containing location and population data and converts it
+#' into a single data.frame containing location data only.
+#' @param dataframe A data.frame of the format
+#' #   origin destination movement origin_pop  destination_pop  
+#' # 1      a           b       10        100               88
+#' # 2      a           c        8        100              100
+#' # 3      a           d       10        100              113
+#' # 4      a           e       11        100              107
+#' # 5      a           f        8        100               67
+#' #   origin_lat  origin_lon  destination_lat  destination_lon
+#' #   0.07826932  0.13612404       0.12114115       0.58984725
+#' #   0.07826932  0.13612404       0.07126503       0.19544754
+#' #   0.07826932  0.13612404       0.97817937       0.22771625
+#' #   0.07826932  0.13612404       0.87233335       0.06695538
+#' #   0.07826932  0.13612404       0.23157835       0.19573021
+#' @return A data.frame containing location data of the format
+#' #   location pop        lat        lon
+#' # 1        a 100 0.07826932 0.13612404
+#' # 2        b  88 0.12114115 0.58984725
+#' # 3        c 100 0.07126503 0.19544754
+#' # 4        d 113 0.97817937 0.22771625
+#' # 5        e 107 0.87233335 0.06695538
+as.locationdataframe <- function(dataframe) {
+	  dataframe <- dataframe[!duplicated(dataframe$origin),]
+	  pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
+	  lat <- as.numeric(dataframe["lat_origin"]$lat_origin)
+	  long <- as.numeric(dataframe["long_origin"]$long_origin)
+	  locations <- as.numeric(dataframe["origin"]$origin)
+
+	  return (data.frame(location = locations,
+				   pop = pop,
+				   lat = lat,
+				   lon = long))
+}
+
+movement <- function(locations, coords, population, movement_matrix, model) {
+	predictionModel <- movementmodel(dataset=NULL, min_network_pop=1, predictionmodel=model, symmetric=FALSE, modelparams=c(0.0260751,0.998))
+	# pop_origin, long_origin, lat_origin
+	
+	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
+	
+	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE)
+	print ("Training complete.")
+	training_results <- predict.movementmodel(predictionModel, population_data)
+	me <- list(optimisationresults = optimresults,
+				trainingresults = training_results)
+	class(me) <- append(class(me), "optimisedmodel")
+	return (me)
 }
 
 #' Kenya 2010 population raster
