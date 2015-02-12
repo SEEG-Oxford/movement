@@ -928,8 +928,37 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 	training_results <- predict.movementmodel(predictionModel, population_data)
 	me <- list(optimisationresults = optimresults,
 				trainingresults = training_results)
-	class(me) <- append(class(me), "optimisedmodel")
+	class(me) <- "optimisedmodel"
 	return (me)
+}
+
+print.optimisedmodel <- function(model) {
+	cat(paste('Model:  ', model$trainingresults$predictionmodel, '\n\n'))
+	cat(paste('Coefficients:\n', model$trainingresults$modelparams, '\n\n'))
+	cat(paste('Degrees of Freedom: ', '\n'))
+	cat(paste('Null Deviance:      ', '\n'))
+	cat(paste('Residual Deviance:  ', '\n'))
+}
+
+summary.optimisedmodel <- function(model) {
+	ans <- list(
+		model = model$trainingresults$predictionmodel,
+		deviance.resid = 1,
+		coefficients = '1',
+		nulldeviance = 1,
+		residdeviance = 1,
+		aic = 1)
+	class(ans) <- "summary.optimisedmodel"
+	return (ans)
+}
+
+print.summary.optimisedmodel <- function(model) {
+	cat(paste('Model:  ', model$model, '\n\n'))
+	cat(paste('Deviance Residuals:  ', model$deviance.resid, '\n\n'))
+	cat(paste('Coefficients:\n', model$coefficients, '\n\n'))
+	cat(paste('Null Deviance:      ', model$nulldeviance, ' on ', ' degrees of freedom\n'))
+	cat(paste('Residual Deviance:  ', model$residdeviance, ' on ', ' degrees of freedom\n'))
+	cat(paste('AIC:  ', model$aic, '\n'))
 }
 
 #' Kenya 2010 population raster
