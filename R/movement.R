@@ -930,7 +930,7 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 	nobs <- nrow(movement_matrix)
 	nulldf <- nobs
 	
-	predictionModel <- movementmodel(dataset=NULL, min_network_pop=1, predictionmodel=model, symmetric=FALSE, modelparams=params)
+	predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
 	# pop_origin, long_origin, lat_origin
 	
 	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
