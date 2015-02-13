@@ -993,25 +993,35 @@ print.summary.optimisedmodel <- function(model) {
 	cat(paste('AIC:  ', model$aic, '\n'))
 }
 
-#' Predict population movements from a population raster
+#' Predict population movements from a population input
 #'
 #' Use a trained \code{optimisedmodel} object to predict population movements
-#' given a raster containing a single population layer.
+#' given a input containing a single population layer.
 #' @param model An \code{optimisedmodel} object containing the trained model
-#' @param raster A \code{RasterLayer} object containing a single population
-#' attribute
-#' @return A list containing a location dataframe from the raster, and a matrix
+#' @param input A \code{RasterLayer} object containing a single population
+#' attribute, or a data.frame containing population and location data
+#' @return A list containing a location dataframe from the input, and a matrix
 #' containing the predicted population movements.
 #'
 #' @seealso \code{\link{movement}}, \code{\link{predict.movementmodel}}
-predict.optimisedmodel <- function(model, raster) {
+predict.optimisedmodel <- function(model, input) {
 	m <- model$trainingresults
-	m$dataset <- raster
-	prediction <- predict.movementmodel(m)
-	df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
-	return (list(
-		df_locations = df,
-		movement_matrix = prediction$prediction))
+	m$dataset <- input
+	if(is(input, "inputLayer")) {
+		prediction <- predict.movementmodel(m)
+		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
+		return (list(
+			df_locations = df,
+			movement_matrix = prediction$prediction))
+	} else if (is(input, "data.frame")) {
+		prediction <- predict.movementmodel(m, input)
+		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
+		return (list(
+			df_locations = df,
+			movement_matrix = prediction$prediction))
+	} else {
+		cat('Error: Expected parameter `input` to be either a inputLayer or a data.frame\n')
+	}
 }
 
 #' Kenya 2010 population raster
