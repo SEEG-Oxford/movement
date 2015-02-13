@@ -927,6 +927,9 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 	} else if(model == "gravity") {
 		params <- c(theta=1, alpha=0.6, beta=0.3, lambda=3)
 	}
+	nobs <- nrow(movement_matrix)
+	nulldf <- nobs
+	
 	predictionModel <- movementmodel(dataset=NULL, min_network_pop=1, predictionmodel=model, symmetric=FALSE, modelparams=params)
 	# pop_origin, long_origin, lat_origin
 	
@@ -937,18 +940,33 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 	training_results <- predict.movementmodel(predictionModel, population_data)
 	training_results$modelparams <- optimresults$par
 	me <- list(optimisationresults = optimresults,
-				trainingresults = training_results)
+				trainingresults = training_results,
+				coefficients = optimresults$par,
+				df.null = nulldf,
+				df.residual = 0,
+				null.deviance = 0,
+				deviance = 0,
+				aic = 0)
 	class(me) <- "optimisedmodel"
 	return (me)
 }
 
-print.optimisedmodel <- function(model) {
-	cat(paste('Model:  ', model$trainingresults$predictionmodel, '\n\n'))
-	cat(paste('Coefficients:\n'))
-	print(model$trainingresults$modelparams)
-	cat(paste('\nDegrees of Freedom: ', '\n'))
-	cat(paste('Null Deviance:      ', '\n'))
-	cat(paste('Residual Deviance:  ', '\n'))
+print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+	cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
+    if(length(coef(x))) {
+        cat("Coefficients")
+        cat(":\n")
+        print.default(format(x$coefficients, digits = digits),
+                      print.gap = 2, quote = FALSE)
+    } else cat("No coefficients\n\n")
+    cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
+        x$df.residual, "Residual\n")
+    if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
+    cat("Null Deviance:	   ",	format(signif(x$null.deviance, digits)),
+	"\nResidual Deviance:", format(signif(x$deviance, digits)),
+	"\tAIC:", format(signif(x$aic, digits)))
+    cat("\n")
+    invisible(x)
 }
 
 summary.optimisedmodel <- function(model) {
