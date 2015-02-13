@@ -8,13 +8,13 @@ as.locationdataframe(dataframe)
 }
 \arguments{
 \item{dataframe}{A data.frame of the format
-#   origin destination movement origin_pop  destination_pop
+#   origin destination movement pop_origin  pop_destination
 # 1      a           b       10        100               88
 # 2      a           c        8        100              100
 # 3      a           d       10        100              113
 # 4      a           e       11        100              107
 # 5      a           f        8        100               67
-#   origin_lat  origin_lon  destination_lat  destination_lon
+#   lat_origin long_origin  lat_destination long_destination
 #   0.07826932  0.13612404       0.12114115       0.58984725
 #   0.07826932  0.13612404       0.07126503       0.19544754
 #   0.07826932  0.13612404       0.97817937       0.22771625

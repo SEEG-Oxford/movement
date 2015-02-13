@@ -886,13 +886,13 @@ as.movementmatrix <- function(dataframe) {
 #' Takes a data.frame containing location and population data and converts it
 #' into a single data.frame containing location data only.
 #' @param dataframe A data.frame of the format
-#' #   origin destination movement origin_pop  destination_pop  
+#' #   origin destination movement pop_origin  pop_destination  
 #' # 1      a           b       10        100               88
 #' # 2      a           c        8        100              100
 #' # 3      a           d       10        100              113
 #' # 4      a           e       11        100              107
 #' # 5      a           f        8        100               67
-#' #   origin_lat  origin_lon  destination_lat  destination_lon
+#' #   lat_origin long_origin  lat_destination long_destination
 #' #   0.07826932  0.13612404       0.12114115       0.58984725
 #' #   0.07826932  0.13612404       0.07126503       0.19544754
 #' #   0.07826932  0.13612404       0.97817937       0.22771625
@@ -918,7 +918,39 @@ as.locationdataframe <- function(dataframe) {
 				   lon = long))
 }
 
+#' Create an optimised movement model
+#'
+#' Uses the \code{\link{optim}} method to create an optimised model of
+#' population movements.
+#' @param locations A vector containing populations
+#' @param coords A data frame containing coordinates of the \code{locations}
+#' @param population A vector containing populations of the \code{locations}
+#' @param movement_matrix A square matrix containing the observed population
+#' movements between \code{locations}
+#' @param model The name of the movement model to use. Currently supported
+#' models are \code{original radiation}, \code{radiation with selection},
+#' \code{uniform selection}, \code{intervening opportunities},
+#' \code{gravity}
+#' @return An \code{optimisedmodel} object containing the training results,
+#' and the optimisation results. This can then be used by 
+#' \code{\link{predict}} to generate predictions on new data.
+#'
+#' @seealso \code{\link{predict}}, \code{\link{as.locationdataframe}},
+#' \code{\link{as.movementmatrix}}
+#' @note The most likely format of the location data will be as a single
+#' \code{data.frame} of this form:
+#' #   location pop        lat        lon
+#' # 1        a 100 0.07826932 0.13612404
+#' # 2        b  88 0.12114115 0.58984725
+#' # 3        c 100 0.07126503 0.19544754
+#' # 4        d 113 0.97817937 0.22771625
+#' # 5        e 107 0.87233335 0.06695538
+#' This can be extracted from a larger dataframe with
+#' \code{\link{as.locationdataframe}}
+#' The \code{movement_matrix} can be extracted from a list of movements
+#' using \code{\link{as.movementmatrix}}
 movement <- function(locations, coords, population, movement_matrix, model) {
+	# create the correct params object with (hopefully sane) default values
 	if(model == "original radiation" || model == "uniform selection") {
 		params <- c(theta=0.9)
 	} else if(model == "radiation with selection") {
@@ -927,19 +959,27 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 		params <- c(theta=10, L=0.001)
 	} else if(model == "gravity") {
 		params <- c(theta=1, alpha=0.6, beta=0.3, lambda=3)
+	} else {
+		cat("Error: Unknown model type given\n")
+		return ()
 	}
+	
+	# statistics
 	nobs <- nrow(movement_matrix)
 	nulldf <- nobs
 	
+	# create the prediction model
 	predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
-	# pop_origin, long_origin, lat_origin
-	
+		
+	# assemble a population_data data.frame for predict.movementmodel to use
 	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
 	
+	# attempt to parameterise the model using optim
 	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE)
-	print ("Training complete.")
-	training_results <- predict.movementmodel(predictionModel, population_data)
+	# populate the training results (so we can see the end result)
+	training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
 	training_results$modelparams <- optimresults$par
+	print ("Training complete.")
 	me <- list(optimisationresults = optimresults,
 				trainingresults = training_results,
 				coefficients = optimresults$par,
@@ -996,7 +1036,14 @@ print.summary.optimisedmodel <- function(model) {
 #' Predict population movements from a population input
 #'
 #' Use a trained \code{optimisedmodel} object to predict population movements
-#' given a input containing a single population layer.
+#' given eiether a RasterLayer containing a single population layer, or a
+#' data.frame containing population and location data formatted as:
+#' #   location pop        lat        lon
+#' # 1        a 100 0.07826932 0.13612404
+#' # 2        b  88 0.12114115 0.58984725
+#' # 3        c 100 0.07126503 0.19544754
+#' # 4        d 113 0.97817937 0.22771625
+#'# 5        e 107 0.87233335 0.06695538
 #' @param model An \code{optimisedmodel} object containing the trained model
 #' @param input A \code{RasterLayer} object containing a single population
 #' attribute, or a data.frame containing population and location data

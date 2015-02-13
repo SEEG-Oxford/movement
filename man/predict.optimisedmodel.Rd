@@ -2,23 +2,30 @@
 % Please edit documentation in R/movement.R
 \name{predict.optimisedmodel}
 \alias{predict.optimisedmodel}
-\title{Predict population movements from a population raster}
+\title{Predict population movements from a population input}
 \usage{
-\method{predict}{optimisedmodel}(model, raster)
+\method{predict}{optimisedmodel}(model, input)
 }
 \arguments{
 \item{model}{An \code{optimisedmodel} object containing the trained model}
 
-\item{raster}{A \code{RasterLayer} object containing a single population
-attribute}
+\item{input}{A \code{RasterLayer} object containing a single population
+attribute, or a data.frame containing population and location data}
 }
 \value{
-A list containing a location dataframe from the raster, and a matrix
+A list containing a location dataframe from the input, and a matrix
 containing the predicted population movements.
 }
 \description{
 Use a trained \code{optimisedmodel} object to predict population movements
-given a raster containing a single population layer.
+given eiether a RasterLayer containing a single population layer, or a
+data.frame containing population and location data formatted as:
+#   location pop        lat        lon
+# 1        a 100 0.07826932 0.13612404
+# 2        b  88 0.12114115 0.58984725
+# 3        c 100 0.07126503 0.19544754
+# 4        d 113 0.97817937 0.22771625
+# 5        e 107 0.87233335 0.06695538
 }
 \seealso{
 \code{\link{movement}}, \code{\link{predict.movementmodel}}
