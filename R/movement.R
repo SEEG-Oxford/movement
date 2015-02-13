@@ -617,7 +617,7 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 #'
 #' @seealso \code{\link{movementmodel}}, \code{\link{showprediction}}
 predict <- function(predictionModel, dataframe, ...) {
-	UseMethod("predict", object)
+	UseMethod("predict", predictionModel)
 }
 
 #' @describeIn predict Default action for predict
@@ -990,6 +990,23 @@ print.summary.optimisedmodel <- function(model) {
 	cat(paste('Null Deviance:      ', model$nulldeviance, ' on ', ' degrees of freedom\n'))
 	cat(paste('Residual Deviance:  ', model$residdeviance, ' on ', ' degrees of freedom\n'))
 	cat(paste('AIC:  ', model$aic, '\n'))
+}
+
+#' Predict population movements from a population raster
+#'
+#' Use a trained \code{optimisedmodel} object to predict population movements
+#' given a raster containing a single population layer.
+#' @param model An \code{optimisedmodel} object containing the trained model
+#' @param raster A \code{RasterLayer} object containing a single population
+#' attribute
+#' @return A list containing a location dataframe from the raster, and a matrix
+#' containing the predicted population movements.
+#'
+#' @seealso \code{\link{movement}}, \code{\link{predict.movementmodel}}
+predict.optimisedmodel <- function(model, raster) {
+	m <- model$trainingresults
+	m$dataset <- raster
+	predict.movementmodel(m)
 }
 
 #' Kenya 2010 population raster
