@@ -6,7 +6,8 @@ This package is a collaborative effort between a group of researchers to foster 
 ### contributors
 
 [Nick Golding][Nick] @ [Spatial Ecology and Epidemiology Group, Oxford][seeg]
-[Andrew Schofield] @ [Tessella][tessella]
+
+Andrew Schofield @ [Tessella][tessella]
 
 (guys, fill in your bits here!)
 
