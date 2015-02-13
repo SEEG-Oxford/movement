@@ -483,7 +483,8 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 
   return (list(population = pop,
                distance_matrix = dis,
-               coordinates = coords))
+               coordinates = coords,
+			   locations = keep))
 
 }
 
@@ -1006,7 +1007,11 @@ print.summary.optimisedmodel <- function(model) {
 predict.optimisedmodel <- function(model, raster) {
 	m <- model$trainingresults
 	m$dataset <- raster
-	predict.movementmodel(m)
+	prediction <- predict.movementmodel(m)
+	df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
+	return (list(
+		df_locations = df,
+		movement_matrix = prediction$prediction))
 }
 
 #' Kenya 2010 population raster
