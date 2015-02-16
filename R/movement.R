@@ -45,16 +45,24 @@ library(doParallel)
 #' \code{\link{as.locationdataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
 #' using \code{\link{as.movementmatrix}}
-movement <- function(locations, coords, population, movement_matrix, model) {
+movement <- function(locations, coords, population, movement_matrix, model, ...) {
 	# create the correct params object with (hopefully sane) default values
 	if(model == "original radiation" || model == "uniform selection") {
 		params <- c(theta=0.9)
+		upper <- c(Inf)
+		lower <- c(0)
 	} else if(model == "radiation with selection") {
 		params <- c(theta=0.1, lambda=0.8)
+		upper <- c(Inf, 1)
+		lower <- c(0, 0)
 	} else if(model == "intervening opportunities") {
 		params <- c(theta=10, L=0.001)
+		upper <- c(Inf, Inf)
+		lower <- c(0, -Inf)
 	} else if(model == "gravity") {
 		params <- c(theta=1, alpha=0.6, beta=0.3, lambda=3)
+		upper <- c(Inf, Inf, Inf, Inf)
+		lower <- c(0, -Inf, -Inf, -Inf)
 	} else {
 		cat("Error: Unknown model type given\n")
 		return ()
