@@ -3,6 +3,9 @@ require(rgdal)
 require(Matrix)
 require(tools)
 
+library(foreach)
+library(doParallel)
+
 ###############################################################################
 # Main interface methods                                                      #
 ###############################################################################
@@ -20,6 +23,10 @@ require(tools)
 #' models are \code{original radiation}, \code{radiation with selection},
 #' \code{uniform selection}, \code{intervening opportunities},
 #' \code{gravity}
+#' @param \dots Extra parameters to be passed to the prediction code. A useful
+#' parameter to note is \code{threadCount} which determines how many threads
+#' to use when optimising the mode. More is not necessarily better as there is
+#' an inherent overhead in creating new threads.
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. This can then be used by 
 #' \code{\link{predict}} to generate predictions on new data.
@@ -64,11 +71,11 @@ movement <- function(locations, coords, population, movement_matrix, model) {
 	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
 	
 	# attempt to parameterise the model using optim
-	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE)
+	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
 	# populate the training results (so we can see the end result)
 	training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
 	training_results$modelparams <- optimresults$par
-	print ("Training complete.")
+	cat("Training complete.\n")
 	me <- list(optimisationresults = optimresults,
 				trainingresults = training_results,
 				coefficients = optimresults$par,
@@ -495,6 +502,7 @@ movement.predict <- function(distance, population,
                            flux = continuum.flux,
                            symmetric = FALSE,
                            progress = TRUE,
+						   threadCount = 1,
                            ...) {
 
   # create a movement matrix in which to store movement numbers
@@ -519,9 +527,22 @@ movement.predict <- function(distance, population,
                           style = 3)
   }
   
-  # this is where parallelisation should be possible as there is a parApply. It seems that the nodes of the cluster need to know about the flux function.
-  # T_ijs <- apply(indices, 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
-
+  cpuCount <- threadCount
+  cl <- makeCluster(cpuCount)
+  registerDoParallel(cl)
+  chunkSize <- ceiling(nrow(indices) / cpuCount)
+  
+  T_ijs <- foreach(idx=icount(cpuCount), .combine=cbind) %dopar% {
+	startIndex <- ((idx - 1) * chunkSize) + 1
+	endIndex <- min(c((idx * chunkSize), nrow(indices)))
+	iT_ijs <- apply(indices[startIndex:endIndex,], 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
+	return (iT_ijs)
+  }
+  
+  T_ijs <- matrix(T_ijs, ncol=2)
+  
+  stopCluster(cl)
+  
   # This can probably be vectorized which should help speed up the population of the movement matrix
   for (idx in 1:nrow(indices)) {
     # for each array index (given as a row of idx), get the pair of nodes
@@ -529,29 +550,19 @@ movement.predict <- function(distance, population,
     i <- pair[1]
     j <- pair[2]
 
-    # calculate the number of commuters between them
-    T_ij <- flux(i = i,
-                 j = j,
-                 distance = distance,
-                 population = population,
-                 symmetric = symmetric,
-                 ...)
-
-	# and stick it in the results matrix
-
     # if the symmetric distance was calculated (sum of i to j and j to i)
     # stick it in both triangles
     if (symmetric) {
 
-      movement[i, j] <- movement[j, i] <- T_ij
+      movement[i, j] <- movement[j, i] <- T_ijs[idx,]
 
     } else {
 
       # otherwise stick one in the upper and one in the the lower
       # (flux returns two numbers in this case)
       # i.e. rows are from (i), columns are to (j)
-      movement[i, j] <- T_ij[1]
-      movement[j, i] <- T_ij[2]
+      movement[i, j] <- T_ijs[idx,][1]
+      movement[j, i] <- T_ijs[idx,][2]
 
     }
 
