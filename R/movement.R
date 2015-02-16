@@ -843,7 +843,6 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
 	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
-	#control = list(maxit = 100, temp = c(0.01,0.01,0.01,0.01), parscale = c(0.1,0.1,0.1,0.1))
 }
 
 #' Convert a data.frame into a movement matrix
