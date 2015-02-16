@@ -3,6 +3,167 @@ require(rgdal)
 require(Matrix)
 require(tools)
 
+###############################################################################
+# Main interface methods                                                      #
+###############################################################################
+
+#' Create an optimised movement model
+#'
+#' Uses the \code{\link{optim}} method to create an optimised model of
+#' population movements.
+#' @param locations A vector containing populations
+#' @param coords A data frame containing coordinates of the \code{locations}
+#' @param population A vector containing populations of the \code{locations}
+#' @param movement_matrix A square matrix containing the observed population
+#' movements between \code{locations}
+#' @param model The name of the movement model to use. Currently supported
+#' models are \code{original radiation}, \code{radiation with selection},
+#' \code{uniform selection}, \code{intervening opportunities},
+#' \code{gravity}
+#' @return An \code{optimisedmodel} object containing the training results,
+#' and the optimisation results. This can then be used by 
+#' \code{\link{predict}} to generate predictions on new data.
+#'
+#' @seealso \code{\link{predict}}, \code{\link{as.locationdataframe}},
+#' \code{\link{as.movementmatrix}}
+#' @note The most likely format of the location data will be as a single
+#' \code{data.frame} of this form:
+#' #   location pop        lat        lon
+#' # 1        a 100 0.07826932 0.13612404
+#' # 2        b  88 0.12114115 0.58984725
+#' # 3        c 100 0.07126503 0.19544754
+#' # 4        d 113 0.97817937 0.22771625
+#' # 5        e 107 0.87233335 0.06695538
+#' This can be extracted from a larger dataframe with
+#' \code{\link{as.locationdataframe}}
+#' The \code{movement_matrix} can be extracted from a list of movements
+#' using \code{\link{as.movementmatrix}}
+movement <- function(locations, coords, population, movement_matrix, model) {
+	# create the correct params object with (hopefully sane) default values
+	if(model == "original radiation" || model == "uniform selection") {
+		params <- c(theta=0.9)
+	} else if(model == "radiation with selection") {
+		params <- c(theta=0.1, lambda=0.8)
+	} else if(model == "intervening opportunities") {
+		params <- c(theta=10, L=0.001)
+	} else if(model == "gravity") {
+		params <- c(theta=1, alpha=0.6, beta=0.3, lambda=3)
+	} else {
+		cat("Error: Unknown model type given\n")
+		return ()
+	}
+	
+	# statistics
+	nobs <- nrow(movement_matrix)
+	nulldf <- nobs
+	
+	# create the prediction model
+	predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
+		
+	# assemble a population_data data.frame for predict.movementmodel to use
+	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
+	
+	# attempt to parameterise the model using optim
+	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE)
+	# populate the training results (so we can see the end result)
+	training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
+	training_results$modelparams <- optimresults$par
+	print ("Training complete.")
+	me <- list(optimisationresults = optimresults,
+				trainingresults = training_results,
+				coefficients = optimresults$par,
+				df.null = nulldf,
+				df.residual = 0,
+				null.deviance = 0,
+				deviance = 0,
+				aic = 0)
+	class(me) <- "optimisedmodel"
+	return (me)
+}
+
+#' Predict population movements from a population input
+#'
+#' Use a trained \code{optimisedmodel} object to predict population movements
+#' given eiether a RasterLayer containing a single population layer, or a
+#' data.frame containing population and location data formatted as:
+#' #   location pop        lat        lon
+#' # 1        a 100 0.07826932 0.13612404
+#' # 2        b  88 0.12114115 0.58984725
+#' # 3        c 100 0.07126503 0.19544754
+#' # 4        d 113 0.97817937 0.22771625
+#'# 5        e 107 0.87233335 0.06695538
+#' @param model An \code{optimisedmodel} object containing the trained model
+#' @param input A \code{RasterLayer} object containing a single population
+#' attribute, or a data.frame containing population and location data
+#' @return A list containing a location dataframe from the input, and a matrix
+#' containing the predicted population movements.
+#'
+#' @seealso \code{\link{movement}}, \code{\link{predict.movementmodel}}
+predict.optimisedmodel <- function(model, input) {
+	m <- model$trainingresults
+	m$dataset <- input
+	if(is(input, "inputLayer")) {
+		prediction <- predict.movementmodel(m)
+		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
+		return (list(
+			df_locations = df,
+			movement_matrix = prediction$prediction))
+	} else if (is(input, "data.frame")) {
+		prediction <- predict.movementmodel(m, input)
+		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
+		return (list(
+			df_locations = df,
+			movement_matrix = prediction$prediction))
+	} else {
+		cat('Error: Expected parameter `input` to be either a inputLayer or a data.frame\n')
+	}
+}
+
+print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+	cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
+    if(length(coef(x))) {
+        cat("Coefficients")
+        cat(":\n")
+        print.default(format(x$coefficients, digits = digits),
+                      print.gap = 2, quote = FALSE)
+    } else cat("No coefficients\n\n")
+    cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
+        x$df.residual, "Residual\n")
+    if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
+    cat("Null Deviance:	   ",	format(signif(x$null.deviance, digits)),
+	"\nResidual Deviance:", format(signif(x$deviance, digits)),
+	"\tAIC:", format(signif(x$aic, digits)))
+    cat("\n")
+    invisible(x)
+}
+
+summary.optimisedmodel <- function(model) {
+	coef.p <- model$trainingresults$modelparams
+	dn <- c("Estimate", "Std. Error")
+	ans <- list(
+		model = model$trainingresults$predictionmodel,
+		deviance.resid = 1,
+		coefficients = '1',
+		nulldeviance = 1,
+		residdeviance = 1,
+		aic = 1)
+	class(ans) <- "summary.optimisedmodel"
+	return (ans)
+}
+
+print.summary.optimisedmodel <- function(model) {
+	cat(paste('Model:  ', model$model, '\n\n'))
+	cat(paste('Deviance Residuals:  ', model$deviance.resid, '\n\n'))
+	cat(paste('Coefficients:\n', model$coefficients, '\n\n'))
+	cat(paste('Null Deviance:      ', model$nulldeviance, ' on ', ' degrees of freedom\n'))
+	cat(paste('Residual Deviance:  ', model$residdeviance, ' on ', ' degrees of freedom\n'))
+	cat(paste('AIC:  ', model$aic, '\n'))
+}
+
+###############################################################################
+# Model definition and prediction methods                                     #
+###############################################################################
+
 #' Use the continuum model of Simini et al. (2013) to predict movement between
 #' two sites based on population and distance.
 #'
@@ -413,6 +574,87 @@ movement.predict <- function(distance, population,
   return (movement)
 }
 
+###############################################################################
+# Prediction visualisation methods                                            #
+###############################################################################
+
+# plots the movements within a network onto a raster layer
+show.prediction <- function(network, raster_layer, predictedMovements, ...) {
+	# visualise the distance matrix
+	plot(raster(network$distance_matrix))
+
+	# plot the raster layer
+	plot(raster_layer, ...)
+
+	# rescale the population of those pixels for plotting
+	size <- 0.1 + 2 * network$population / max(network$population)
+
+	# plot the pixels selected, with point size proportional to population size
+	points(network$coordinates, pch = 16,
+		  cex = size,
+		  col = rgb(0, 0, 1, 0.6))
+
+	# get the number of locations included
+	n <- nrow(network$coordinates)
+
+	# and add arrows showing movement
+	for(i in 2:n) {
+	  for(j in  (i - 1):n) {
+		arrows(network$coordinates[i, 1],
+			   network$coordinates[i, 2],
+			   network$coordinates[j, 1],
+			   network$coordinates[j, 2],
+			   lwd = 4,
+			   length = 0,
+			   col = rgb(0, 0, 1, predictedMovements[i, j] / (max(predictedMovements) + 0)))
+	  }
+	}
+}
+
+#' Display the movement predictions on a plot
+#'
+#' @param predictionModel A configured prediction model
+#' @param \dots Extra parameters to pass to plot
+#'
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- aggregate(kenya, 10, sum)
+#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
+#' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
+#' # predict the population movement from the model
+#' predictedMovements = predict(predictionModel)
+#' # visualise the distance matrix
+#' plot(raster(predictedMovements$net$distance_matrix))
+#' # visualise the predicted movements overlaid onto the original raster
+#' showprediction(predictedMovements)
+#'
+#' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
+showprediction <- function(predictionModel, ...) {
+	UseMethod("showprediction", predictionModel)
+}
+
+#' @describeIn showprediction Default action for showprediction
+showprediction.default <- function(predictionModel, ...) {
+	print("showprediction doesn't know how to handle this object.")
+	return (predictionModel)
+}
+
+#' @describeIn showprediction Given a movement model, plot the underlying
+#' raster, the configured location points and the predicted movements
+#' between locations.
+showprediction.movementmodel <- function(predictionModel, ...) {
+	network <- predictionModel$net
+	move <- predictionModel$prediction
+	raster <- predictionModel$dataset
+	show.prediction(network, raster, move, ...)
+}
+
+###############################################################################
+# Internal prediction and optimisation methods                                #
+###############################################################################
+
 #' Extract the necessary components for movement modelling form a population
 #' density raster.
 #'
@@ -508,39 +750,6 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
                coordinates = coords,
 			   locations = locations))
 	
-}
-
-# plots the movements within a network onto a raster layer
-show.prediction <- function(network, raster_layer, predictedMovements, ...) {
-	# visualise the distance matrix
-	plot(raster(network$distance_matrix))
-
-	# plot the raster layer
-	plot(raster_layer, ...)
-
-	# rescale the population of those pixels for plotting
-	size <- 0.1 + 2 * network$population / max(network$population)
-
-	# plot the pixels selected, with point size proportional to population size
-	points(network$coordinates, pch = 16,
-		  cex = size,
-		  col = rgb(0, 0, 1, 0.6))
-
-	# get the number of locations included
-	n <- nrow(network$coordinates)
-
-	# and add arrows showing movement
-	for(i in 2:n) {
-	  for(j in  (i - 1):n) {
-		arrows(network$coordinates[i, 1],
-			   network$coordinates[i, 2],
-			   network$coordinates[j, 1],
-			   network$coordinates[j, 2],
-			   lwd = 4,
-			   length = 0,
-			   col = rgb(0, 0, 1, predictedMovements[i, j] / (max(predictedMovements) + 0)))
-	  }
-	}
 }
 
 #' Create a movement model to predict movements across a landscape.
@@ -648,119 +857,6 @@ predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 	return (predictionModel)
 }
 
-#' Display the movement predictions on a plot
-#'
-#' @param predictionModel A configured prediction model
-#' @param \dots Extra parameters to pass to plot
-#'
-#' @examples
-#' # load kenya raster
-#' data(kenya)
-#' # aggregate to 10km to speed things up
-#' kenya10 <- aggregate(kenya, 10, sum)
-#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
-#' # predict the population movement from the model
-#' predictedMovements = predict(predictionModel)
-#' # visualise the distance matrix
-#' plot(raster(predictedMovements$net$distance_matrix))
-#' # visualise the predicted movements overlaid onto the original raster
-#' showprediction(predictedMovements)
-#'
-#' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
-showprediction <- function(predictionModel, ...) {
-	UseMethod("showprediction", predictionModel)
-}
-
-#' @describeIn showprediction Default action for showprediction
-showprediction.default <- function(predictionModel, ...) {
-	print("showprediction doesn't know how to handle this object.")
-	return (predictionModel)
-}
-
-#' @describeIn showprediction Given a movement model, plot the underlying
-#' raster, the configured location points and the predicted movements
-#' between locations.
-showprediction.movementmodel <- function(predictionModel, ...) {
-	network <- predictionModel$net
-	move <- predictionModel$prediction
-	raster <- predictionModel$dataset
-	show.prediction(network, raster, move, ...)
-}
-
-# utility function to rasterize a shape file an discard unnecessary layers
-rasterizeShapeFile <- function(filename, keeplist)  {
-	# load the shapefile into a SpatialPolygonsDataFrame
-	dsn = dirname(filename)
-	filename = basename(filename)
-	layer = file_path_sans_ext(filename)
-	shapeObject = readOGR(dsn = dsn, layer = layer)
-	shapeObject <- shapeObject[keeplist]
-	
-	# get the extents of the dataframe
-	extents = extent(shapeObject)
-	xmin = extents@xmin
-	xmax = extents@xmax
-	ymin = extents@ymin
-	ymax = extents@ymax
-	
-	# set up a raster template to use in rasterize()
-	ext <- extent (xmin, xmax, ymin, ymax)
-	xy <- abs(apply(as.matrix(bbox(ext)), 1, diff))
-	n <- 5
-	r <- raster(ext, ncol=xy[1]*50, nrow=xy[2]*50)
-	
-	rr <- rasterize(shapeObject, r)
-	## create a population only rasterlayer (i.e. remove the RAT table)
-	rr <- deratify(rr, keeplist)
-	return (rr)
-}
-
-#' Create a matrix of observed population movements
-#'
-#' Reads a correctly formatted csv file and creates a matrix containing
-#' observed movement between different indexed locations
-#'
-#' @param filename File path of the csv file to process
-#' @param origincolname The name of the column containing origin IDs
-#' @param destcolname The name of the column containing destination IDs
-#' @param valcolname The name of the column containing population movement
-#' values
-#' @return A matrix containing observed population movements. Row and column
-#' numbers correspond to the indexes of a sorted list of the origins found in
-#' the csv file. Values are the actual population movements.
-createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
-	data <- read.csv(file=filename,header=TRUE,sep=",")
-	nrows = length(unique(data[origincolname])[,1])
-	ncols = length(unique(data[destcolname])[,1])
-	
-	# mapping locationids to matrix row or column ids to cope with missing locationids
-	origins = sort(as.numeric(unique(data[origincolname])[,1]))
-	destinations = sort(as.numeric(unique(data[destcolname])[,1]))
-	
-	sparseMatrix <- matrix(nrow = nrows, ncol = ncols)
-	for (idx in 1:length(data$X)) {
-		sparseMatrix[match(data[idx,origincolname],origins),match(data[idx,destcolname],destinations)] = data[idx,valcolname]
-	}
-	
-	# set any remaining NAs to 0
-	sparseMatrix[is.na(sparseMatrix)] <- 0
-	
-	return (sparseMatrix)
-}
-
-#' Create a data frame of populations at particular coordinates
-#'
-#' Reads a correctly formatted csv file and creates a dataframe
-#'
-#' @param filename File path of the csv file to process
-#' @return A dataframe containing csv data.
-createpopulationfromcsv <- function(filename) {
-	data <- read.csv(file=filename,header=TRUE,sep=",")
-	
-	return (data)
-}
-
 #' Calculate the log likelihood of the prediction given the observed data.
 #'
 #' Processes an observed and predicted matrix, strips out the diagonals (which
@@ -845,6 +941,83 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 }
 
+###############################################################################
+# Data manipulation helper functions                                          #
+###############################################################################
+
+# utility function to rasterize a shape file an discard unnecessary layers
+rasterizeShapeFile <- function(filename, keeplist)  {
+	# load the shapefile into a SpatialPolygonsDataFrame
+	dsn = dirname(filename)
+	filename = basename(filename)
+	layer = file_path_sans_ext(filename)
+	shapeObject = readOGR(dsn = dsn, layer = layer)
+	shapeObject <- shapeObject[keeplist]
+	
+	# get the extents of the dataframe
+	extents = extent(shapeObject)
+	xmin = extents@xmin
+	xmax = extents@xmax
+	ymin = extents@ymin
+	ymax = extents@ymax
+	
+	# set up a raster template to use in rasterize()
+	ext <- extent (xmin, xmax, ymin, ymax)
+	xy <- abs(apply(as.matrix(bbox(ext)), 1, diff))
+	n <- 5
+	r <- raster(ext, ncol=xy[1]*50, nrow=xy[2]*50)
+	
+	rr <- rasterize(shapeObject, r)
+	## create a population only rasterlayer (i.e. remove the RAT table)
+	rr <- deratify(rr, keeplist)
+	return (rr)
+}
+
+#' Create a matrix of observed population movements
+#'
+#' Reads a correctly formatted csv file and creates a matrix containing
+#' observed movement between different indexed locations
+#'
+#' @param filename File path of the csv file to process
+#' @param origincolname The name of the column containing origin IDs
+#' @param destcolname The name of the column containing destination IDs
+#' @param valcolname The name of the column containing population movement
+#' values
+#' @return A matrix containing observed population movements. Row and column
+#' numbers correspond to the indexes of a sorted list of the origins found in
+#' the csv file. Values are the actual population movements.
+createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
+	data <- read.csv(file=filename,header=TRUE,sep=",")
+	nrows = length(unique(data[origincolname])[,1])
+	ncols = length(unique(data[destcolname])[,1])
+	
+	# mapping locationids to matrix row or column ids to cope with missing locationids
+	origins = sort(as.numeric(unique(data[origincolname])[,1]))
+	destinations = sort(as.numeric(unique(data[destcolname])[,1]))
+	
+	sparseMatrix <- matrix(nrow = nrows, ncol = ncols)
+	for (idx in 1:length(data$X)) {
+		sparseMatrix[match(data[idx,origincolname],origins),match(data[idx,destcolname],destinations)] = data[idx,valcolname]
+	}
+	
+	# set any remaining NAs to 0
+	sparseMatrix[is.na(sparseMatrix)] <- 0
+	
+	return (sparseMatrix)
+}
+
+#' Create a data frame of populations at particular coordinates
+#'
+#' Reads a correctly formatted csv file and creates a dataframe
+#'
+#' @param filename File path of the csv file to process
+#' @return A dataframe containing csv data.
+createpopulationfromcsv <- function(filename) {
+	data <- read.csv(file=filename,header=TRUE,sep=",")
+	
+	return (data)
+}
+
 #' Convert a data.frame into a movement matrix
 #'
 #' Takes a dataframe listing movements between different locations and converts
@@ -915,159 +1088,6 @@ as.locationdataframe <- function(dataframe) {
 				   pop = pop,
 				   lat = lat,
 				   lon = long))
-}
-
-#' Create an optimised movement model
-#'
-#' Uses the \code{\link{optim}} method to create an optimised model of
-#' population movements.
-#' @param locations A vector containing populations
-#' @param coords A data frame containing coordinates of the \code{locations}
-#' @param population A vector containing populations of the \code{locations}
-#' @param movement_matrix A square matrix containing the observed population
-#' movements between \code{locations}
-#' @param model The name of the movement model to use. Currently supported
-#' models are \code{original radiation}, \code{radiation with selection},
-#' \code{uniform selection}, \code{intervening opportunities},
-#' \code{gravity}
-#' @return An \code{optimisedmodel} object containing the training results,
-#' and the optimisation results. This can then be used by 
-#' \code{\link{predict}} to generate predictions on new data.
-#'
-#' @seealso \code{\link{predict}}, \code{\link{as.locationdataframe}},
-#' \code{\link{as.movementmatrix}}
-#' @note The most likely format of the location data will be as a single
-#' \code{data.frame} of this form:
-#' #   location pop        lat        lon
-#' # 1        a 100 0.07826932 0.13612404
-#' # 2        b  88 0.12114115 0.58984725
-#' # 3        c 100 0.07126503 0.19544754
-#' # 4        d 113 0.97817937 0.22771625
-#' # 5        e 107 0.87233335 0.06695538
-#' This can be extracted from a larger dataframe with
-#' \code{\link{as.locationdataframe}}
-#' The \code{movement_matrix} can be extracted from a list of movements
-#' using \code{\link{as.movementmatrix}}
-movement <- function(locations, coords, population, movement_matrix, model) {
-	# create the correct params object with (hopefully sane) default values
-	if(model == "original radiation" || model == "uniform selection") {
-		params <- c(theta=0.9)
-	} else if(model == "radiation with selection") {
-		params <- c(theta=0.1, lambda=0.8)
-	} else if(model == "intervening opportunities") {
-		params <- c(theta=10, L=0.001)
-	} else if(model == "gravity") {
-		params <- c(theta=1, alpha=0.6, beta=0.3, lambda=3)
-	} else {
-		cat("Error: Unknown model type given\n")
-		return ()
-	}
-	
-	# statistics
-	nobs <- nrow(movement_matrix)
-	nulldf <- nobs
-	
-	# create the prediction model
-	predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
-		
-	# assemble a population_data data.frame for predict.movementmodel to use
-	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
-	
-	# attempt to parameterise the model using optim
-	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE)
-	# populate the training results (so we can see the end result)
-	training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
-	training_results$modelparams <- optimresults$par
-	print ("Training complete.")
-	me <- list(optimisationresults = optimresults,
-				trainingresults = training_results,
-				coefficients = optimresults$par,
-				df.null = nulldf,
-				df.residual = 0,
-				null.deviance = 0,
-				deviance = 0,
-				aic = 0)
-	class(me) <- "optimisedmodel"
-	return (me)
-}
-
-print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-	cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
-    if(length(coef(x))) {
-        cat("Coefficients")
-        cat(":\n")
-        print.default(format(x$coefficients, digits = digits),
-                      print.gap = 2, quote = FALSE)
-    } else cat("No coefficients\n\n")
-    cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
-        x$df.residual, "Residual\n")
-    if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
-    cat("Null Deviance:	   ",	format(signif(x$null.deviance, digits)),
-	"\nResidual Deviance:", format(signif(x$deviance, digits)),
-	"\tAIC:", format(signif(x$aic, digits)))
-    cat("\n")
-    invisible(x)
-}
-
-summary.optimisedmodel <- function(model) {
-	coef.p <- model$trainingresults$modelparams
-	dn <- c("Estimate", "Std. Error")
-	ans <- list(
-		model = model$trainingresults$predictionmodel,
-		deviance.resid = 1,
-		coefficients = '1',
-		nulldeviance = 1,
-		residdeviance = 1,
-		aic = 1)
-	class(ans) <- "summary.optimisedmodel"
-	return (ans)
-}
-
-print.summary.optimisedmodel <- function(model) {
-	cat(paste('Model:  ', model$model, '\n\n'))
-	cat(paste('Deviance Residuals:  ', model$deviance.resid, '\n\n'))
-	cat(paste('Coefficients:\n', model$coefficients, '\n\n'))
-	cat(paste('Null Deviance:      ', model$nulldeviance, ' on ', ' degrees of freedom\n'))
-	cat(paste('Residual Deviance:  ', model$residdeviance, ' on ', ' degrees of freedom\n'))
-	cat(paste('AIC:  ', model$aic, '\n'))
-}
-
-#' Predict population movements from a population input
-#'
-#' Use a trained \code{optimisedmodel} object to predict population movements
-#' given eiether a RasterLayer containing a single population layer, or a
-#' data.frame containing population and location data formatted as:
-#' #   location pop        lat        lon
-#' # 1        a 100 0.07826932 0.13612404
-#' # 2        b  88 0.12114115 0.58984725
-#' # 3        c 100 0.07126503 0.19544754
-#' # 4        d 113 0.97817937 0.22771625
-#'# 5        e 107 0.87233335 0.06695538
-#' @param model An \code{optimisedmodel} object containing the trained model
-#' @param input A \code{RasterLayer} object containing a single population
-#' attribute, or a data.frame containing population and location data
-#' @return A list containing a location dataframe from the input, and a matrix
-#' containing the predicted population movements.
-#'
-#' @seealso \code{\link{movement}}, \code{\link{predict.movementmodel}}
-predict.optimisedmodel <- function(model, input) {
-	m <- model$trainingresults
-	m$dataset <- input
-	if(is(input, "inputLayer")) {
-		prediction <- predict.movementmodel(m)
-		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
-		return (list(
-			df_locations = df,
-			movement_matrix = prediction$prediction))
-	} else if (is(input, "data.frame")) {
-		prediction <- predict.movementmodel(m, input)
-		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
-		return (list(
-			df_locations = df,
-			movement_matrix = prediction$prediction))
-	} else {
-		cat('Error: Expected parameter `input` to be either a inputLayer or a data.frame\n')
-	}
 }
 
 #' Kenya 2010 population raster
