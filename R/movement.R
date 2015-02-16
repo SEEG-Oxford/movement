@@ -117,7 +117,7 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 predict.optimisedmodel <- function(model, input) {
 	m <- model$trainingresults
 	m$dataset <- input
-	if(is(input, "inputLayer")) {
+	if(is(input, "RasterLayer")) {
 		prediction <- predict.movementmodel(m)
 		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
 		return (list(
@@ -130,7 +130,7 @@ predict.optimisedmodel <- function(model, input) {
 			df_locations = df,
 			movement_matrix = prediction$prediction))
 	} else {
-		cat('Error: Expected parameter `input` to be either a inputLayer or a data.frame\n')
+		cat('Error: Expected parameter `input` to be either a RasterLayer or a data.frame\n')
 	}
 }
 
