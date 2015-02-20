@@ -69,8 +69,9 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 	}
 	
 	# statistics
-	nobs <- nrow(movement_matrix)
-	nulldf <- nobs
+	# http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
+	nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
+	nulldf <- nobs # no predictors for null degrees of freedom
 	
 	# create the prediction model
 	predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
@@ -87,11 +88,11 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 	me <- list(optimisationresults = optimresults,
 				trainingresults = training_results,
 				coefficients = optimresults$par,
-				df.null = nulldf,
-				df.residual = 0,
-				null.deviance = 0,
-				deviance = 0,
-				aic = 0)
+				df.null = nulldf, # not checked
+				df.residual = nulldf - length(optimresults$value), # not checked
+				null.deviance = analysepredictionusingdpois(training_results, c(0,0)), # intercept only model, this is clearly wrong
+				deviance = optimresults$value, # -2* log likelihood, which is what we are optimising on anyway
+				aic = optimresults$value + 2 * length(optimresults$value)) # deviance + (2* number of params)
 	class(me) <- "optimisedmodel"
 	return (me)
 }
@@ -145,34 +146,41 @@ print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), 
     cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
         x$df.residual, "Residual\n")
     if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
-    cat("Null Deviance:	   ",	format(signif(x$null.deviance, digits)),
-	"\nResidual Deviance:", format(signif(x$deviance, digits)),
-	"\tAIC:", format(signif(x$aic, digits)))
+    cat("Null Deviance:	   ", x$null.deviance,
+	"\nResidual Deviance: ", x$deviance,
+	"\tAIC:", x$aic)
     cat("\n")
     invisible(x)
 }
 
-summary.optimisedmodel <- function(model) {
-	coef.p <- model$trainingresults$modelparams
+summary.optimisedmodel <- function(x) {
+	coef.p <- x$trainingresults$modelparams
 	dn <- c("Estimate", "Std. Error")
 	ans <- list(
-		model = model$trainingresults$predictionmodel,
+		model = x$trainingresults$predictionmodel,
 		deviance.resid = 1,
-		coefficients = '1',
-		nulldeviance = 1,
-		residdeviance = 1,
-		aic = 1)
+		coefficients = coef.p,
+		nulldeviance = x$null.deviance,
+		residdeviance = x$deviance,
+		aic = x$aic,
+		df.null = x$df.null,
+		df.residual = x$df.residual)
 	class(ans) <- "summary.optimisedmodel"
 	return (ans)
 }
 
-print.summary.optimisedmodel <- function(model) {
-	cat(paste('Model:  ', model$model, '\n\n'))
-	cat(paste('Deviance Residuals:  ', model$deviance.resid, '\n\n'))
-	cat(paste('Coefficients:\n', model$coefficients, '\n\n'))
-	cat(paste('Null Deviance:      ', model$nulldeviance, ' on ', ' degrees of freedom\n'))
-	cat(paste('Residual Deviance:  ', model$residdeviance, ' on ', ' degrees of freedom\n'))
-	cat(paste('AIC:  ', model$aic, '\n'))
+print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+	cat(paste('Model:  ', x$model, '\n\n'))
+	cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
+	if(length(coef(x))) {
+        cat("Coefficients")
+        cat(":\n")
+        print.default(format(x$coefficients, digits = digits),
+                      print.gap = 2, quote = FALSE)
+    } else cat("No coefficients\n\n")
+	cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
+	cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
+	cat(paste('AIC:  ', x$aic, '\n'))
 }
 
 ###############################################################################
