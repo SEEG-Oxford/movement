@@ -546,7 +546,7 @@ movement.predict <- function(distance, population,
   }
   
   cpuCount <- threadCount
-  cl <- makeCluster(cpuCount)
+  cl <- makeCluster(cpuCount, outfile="output.log")
   registerDoParallel(cl)
   chunkSize <- ceiling(nrow(indices) / cpuCount)
   
