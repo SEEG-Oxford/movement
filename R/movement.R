@@ -156,6 +156,7 @@ print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), 
 summary.optimisedmodel <- function(x) {
 	coef.p <- x$trainingresults$modelparams
 	dn <- c("Estimate", "Std. Error")
+	stderrors <- sqrt(abs(diag(solve(m$optimisationresults$hessian)))) # need to plug this into the coef table
 	ans <- list(
 		model = x$trainingresults$predictionmodel,
 		deviance.resid = 1,
