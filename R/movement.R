@@ -81,6 +81,8 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 	
 	# attempt to parameterise the model using optim
 	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+	predictionModel$modelparams = optimresults$par
+	
 	# populate the training results (so we can see the end result)
 	training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
 	training_results$modelparams <- optimresults$par
@@ -262,7 +264,6 @@ continuum.flux <- function(i, j, distance, population,
                            model = 'original radiation',
                            theta = c(1), symmetric = FALSE,
                            minpop = 1, maxrange = Inf) {
-
   # get model parameters
   p <- theta[1]
   if(model == 'intervening opportunities'){
