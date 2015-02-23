@@ -167,7 +167,8 @@ summary.optimisedmodel <- function(x) {
 		residdeviance = x$deviance,
 		aic = x$aic,
 		df.null = x$df.null,
-		df.residual = x$df.residual)
+		df.residual = x$df.residual,
+		stderrors = stderrors)
 	class(ans) <- "summary.optimisedmodel"
 	return (ans)
 }
