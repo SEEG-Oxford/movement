@@ -1120,6 +1120,21 @@ as.locationdataframe <- function(dataframe) {
 				   lon = long))
 }
 
+# use region data downloaded from http://www.gadm.org/country along with a world population raster
+as.locationdataframe <- function(gadm, populationraster) {
+	result <- data.frame(simplifytext(gadm$NAME_2),gadm$ID_2,extract(world,gadm, fun=sum),coordinates(gadm))
+	colnames(result) <- c("name", "location", "pop", "lat", "lon")
+	return (result)
+}
+
+simplifytext <- function(string) {
+	return (gsub("\\s", "_", toupper(iconv(string, from='UTF-8', to='ASCII//TRANSLIT'))))
+}
+
+correlateregions <- function(dataframe, regionlist) {
+	
+}
+
 #' Kenya 2010 population raster
 #'
 #' An AfriPop raster of the modelled 2010 population in Kenya.
