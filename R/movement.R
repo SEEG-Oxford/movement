@@ -48,19 +48,19 @@ library(doParallel)
 movement <- function(locations, coords, population, movement_matrix, model, ...) {
 	# create the correct params object with (hopefully sane) default values
 	if(model == "original radiation" || model == "uniform selection") {
-		params <- c(theta=0.9)
+		params <- c(0.9)
 		upper <- c(Inf)
 		lower <- c(0)
 	} else if(model == "radiation with selection") {
-		params <- c(theta=0.1, lambda=0.8)
+		params <- c(0.1,0.1)
 		upper <- c(Inf, 1)
 		lower <- c(0, 0)
 	} else if(model == "intervening opportunities") {
-		params <- c(theta=10, L=0.001)
+		params <- c(1, 0.9)
 		upper <- c(Inf, Inf)
 		lower <- c(0, -Inf)
 	} else if(model == "gravity") {
-		params <- c(theta=1, alpha=0.6, beta=0.3, lambda=3)
+		params <- c(0.01, 0.06, 0.03, 0.01)
 		upper <- c(Inf, Inf, Inf, Inf)
 		lower <- c(0, -Inf, -Inf, -Inf)
 	} else {
