@@ -1121,6 +1121,9 @@ as.locationdataframe <- function(dataframe) {
 }
 
 # use region data downloaded from http://www.gadm.org/country along with a world population raster
+# make sure it is cropped to the correct region first using raster::crop
+# for portugal, this works: crop(gadm, extent(-10, -6.189142, 30, 42.154232))
+# portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
 as.locationdataframe <- function(gadm, populationraster) {
 	result <- data.frame(simplifytext(gadm$NAME_2),gadm$ID_2,extract(world,gadm, fun=sum),coordinates(gadm))
 	colnames(result) <- c("name", "location", "pop", "lat", "lon")
@@ -1131,8 +1134,63 @@ simplifytext <- function(string) {
 	return (gsub("\\s", "_", toupper(iconv(string, from='UTF-8', to='ASCII//TRANSLIT'))))
 }
 
-correlateregions <- function(dataframe, regionlist) {
+correlateregions <- function(dataframe, regionlist, movementdata) {
+	allnames <- as.vector(dataframe$name)
+	datanames <- as.vector(regionlist$V2)
 	
+	# work out which regions in the regionlist are present in the location dataframe	
+	datainall <- data.frame(datanames, datanames %in% allnames)
+	colnames(datainall) <- c("name", "inlist")
+	datapresentinall <- which(datainall$inlist == TRUE)
+	
+	# work out which regions in the location dataframe are present in the regionlist
+	allindata <- data.frame(allnames, allnames %in% datanames)
+	colnames(allindata) <- c("name", "inlist")
+	allpresentindata <- which(allindata$inlist == TRUE)
+	
+	datanames <- regionlist[datapresentinall,]
+	allnames <- dataframe[allpresentindata,]
+
+	if(length(datanames[,1]) != length(allnames[,1])) {
+		cat("Something is wrong with the data provided. The number of regions found doesn't match!\n")
+		return
+	}
+	
+	# now that we have the locations that exist in both datasets, we need to remove the locations we don't have data for in the movementdata
+	# first remove the non-existent origins
+	origins <- as.vector(movementdata$origin)
+	originsindata <- data.frame(origins, origins %in% datanames$V1)
+	colnames(originsindata) <- c("id", "inlist")
+	originspresentindata <- which(originsindata$inlist == TRUE)
+	movementdata <- movementdata[originspresentindata,]
+	
+	# now do the same for the destinations
+	destinations <- as.vector(movementdata$destination)
+	destinationsindata <- data.frame(destinations, destinations %in% datanames$V1)
+	colnames(destinationsindata) <- c("id", "inlist")
+	destinationspresentindata <- which(destinationsindata$inlist == TRUE)
+	movementdata <- movementdata[destinationspresentindata,]
+	
+	# now match up the IDs in the movementdata with those in the dataframe
+	# or better yet, use the names
+	# this is probably a terrible way to do it
+	for(idx in 1:nrow(movementdata)) {
+		rowdata <- movementdata[idx,]
+		originaloriginid <- rowdata$origin
+		originlocation <- (as.character(idlist[idlist$V1 == originaloriginid,2]))
+		
+		originaldestinationid <- rowdata$destination
+		destinationlocation <- (as.character(idlist[idlist$V1 == originaldestinationid,2]))
+		
+		neworiginid <- (as.character(allnames[allnames$name == originlocation,2]))
+		newdestinationid <- (as.character(allnames[allnames$name == destinationlocation,2]))
+		
+		movementdata[idx,1] <- as.numeric(neworiginid)
+		movementdata[idx,2] <- as.numeric(newdestinationid)
+		movementdata[idx,3] <- as.numeric(movementdata[idx,3])
+	}
+	
+	return (list(locations=allnames[,c(2,3,4,5)],observed=movementdata))	
 }
 
 #' Kenya 2010 population raster
