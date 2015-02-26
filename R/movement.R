@@ -1197,6 +1197,13 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 	return (list(locations=allnames[,c(1,3,4,5)],observed=as.movementmatrix(movementdata)))	
 }
 
+showcomparisonplot <- function(optimisedmodel, observed) {
+	par(mfrow=c(2,2))
+	plot(raster(observed), main="Observed movement matrix")
+	plot(raster(optimisedmodel$trainingresults$prediction), main="Predicted movement matrix")
+	plot(raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
+}
+
 #' Kenya 2010 population raster
 #'
 #' An AfriPop raster of the modelled 2010 population in Kenya.
