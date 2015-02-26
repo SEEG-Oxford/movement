@@ -87,6 +87,7 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 	training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
 	training_results$modelparams <- optimresults$par
 	cat("Training complete.\n")
+	dimnames(training_results$prediction) <- dimnames(movement_matrix)
 	me <- list(optimisationresults = optimresults,
 				trainingresults = training_results,
 				coefficients = optimresults$par,
@@ -768,7 +769,7 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   coords <- matrix(coords, ncol=2)
   colnames(coords)  <- c("x","y")
   dis <- dist(coords)
-  locations <- as.numeric(dataframe["origin"]$origin)
+  locations <- dataframe["origin"]$origin
 
   # if we want a matrix, not a 'dist' object convert it
   if (matrix) {
@@ -1184,12 +1185,16 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 		neworiginid <- (as.character(allnames[allnames$name == originlocation,2]))
 		newdestinationid <- (as.character(allnames[allnames$name == destinationlocation,2]))
 		
-		movementdata[idx,1] <- as.numeric(neworiginid)
-		movementdata[idx,2] <- as.numeric(newdestinationid)
+		# cat(paste("Original origin location id:", originaloriginid, "\nUpdated origin id:", neworiginid, "\nOriginal destination id:", originaldestinationid, "\nUpdated destination id:", newdestinationid, "\n"))
+		
+		movementdata[idx,1] <- originlocation
+		movementdata[idx,2] <- destinationlocation
 		movementdata[idx,3] <- as.numeric(movementdata[idx,3])
 	}
 	
-	return (list(locations=allnames[,c(2,3,4,5)],observed=as.movementmatrix(movementdata)))	
+	allnames <- allnames[order(allnames[,1]),]
+	
+	return (list(locations=allnames[,c(1,3,4,5)],observed=as.movementmatrix(movementdata)))	
 }
 
 #' Kenya 2010 population raster
