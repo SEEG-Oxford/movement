@@ -1126,7 +1126,7 @@ as.locationdataframe <- function(dataframe) {
 # portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
 as.locationdataframe <- function(gadm, populationraster) {
 	result <- data.frame(simplifytext(gadm$NAME_2),gadm$ID_2,extract(world,gadm, fun=sum),coordinates(gadm))
-	colnames(result) <- c("name", "location", "pop", "lat", "lon")
+	colnames(result) <- c("name", "location", "pop", "lon", "lat")
 	return (result)
 }
 
