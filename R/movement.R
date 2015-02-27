@@ -1075,7 +1075,7 @@ as.movementmatrix <- function(dataframe) {
 	
 	mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(sort(unique(dataframe[1])[,]),sort(unique(dataframe[2])[,])))
 	for(idx in 1:nrow(dataframe)) {
-		mat[as.character(dataframe[idx,1]),as.character(dataframe[idx,2])] <- dataframe[idx,3]
+		mat[as.character(dataframe[idx,2]),as.character(dataframe[idx,1])] <- dataframe[idx,3]
 	}
 	
 	mat[is.na(mat)] <- 0
