@@ -547,21 +547,21 @@ movement.predict <- function(distance, population,
                           style = 3)
   }
   
-  cpuCount <- threadCount
-  cl <- makeCluster(cpuCount, outfile="output.log")
-  registerDoParallel(cl)
-  chunkSize <- ceiling(nrow(indices) / cpuCount)
+  #cpuCount <- threadCount
+  #cl <- makeCluster(cpuCount, outfile="output.log")
+  #registerDoParallel(cl)
+  #chunkSize <- ceiling(nrow(indices) / cpuCount)
   
-  T_ijs <- foreach(idx=icount(cpuCount), .combine=cbind) %dopar% {
-	startIndex <- ((idx - 1) * chunkSize) + 1
-	endIndex <- min(c((idx * chunkSize), nrow(indices)))
-	iT_ijs <- apply(indices[startIndex:endIndex,], 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
-	return (iT_ijs)
-  }
+  #T_ijs <- foreach(idx=icount(cpuCount), .combine=cbind) %dopar% {
+	#startIndex <- ((idx - 1) * chunkSize) + 1
+	#endIndex <- min(c((idx * chunkSize), nrow(indices)))
+	#iT_ijs <- apply(indices[startIndex:endIndex,], 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
+	#return (iT_ijs)
+  #}
   
-  T_ijs <- matrix(T_ijs, ncol=2)
+  #T_ijs <- matrix(T_ijs, ncol=2)
   
-  stopCluster(cl)
+  #stopCluster(cl)
   
   # This can probably be vectorized which should help speed up the population of the movement matrix
   for (idx in 1:nrow(indices)) {
@@ -569,20 +569,29 @@ movement.predict <- function(distance, population,
     pair <- indices[idx, ]
     i <- pair[1]
     j <- pair[2]
-
+    # calculate the number of commuters between them  	
+    T_ij <- flux(i = i,		
+                 j = j,		
+                 distance = distance,		
+                 population = population,		
+                 symmetric = symmetric,		
+                 ...)		
+    
+    # and stick it in the results matrix		
+    
     # if the symmetric distance was calculated (sum of i to j and j to i)
     # stick it in both triangles
     if (symmetric) {
 
-      movement[i, j] <- movement[j, i] <- T_ijs[idx,]
+      movement[i, j] <- movement[j, i] <- T_ij
 
     } else {
 
       # otherwise stick one in the upper and one in the the lower
       # (flux returns two numbers in this case)
       # i.e. rows are from (i), columns are to (j)
-      movement[i, j] <- T_ijs[idx,][1]
-      movement[j, i] <- T_ijs[idx,][2]
+      movement[i, j] <- T_ij[1]
+      movement[j, i] <- T_ij[2]
 
     }
 
