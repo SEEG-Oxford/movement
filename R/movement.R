@@ -1078,7 +1078,7 @@ as.movementmatrix <- function(dataframe) {
 	nrows <- length(unique(dataframe[1])[,])
 	ncols <- length(unique(dataframe[2])[,])
 	if(nrows != ncols) {
-		print ("Error: Expected a square matrix!")
+		stop ("Error: Expected a square matrix!")
 		return (NULL)
 	}
 	

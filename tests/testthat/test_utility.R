@@ -53,3 +53,9 @@ test_that("as.movementmatrix returns a matrix of the correct dimensions", {
 	testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
 	expect_equal(dim(as.movementmatrix(testdata)), c(2,2))
 })
+
+test_that("as.movementmatrix returns the correct matrix", {
+	testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
+	expectedmatrix <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+	expect_equal(as.movementmatrix(testdata), expectedmatrix)
+})
