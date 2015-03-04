@@ -56,7 +56,7 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 		upper <- c(Inf, 1)
 		lower <- c(0, 0)
 	} else if(model == "intervening opportunities") {
-		params <- c(theta=1, L=0.9)
+		params <- c(theta=0.001, L=0.00001)
 		upper <- c(Inf, Inf)
 		lower <- c(1e-20, 1e-05)
 	} else if(model == "gravity") {
