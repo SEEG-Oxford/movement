@@ -1,10 +1,5 @@
-require(raster)
-require(rgdal)
-require(Matrix)
-require(tools)
-
-library(foreach)
-library(doParallel)
+#library(foreach)
+#library(doParallel)
 
 ###############################################################################
 # Main interface methods                                                      #
