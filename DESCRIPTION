@@ -9,3 +9,4 @@ Description: Movement of humans and animals has a crucial role in the epidemiolo
 License: GPL(>=2)
 Depends: raster
 LinkingTo: raster
+Suggests: testthat
