@@ -43,3 +43,13 @@ test_that("as.locationdataframe creates data.frame with correct lon column", {
 	testdata <- data.frame(origin=c(1,1,2,3,4), pop_origin=c(10,10,20,30,40), lat_origin=c(-1,-1,0,1,2), long_origin=c(-5,-5,-4,-3,-2))
 	expect_equal(as.locationdataframe(testdata)$lon, c(-5,-4,-3,-2))
 })
+
+test_that("as.movementmatrix returns error for a non-square matrix", {
+	testdata <- data.frame(origin=c("a","a"), destination=c("b", "c"), movement=c(1,2))
+	expect_error(as.movementmatrix(testdata), "Expected a square matrix!")
+})
+
+test_that("as.movementmatrix returns a matrix of the correct dimensions", {
+	testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
+	expect_equal(dim(as.movementmatrix(testdata)), c(2,2))
+})
