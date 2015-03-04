@@ -58,11 +58,11 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 	} else if(model == "intervening opportunities") {
 		params <- c(theta=1, L=0.9)
 		upper <- c(Inf, Inf)
-		lower <- c(0, -Inf)
+		lower <- c(1e-20, 1e-05)
 	} else if(model == "gravity") {
 		params <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
 		upper <- c(Inf, Inf, Inf, Inf)
-		lower <- c(0, -Inf, -Inf, -Inf)
+		lower <- c(1e-20, -Inf, -Inf, -Inf)
 	} else {
 		cat("Error: Unknown model type given\n")
 		return ()
@@ -80,7 +80,7 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
 	
 	# attempt to parameterise the model using optim
-	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, upper=upper, lower=lower, ...) #, upper=upper, lower=lower
 	predictionModel$modelparams = optimresults$par
 	
 	# populate the training results (so we can see the end result)
@@ -978,7 +978,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #' \code{\link{analysepredictionusingdpois}}
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+	optim(predictionModel$modelparams, fittingwrapper, method="L-BFGS-B", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 }
 
 ###############################################################################
