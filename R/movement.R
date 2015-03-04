@@ -1092,6 +1092,10 @@ as.movementmatrix <- function(dataframe) {
 	return (mat)
 }
 
+as.locationdataframe <- function(dataframe, ...) {
+	UseMethod("as.locationdataframe", dataframe)
+}
+
 #' Convert a merged data.frame into a single location data.frame
 #'
 #' Takes a data.frame containing location and population data and converts it
@@ -1116,7 +1120,7 @@ as.movementmatrix <- function(dataframe) {
 #' # 3        c 100 0.07126503 0.19544754
 #' # 4        d 113 0.97817937 0.22771625
 #' # 5        e 107 0.87233335 0.06695538
-as.locationdataframe <- function(dataframe) {
+as.locationdataframe.data.frame <- function(dataframe) {
 	  dataframe <- dataframe[!duplicated(dataframe$origin),]
 	  pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
 	  lat <- as.numeric(dataframe["lat_origin"]$lat_origin)
