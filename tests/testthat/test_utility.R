@@ -81,3 +81,24 @@ test_that("correlate regions removes locations from dataframe when not present a
 	expect_equivalent(actual$locations, expectedlocations)
 	expect_equivalent(actual$observed, expectedobserved)
 })
+
+test_that("correlate regions removes locations from movement data when not present in dataframe", {
+	testdataframe <- data.frame(name=c("a", "b", "c"), location=c(1,2,3), pop=c(10,20,30), lon=c(-5,-4,-3), lat=c(-1,0,1))
+	testregionlist <- data.frame(V1=c(1,2,3,4),V2=c("a","b","c","d"))
+	testmovementdata <- data.frame(origin=c(1,1,1,2,2,2,3,3,3,4,4,4), destination=c(2,3,4,1,3,4,1,2,4,1,2,3), movement=c(1,2,3,4,5,6,7,8,9,10,11,12))
+	actual <- correlateregions(testdataframe, testregionlist, testmovementdata)
+	expectedlocations <- data.frame(name=c("a", "b", "c"), pop=c(10,20,30), lon=c(-5,-4,-3), lat=c(-1,0,1))
+	expectedobserved <- matrix(c(0,1,2,4,0,5,7,8,0), nrow=3, dimnames=list(c("a", "b", "c"),c("a", "b", "c")))
+	expect_equivalent(actual$locations, expectedlocations)
+	expect_equivalent(actual$observed, expectedobserved)
+})
+
+test_that("correlate regions throws an error is any of the parameters are not dataframes", {
+	testdataframe <- data.frame(name=c("a", "b", "c"), location=c(1,2,3), pop=c(10,20,30), lon=c(-5,-4,-3), lat=c(-1,0,1))
+	testregionlist <- data.frame(V1=c(1,2,3,4),V2=c("a","b","c","d"))
+	testmovementdata <- data.frame(origin=c(1,1,1,2,2,2,3,3,3,4,4,4), destination=c(2,3,4,1,3,4,1,2,4,1,2,3), movement=c(1,2,3,4,5,6,7,8,9,10,11,12))
+	expect_error(correlateregions(1, testregionlist, testmovementdata),"Error in correlateregions(1, testregionlist, testmovementdata) : \n  Parameter 'dataframe' must be a data.frame!\n")
+	expect_error(correlateregions(testdataframe, 1, testmovementdata),"Parameter 'regionlist' is not a data.frame!")
+	expect_error(correlateregions(testdataframe, testregionlist, 1),"Parameter 'regionlist' is not a data.frame!")
+
+})
