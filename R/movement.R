@@ -1201,6 +1201,8 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 	}
 	
 	allnames <- allnames[order(allnames[,1]),]
+	# code to remove the missing factors
+	allnames$name <- as.factor(as.vector(allnames$name))
 	
 	return (list(locations=allnames[,c(1,3,4,5)],observed=as.movementmatrix(movementdata)))	
 }
