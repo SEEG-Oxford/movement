@@ -4,3 +4,4 @@ language: r
 
 apt_packages:
  - gdal-bin
+ - libgdal1-dev
