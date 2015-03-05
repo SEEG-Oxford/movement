@@ -4,7 +4,7 @@ language: r
 
 apt_packages:
  - gdal-bin
- - libgdal1-dev
+ - libgdal-dev
  
 install:
   - ./travis-tool.sh github_package jimhester/covr
