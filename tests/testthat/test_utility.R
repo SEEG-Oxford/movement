@@ -66,8 +66,9 @@ test_that("correlate regions works for small test case", {
 	testmovementdata <- data.frame(origin=c(1,1,1,2,2,2,3,3,3,4,4,4), destination=c(2,3,4,1,3,4,1,2,4,1,2,3), movement=c(1,2,3,4,5,6,7,8,9,10,11,12))
 	actual <- correlateregions(testdataframe, testregionlist, testmovementdata)
 	expectedlocations <- data.frame(name=c("a", "b", "c", "d"), pop=c(10,20,30,40), lon=c(-5,-4,-3,-2), lat=c(-1,0,1,2))
-	expectedobserved <- matrix(c(0,1,2,3,4,5,0,6,7,8,9,0,10,11,12,0), nrow=4, dimnames=list(c("a", "b", "c", "d"),c("a", "b", "c", "d")))
-	expect_equal(actual$locations, expectedlocations)
+	expectedobserved <- matrix(c(0,1,2,3,4,0,5,6,7,8,0,9,10,11,12,0), nrow=4, dimnames=list(c("a", "b", "c", "d"),c("a", "b", "c", "d")))
+	expect_equivalent(actual$locations, expectedlocations)
+	expect_equivalent(actual$observed, expectedobserved)
 })
 
 test_that("correlate regions removes locations from dataframe when not present as movement data", {
@@ -76,6 +77,7 @@ test_that("correlate regions removes locations from dataframe when not present a
 	testmovementdata <- data.frame(origin=c(1,1,1,2,2,2,3,3,3,4,4,4), destination=c(2,3,4,1,3,4,1,2,4,1,2,3), movement=c(1,2,3,4,5,6,7,8,9,10,11,12))
 	actual <- correlateregions(testdataframe, testregionlist, testmovementdata)
 	expectedlocations <- data.frame(name=c("a", "b", "c", "d"), pop=c(10,20,30,40), lon=c(-5,-4,-3,-2), lat=c(-1,0,1,2))
-	expectedobserved <- matrix(c(0,1,2,3,4,5,0,6,7,8,9,0,10,11,12,0), nrow=4, dimnames=list(c("a", "b", "c", "d"),c("a", "b", "c", "d")))
-	expect_equal(actual$locations, expectedlocations)
+	expectedobserved <- matrix(c(0,1,2,3,4,0,5,6,7,8,0,9,10,11,12,0), nrow=4, dimnames=list(c("a", "b", "c", "d"),c("a", "b", "c", "d")))
+	expect_equivalent(actual$locations, expectedlocations)
+	expect_equivalent(actual$observed, expectedobserved)
 })
