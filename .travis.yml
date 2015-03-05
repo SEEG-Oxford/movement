@@ -3,8 +3,7 @@
 language: r
 
 apt_packages:
- - gdal
- - libgdal
+ - r-cran-gdal
 
 r_binary_packages:
  - testthat
