@@ -98,7 +98,7 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 #' Predict population movements from a population input
 #'
 #' Use a trained \code{optimisedmodel} object to predict population movements
-#' given eiether a RasterLayer containing a single population layer, or a
+#' given either a RasterLayer containing a single population layer, or a
 #' data.frame containing population and location data formatted as:
 #' #   location pop        lat        lon
 #' # 1        a 100 0.07826932 0.13612404
@@ -191,7 +191,7 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' two sites based on population and distance.
 #'
 #' Given indices \code{i} and \code{j}, a (dense) distance matrix
-#' \code{distance} giving the euclidean distances beween all pairs of sites, a
+#' \code{distance} giving the euclidean distances between all pairs of sites, a
 #' vector of population sizes \code{population} and a set of parameters, use
 #' any of three variants of the continuum model (Simini et al. 2013) to predict
 #' movements between sites \code{i} and \code{j}.
@@ -212,7 +212,7 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' summed movement between the two (\code{symmetric = TRUE}).
 #' The model can be sped up somewhat by setting \code{minpop} and
 #' \code{maxrange}. If either of the two sites has a population lower than
-#' \code{minpop} (minimum population size), or if the distance betweent the two
+#' \code{minpop} (minimum population size), or if the distance between the two
 #' sites is greater than \code{maxrange} (the maximum range) it is assumed that
 #' no travel occurs between these points.
 #' Note that this function only works for individual site pairs. To calculate
@@ -374,14 +374,14 @@ continuum.flux <- function(i, j, distance, population,
 #'
 #' Given indices \code{i} and \code{j}, a vector of population sizes
 #' \code{population}, a (dense) distance matrix \code{distance} giving the
-#' euclidean distances beween all pairs of sites, and a set of parameters
+#' euclidean distances between all pairs of sites, and a set of parameters
 #' \code{theta}, to predict movements between sites \code{i} and \code{j}.
 #' The flux can be calculated either for both directions (by setting
 #'  \code{symmetric = FALSE}, returning movements for each direction) or for
 #'  the summed movement between the two (\code{symmetric = TRUE}).
 #' The model can be sped up somewhat by setting \code{minpop} and
 #' \code{maxrange}. If either of the two sites has a population lower than
-#' \code{minpop} (minimum population size), or if the distance betweent the two
+#' \code{minpop} (minimum population size), or if the distance between the two
 #' sites is greater than \code{maxrange} (the maximum range) it is assumed that
 #' no travel occurs between these points.
 #' Note that this function only works for individual sites, use
@@ -708,7 +708,7 @@ showprediction.movementmodel <- function(predictionModel, ...) {
 #' @return A list with three components:
 #'  \item{population }{A vector giving the populations at the cells of
 #' interest}
-#'  \item{distance_matrix }{A distance matrix (eith of class \code{matrix} or
+#'  \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
 #' \code{dist}) diving the pairwise euclidean distance between the cells of
 #' interest in the units of \code{raster}}
 #'  \item{coordinate }{A two-column matrix giving the coordinates of the cells
