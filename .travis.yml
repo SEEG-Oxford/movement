@@ -1,3 +1,11 @@
 # Sample .travis.yml for R projects from https://github.com/craigcitro/r-travis
 
 language: r
+
+apt_packages:
+ - gdal
+ - libgdal
+
+r_binary_packages:
+ - testthat
+ - rgdal
