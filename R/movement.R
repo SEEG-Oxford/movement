@@ -1132,7 +1132,7 @@ as.locationdataframe.data.frame <- function(dataframe) {
 # make sure it is cropped to the correct region first using raster::crop
 # for portugal, this works: crop(gadm, extent(-10, -6.189142, 30, 42.154232))
 # portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
-as.locationdataframe <- function(gadm, populationraster) {
+as.locationdataframe.gadm <- function(gadm, populationraster) {
 	result <- data.frame(simplifytext(gadm$NAME_2),gadm$ID_2,extract(world,gadm, fun=sum),coordinates(gadm))
 	colnames(result) <- c("name", "location", "pop", "lon", "lat")
 	return (result)
