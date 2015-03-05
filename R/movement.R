@@ -1202,8 +1202,6 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 		neworiginid <- (as.character(allnames[allnames$name == originlocation,2]))
 		newdestinationid <- (as.character(allnames[allnames$name == destinationlocation,2]))
 		
-		# cat(paste("Original origin location id:", originaloriginid, "\nUpdated origin id:", neworiginid, "\nOriginal destination id:", originaldestinationid, "\nUpdated destination id:", newdestinationid, "\n"))
-		
 		movementdata[idx,1] <- originlocation
 		movementdata[idx,2] <- destinationlocation
 		movementdata[idx,3] <- as.numeric(movementdata[idx,3])
