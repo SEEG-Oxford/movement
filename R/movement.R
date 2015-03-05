@@ -1143,6 +1143,15 @@ simplifytext <- function(string) {
 }
 
 correlateregions <- function(dataframe, regionlist, movementdata) {
+	if(!is(dataframe, "data.frame")) {
+		stop ("Parameter 'dataframe' must be a data.frame!")
+	}
+	if(!is(regionlist, "data.frame")) {
+		stop ("Parameter 'regionlist' must be a data.frame!")
+	}
+	if(!is(movementdata, "data.frame")) {
+		stop ("Parameter 'movementdata' must be a data.frame!")
+	}
 	allnames <- as.vector(dataframe$name)
 	datanames <- as.vector(regionlist$V2)
 	
