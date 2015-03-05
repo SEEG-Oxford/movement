@@ -1185,10 +1185,10 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 	for(idx in 1:nrow(movementdata)) {
 		rowdata <- movementdata[idx,]
 		originaloriginid <- rowdata$origin
-		originlocation <- (as.character(idlist[idlist$V1 == originaloriginid,2]))
+		originlocation <- (as.character(regionlist[regionlist$V1 == originaloriginid,2]))
 		
 		originaldestinationid <- rowdata$destination
-		destinationlocation <- (as.character(idlist[idlist$V1 == originaldestinationid,2]))
+		destinationlocation <- (as.character(regionlist[regionlist$V1 == originaldestinationid,2]))
 		
 		neworiginid <- (as.character(allnames[allnames$name == originlocation,2]))
 		newdestinationid <- (as.character(allnames[allnames$name == destinationlocation,2]))
