@@ -2,9 +2,6 @@
 
 language: r
 
-apt_packages:
- - r-cran-gdal
-
 r_binary_packages:
  - testthat
  - rgdal
