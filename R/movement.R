@@ -1031,7 +1031,7 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 	destinations = sort(as.numeric(unique(data[destcolname])[,1]))
 	
 	sparseMatrix <- matrix(nrow = nrows, ncol = ncols)
-	for (idx in 1:length(data$X)) {
+	for (idx in 1:length(data[,1])) {
 		sparseMatrix[match(data[idx,origincolname],origins),match(data[idx,destcolname],destinations)] = data[idx,valcolname]
 	}
 	
