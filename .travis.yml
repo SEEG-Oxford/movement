@@ -3,6 +3,9 @@
 language: r
 
 apt_packages:
+ - libgdal1h
+ - libnetcdf-dev
+ - libhdf4-alt-dev
  - libhdf5-7
  - libhdf5-dev
  - libhdf5-serial-dev
