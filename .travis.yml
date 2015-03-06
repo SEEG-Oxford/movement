@@ -3,7 +3,7 @@
 language: r
 
 apt_packages:
- - libhdf5-serial-dev
+ - libhdf5-dev
  - gdal-bin
  - libgdal-dev
  
