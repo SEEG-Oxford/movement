@@ -20,7 +20,7 @@ before_install:
   - chmod 755 ./travis-tool.sh
   - ./travis-tool.sh bootstrap
 install:
-  - ./travis-tool.sh install_aptget libhdf5-7 libhdf5-dev libhdf5-serial-dev
+  - ./travis-tool.sh install_aptget libhdf5-7 libhdf5-dev libhdf5-serial-dev gdal-bin libgdal-dev
   - ./travis-tool.sh install_deps
   - ./travis-tool.sh install_github jimhester/covr
   
