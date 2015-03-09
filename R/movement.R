@@ -108,7 +108,7 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 #' # 2        b  88 0.12114115 0.58984725
 #' # 3        c 100 0.07126503 0.19544754
 #' # 4        d 113 0.97817937 0.22771625
-#'# 5        e 107 0.87233335 0.06695538
+#' # 5        e 107 0.87233335 0.06695538
 #' @param model An \code{optimisedmodel} object containing the trained model
 #' @param input A \code{RasterLayer} object containing a single population
 #' attribute, or a data.frame containing population and location data
