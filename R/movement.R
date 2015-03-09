@@ -952,20 +952,20 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #' @return See \code{\link{optim}}
 #'
 #' @examples
-#' # convert france shapefile into raster, keeping layer ID_3
-#' france <- rasterizeShapeFile('france.shp', c('ID_3'))
-#' # create the prediction model for the dataset using the radiation with
-#' # selection model
-#' predictionModel <- movementmodel(dataset=france, min_network_pop = 50000,
-#' predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
-#' = c(0.999, 0.998))
-#' # load the observed movement data into a matrix
-#' observedmatrix <- createobservedmatrixfromcsv("movementmatrix.csv",
-#' "origin", "destination", "movement")
-#' # load the population data into a dataframe
-#' populationdata <- createpopulationfromcsv("movementmatrix.csv")
-#' # attempt to optimise the model
-#' attemptoptimisation(predictionModel, populationdata, observedmatrix)
+#' ## convert france shapefile into raster, keeping layer ID_3
+#' #france <- rasterizeShapeFile('france.shp', c('ID_3'))
+#' ## create the prediction model for the dataset using the radiation with
+#' ## selection model
+#' #predictionModel <- movementmodel(dataset=france, min_network_pop = 50000,
+#' #predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
+#' #= c(0.999, 0.998))
+#' ## load the observed movement data into a matrix
+#' #observedmatrix <- createobservedmatrixfromcsv("movementmatrix.csv",
+#' #"origin", "destination", "movement")
+#' ## load the population data into a dataframe
+#' #populationdata <- createpopulationfromcsv("movementmatrix.csv")
+#' ## attempt to optimise the model
+#' #attemptoptimisation(predictionModel, populationdata, observedmatrix)
 #'
 #' @seealso \code{\link{movementmodel}},
 #' \code{\link{createobservedmatrixfromcsv}},
