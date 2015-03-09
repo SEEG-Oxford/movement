@@ -22,7 +22,7 @@ and other excluded.}
 A list with three components:
  \item{population }{A vector giving the populations at the cells of
 interest}
- \item{distance_matrix }{A distance matrix (eith of class \code{matrix} or
+ \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
 \code{dist}) diving the pairwise euclidean distance between the cells of
 interest in the units of \code{raster}}
  \item{coordinate }{A two-column matrix giving the coordinates of the cells
@@ -38,13 +38,13 @@ use in movement models.
 # load kenya raster
 data(kenya)
 # aggregate to 10km to speed things up
-kenya10 <- aggregate(kenya, 10, sum)
+kenya10 <- raster::aggregate(kenya, 10, sum)
 # get the network for pixels with at least 50,000 inhabitants
 net <- get.network(kenya10, min = 50000)
 # visualise the distance matrix
-plot(raster(net$distance_matrix))
+sp::plot(raster::raster(net$distance_matrix))
 # plot the raster layer
-plot(kenya10)
+sp::plot(kenya10)
 # rescale the population of those pixels for plotting
 size <- 0.1 + 2 * net$population / max(net$population)
 # plot the pixels selected, with point size proportional to population size

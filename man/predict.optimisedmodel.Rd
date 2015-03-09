@@ -18,7 +18,7 @@ containing the predicted population movements.
 }
 \description{
 Use a trained \code{optimisedmodel} object to predict population movements
-given eiether a RasterLayer containing a single population layer, or a
+given either a RasterLayer containing a single population layer, or a
 data.frame containing population and location data formatted as:
 #   location pop        lat        lon
 # 1        a 100 0.07826932 0.13612404

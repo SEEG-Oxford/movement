@@ -40,14 +40,14 @@ people moving between the two sites.
 \description{
 Given indices \code{i} and \code{j}, a vector of population sizes
 \code{population}, a (dense) distance matrix \code{distance} giving the
-euclidean distances beween all pairs of sites, and a set of parameters
+euclidean distances between all pairs of sites, and a set of parameters
 \code{theta}, to predict movements between sites \code{i} and \code{j}.
 The flux can be calculated either for both directions (by setting
  \code{symmetric = FALSE}, returning movements for each direction) or for
  the summed movement between the two (\code{symmetric = TRUE}).
 The model can be sped up somewhat by setting \code{minpop} and
 \code{maxrange}. If either of the two sites has a population lower than
-\code{minpop} (minimum population size), or if the distance betweent the two
+\code{minpop} (minimum population size), or if the distance between the two
 sites is greater than \code{maxrange} (the maximum range) it is assumed that
 no travel occurs between these points.
 Note that this function only works for individual sites, use

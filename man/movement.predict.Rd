@@ -5,7 +5,7 @@
 \title{Use a movement model to predict movements across a landscape.}
 \usage{
 movement.predict(distance, population, flux = continuum.flux,
-  symmetric = FALSE, progress = TRUE, ...)
+  symmetric = FALSE, progress = TRUE, threadCount = 1, ...)
 }
 \arguments{
 \item{distance}{A distance matrix giving the euclidean distance between
