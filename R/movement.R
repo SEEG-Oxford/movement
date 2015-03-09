@@ -1,5 +1,8 @@
 #library(foreach)
 #library(doParallel)
+library(tools)
+library(rgdal)
+library(raster)
 
 ###############################################################################
 # Main interface methods                                                      #
@@ -655,13 +658,13 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' # load kenya raster
 #' data(kenya)
 #' # aggregate to 10km to speed things up
-#' kenya10 <- aggregate(kenya, 10, sum)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
-#' plot(raster(predictedMovements$net$distance_matrix))
+#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
 #'
@@ -718,13 +721,13 @@ showprediction.movementmodel <- function(predictionModel, ...) {
 #' # load kenya raster
 #' data(kenya)
 #' # aggregate to 10km to speed things up
-#' kenya10 <- aggregate(kenya, 10, sum)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # get the network for pixels with at least 50,000 inhabitants
 #' net <- get.network(kenya10, min = 50000)
 #' # visualise the distance matrix
-#' plot(raster(net$distance_matrix))
+#' sp::plot(raster::raster(net$distance_matrix))
 #' # plot the raster layer
-#' plot(kenya10)
+#' sp::plot(kenya10)
 #' # rescale the population of those pixels for plotting
 #' size <- 0.1 + 2 * net$population / max(net$population)
 #' # plot the pixels selected, with point size proportional to population size
@@ -748,7 +751,7 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
   pop <- raster[keep]
 
   # get coordinates
-  coords <- xyFromCell(raster, keep)
+  coords <- raster::xyFromCell(raster, keep)
 
   # build distance matrix
   dis <- dist(coords)
@@ -815,13 +818,13 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #' # load kenya raster
 #' data(kenya)
 #' # aggregate to 10km to speed things up
-#' kenya10 <- aggregate(kenya, 10, sum)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
-#' plot(raster(predictedMovements$net$distance_matrix))
+#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
 #'
@@ -850,13 +853,13 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 #' # load kenya raster
 #' data(kenya)
 #' # aggregate to 10km to speed things up
-#' kenya10 <- aggregate(kenya, 10, sum)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
-#' plot(raster(predictedMovements$net$distance_matrix))
+#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
 #'
@@ -985,8 +988,8 @@ rasterizeShapeFile <- function(filename, keeplist)  {
 	# load the shapefile into a SpatialPolygonsDataFrame
 	dsn = dirname(filename)
 	filename = basename(filename)
-	layer = file_path_sans_ext(filename)
-	shapeObject = readOGR(dsn = dsn, layer = layer)
+	layer = tools::file_path_sans_ext(filename)
+	shapeObject = rgdal::readOGR(dsn = dsn, layer = layer)
 	shapeObject <- shapeObject[keeplist]
 	
 	# get the extents of the dataframe
@@ -1232,7 +1235,7 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 #'
 #' @examples
 #' data(kenya)
-#' plot(kenya)
+#' sp::plot(kenya)
 #'
 #' @references
 #' Linard C., Gilbert, M. Snow, R.W., Noor, A.M. & Tatem, A.J. (2010)
