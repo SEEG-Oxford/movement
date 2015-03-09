@@ -1077,7 +1077,6 @@ as.movementmatrix <- function(dataframe) {
 	ncols <- length(unique(dataframe[2])[,])
 	if(nrows != ncols) {
 		stop ("Error: Expected a square matrix!")
-		return (NULL)
 	}
 	
 	mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(sort(unique(dataframe[1])[,]),sort(unique(dataframe[2])[,])))
@@ -1172,8 +1171,7 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 	allnames <- dataframe[allpresentindata,]
 
 	if(length(datanames[,1]) != length(allnames[,1])) {
-		cat("Something is wrong with the data provided. The number of regions found doesn't match!\n")
-		return
+		stop("Something is wrong with the data provided. The number of regions found doesn't match!\n")
 	}
 	
 	# now that we have the locations that exist in both datasets, we need to remove the locations we don't have data for in the movementdata
