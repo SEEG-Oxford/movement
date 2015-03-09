@@ -619,10 +619,10 @@ movement.predict <- function(distance, population,
 # plots the movements within a network onto a raster layer
 show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 	# visualise the distance matrix
-	plot(raster(network$distance_matrix))
+	sp::plot(raster::raster(network$distance_matrix))
 
 	# plot the raster layer
-	plot(raster_layer, ...)
+	sp::plot(raster_layer, ...)
 
 	# rescale the population of those pixels for plotting
 	size <- 0.1 + 2 * network$population / max(network$population)
