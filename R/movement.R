@@ -883,7 +883,7 @@ predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 	  net <- get.network(predictionModel$dataset, min = predictionModel$min_network_pop)
 	}
 	else {
-	  net <- get.network.fromdataframe(dataframe = dataframe, min = predictionModel$min_network_pop)
+	  net <- get.network.fromdataframe(dataframe, min = predictionModel$min_network_pop)
 	}
 	predictionModel$net = net
 	if(predictionModel$predictionmodel == 'gravity'){
