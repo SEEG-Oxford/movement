@@ -1109,7 +1109,7 @@ as.locationdataframe.data.frame <- function(dataframe) {
 # for portugal, this works: crop(gadm, extent(-10, -6.189142, 30, 42.154232))
 # portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
 as.locationdataframe.SpatialPolygonsDataFrame <- function(gadm, populationraster) {
-	result <- data.frame(simplifytext(gadm$NAME_2),gadm$ID_2,extract(populationraster,gadm, fun=sum),coordinates(gadm))
+	result <- data.frame(simplifytext(gadm$NAME_2),gadm$ID_2,raster::extract(populationraster,gadm, fun=sum),sp::coordinates(gadm))
 	colnames(result) <- c("name", "location", "pop", "lon", "lat")
 	return (result)
 }
