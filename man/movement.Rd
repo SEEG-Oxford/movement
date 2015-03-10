@@ -23,10 +23,7 @@ models are \code{original radiation}, \code{radiation with selection},
 \code{uniform selection}, \code{intervening opportunities},
 \code{gravity}}
 
-\item{\dots}{Extra parameters to be passed to the prediction code. A useful
-parameter to note is \code{threadCount} which determines how many threads
-to use when optimising the mode. More is not necessarily better as there is
-an inherent overhead in creating new threads.}
+\item{\dots}{Extra parameters to be passed to the prediction code.}
 }
 \value{
 An \code{optimisedmodel} object containing the training results,
