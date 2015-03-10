@@ -60,3 +60,21 @@ test_that("movementmodel with non-default parameters creates correct object", {
 	expect_false(actual$symmetric)
 	expect_equal(actual$modelparams, 0.2)
 })
+
+test_that("analysepredictionusingdpois using simplest possible matrices returns 4 on identical matrices", {
+	observed <- matrix(c(0,1,1,0), nrow=2)
+	predicted = list()
+	predicted$prediction <- matrix(c(0,1,1,0), nrow=2)
+	
+	actual <- analysepredictionusingdpois(predicted, observed)
+	expect_equal(actual, 4)
+})
+
+test_that("analysepredictionusingdpois using simplest possible matrices returns correct value on different matrices", {
+	observed <- matrix(c(0,1,1,0), nrow=2)
+	predicted = list()
+	predicted$prediction <- matrix(c(0,2,2,0), nrow=2)
+	
+	actual <- analysepredictionusingdpois(predicted, observed)
+	expect_equal(actual, 5.227411277760218411004)
+})
