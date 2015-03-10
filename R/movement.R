@@ -742,7 +742,33 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 
 }
 
-# expects a dataframe with origin, long_origin, lat_origin and pop_origin
+#' Extract the necessary components for movement modelling form a population
+#' movement data.frame.
+#'
+#' Given population movement data.frame, extract a distance matrix and vector
+#' of population sizes for all cells with population density above a minimum
+#' threshold. These can be used as network representation of the landscape for
+#' use in movement models.
+#'
+#' @param dataframe A \code{Data.Frame} object of containing population, and
+#' location data.
+#' @param min The minimum population size for inclusion in the network. All
+#' cells with populations greater than or equal to \code{min} will be included
+#' and other excluded.
+#' @param matrix Whether the distance matrix should be returned as a
+#' \code{matrix} object (if \code{TRUE}) or as a \code{dist} object (if
+#' \code{FALSE}).
+#' @return A list with three components:
+#'  \item{population }{A vector giving the populations at the cells of
+#' interest}
+#'  \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
+#' \code{dist}) diving the pairwise euclidean distance between the cells of
+#' interest in the units of \code{raster}}
+#'  \item{coordinate }{A two-column matrix giving the coordinates of the cells
+#' of interest in the units of \code{raster}}
+#'
+#' @seealso \code{\link{raster}}, \code{\link{dist}},
+#' \code{\link{movement.predict}}
 get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   dataframe <- dataframe[!duplicated(dataframe$origin),]
   pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
