@@ -78,3 +78,13 @@ test_that("analysepredictionusingdpois using simplest possible matrices returns 
 	actual <- analysepredictionusingdpois(predicted, observed)
 	expect_equal(actual, 5.227411277760218411004)
 })
+
+test_that("predict.movementmodel uses the correct version of get.network", {
+	predictionModel = list(predictionmodel = "gravity", symmetric = FALSE, modelparams = NULL)
+	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network"),
+		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network.fromdataframe"),
+		movement.predict = function(distance, population, flux, symmetric, theta, ...) NULL,
+		expect_equal(predict.movementmodel(predictionModel)$net$name, "get.network"),
+		expect_equal(predict.movementmodel(predictionModel, data.frame(c(1,1)))$net$name, "get.network.fromdataframe")
+	)
+})
