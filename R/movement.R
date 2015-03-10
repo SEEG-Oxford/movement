@@ -1,9 +1,3 @@
-#library(foreach)
-#library(doParallel)
-library(tools)
-library(rgdal)
-library(raster)
-
 ###############################################################################
 # Main interface methods                                                      #
 ###############################################################################
