@@ -40,3 +40,23 @@ test_that("get.network.fromdataframe returns locations", {
 	actual <- get.network.fromdataframe(testdataframe)$locations
 	expect_equal(actual, expectedlocations)
 })
+
+test_that("movementmodel with default parameters creates correct object", {
+	actual <- movementmodel("test")
+	expect_true(is(actual, "movementmodel"))
+	expect_equal(actual$dataset, "test")
+	expect_equal(actual$min_network_pop, 50000)
+	expect_equal(actual$predictionmodel, "original radiation")
+	expect_true(actual$symmetric)
+	expect_equal(actual$modelparams, 0.1)
+})
+
+test_that("movementmodel with non-default parameters creates correct object", {
+	actual <- movementmodel("test", 1, "radiation with selection", FALSE, 0.2)
+	expect_true(is(actual, "movementmodel"))
+	expect_equal(actual$dataset, "test")
+	expect_equal(actual$min_network_pop, 1)
+	expect_equal(actual$predictionmodel, "radiation with selection")
+	expect_false(actual$symmetric)
+	expect_equal(actual$modelparams, 0.2)
+})
