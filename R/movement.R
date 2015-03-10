@@ -1191,9 +1191,9 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 
 showcomparisonplot <- function(optimisedmodel, observed) {
 	par(mfrow=c(2,2))
-	plot(raster(observed), main="Observed movement matrix")
-	plot(raster(optimisedmodel$trainingresults$prediction), main="Predicted movement matrix")
-	plot(raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
+	plot(raster::raster(observed), main="Observed movement matrix")
+	plot(raster::raster(optimisedmodel$trainingresults$prediction), main="Predicted movement matrix")
+	plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
 }
 
 #' Kenya 2010 population raster
