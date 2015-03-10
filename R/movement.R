@@ -967,21 +967,21 @@ rasterizeShapeFile <- function(filename, keeplist)  {
 	shapeObject <- shapeObject[keeplist]
 	
 	# get the extents of the dataframe
-	extents = extent(shapeObject)
+	extents = raster::extent(shapeObject)
 	xmin = extents@xmin
 	xmax = extents@xmax
 	ymin = extents@ymin
 	ymax = extents@ymax
 	
 	# set up a raster template to use in rasterize()
-	ext <- extent (xmin, xmax, ymin, ymax)
-	xy <- abs(apply(as.matrix(bbox(ext)), 1, diff))
+	ext <- raster::extent (xmin, xmax, ymin, ymax)
+	xy <- abs(apply(as.matrix(sp::bbox(ext)), 1, diff))
 	n <- 5
-	r <- raster(ext, ncol=xy[1]*50, nrow=xy[2]*50)
+	r <- raster::raster(ext, ncol=xy[1]*50, nrow=xy[2]*50)
 	
-	rr <- rasterize(shapeObject, r)
+	rr <- raster::rasterize(shapeObject, r)
 	## create a population only rasterlayer (i.e. remove the RAT table)
-	rr <- deratify(rr, keeplist)
+	rr <- raster::deratify(rr, keeplist)
 	return (rr)
 }
 
