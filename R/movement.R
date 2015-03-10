@@ -15,10 +15,7 @@
 #' models are \code{original radiation}, \code{radiation with selection},
 #' \code{uniform selection}, \code{intervening opportunities},
 #' \code{gravity}
-#' @param \dots Extra parameters to be passed to the prediction code. A useful
-#' parameter to note is \code{threadCount} which determines how many threads
-#' to use when optimising the mode. More is not necessarily better as there is
-#' an inherent overhead in creating new threads.
+#' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. This can then be used by 
 #' \code{\link{predict}} to generate predictions on new data.
@@ -514,7 +511,6 @@ movement.predict <- function(distance, population,
                            flux = continuum.flux,
                            symmetric = FALSE,
                            progress = TRUE,
-						   threadCount = 1,
                            ...) {
 
   # create a movement matrix in which to store movement numbers
@@ -538,22 +534,6 @@ movement.predict <- function(distance, population,
                           max = nrow(indices),
                           style = 3)
   }
-  
-  #cpuCount <- threadCount
-  #cl <- makeCluster(cpuCount, outfile="output.log")
-  #registerDoParallel(cl)
-  #chunkSize <- ceiling(nrow(indices) / cpuCount)
-  
-  #T_ijs <- foreach(idx=icount(cpuCount), .combine=cbind) %dopar% {
-	#startIndex <- ((idx - 1) * chunkSize) + 1
-	#endIndex <- min(c((idx * chunkSize), nrow(indices)))
-	#iT_ijs <- apply(indices[startIndex:endIndex,], 1, function(x) flux(i = x[1], j = x[2], distance = distance, population = population, symmetric = symmetric, ...))
-	#return (iT_ijs)
-  #}
-  
-  #T_ijs <- matrix(T_ijs, ncol=2)
-  
-  #stopCluster(cl)
   
   # This can probably be vectorized which should help speed up the population of the movement matrix
   for (idx in 1:nrow(indices)) {
