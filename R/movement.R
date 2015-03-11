@@ -590,7 +590,16 @@ movement.predict <- function(distance, population,
 # Prediction visualisation methods                                            #
 ###############################################################################
 
-# plots the movements within a network onto a raster layer
+#' Display the movement predictions on a plot
+#'
+#' @param network A list containing a population vector, distance matrix and
+#' sets of coordinates for each location
+#' @param raster_layer A base layer to plot the predictions onto.
+#' @param predictedMovements A data.frame containing predicted movements
+#' between locations.
+#' @param \dots Extra parameters to pass to plot
+#'
+#' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
 show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 	# visualise the distance matrix
 	sp::plot(raster::raster(network$distance_matrix))
