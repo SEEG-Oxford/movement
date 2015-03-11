@@ -4,12 +4,13 @@
 \alias{predict.optimisedmodel}
 \title{Predict population movements from a population input}
 \usage{
-\method{predict}{optimisedmodel}(model, input)
+\method{predict}{optimisedmodel}(predictionModel, dataframe, ...)
 }
 \arguments{
-\item{model}{An \code{optimisedmodel} object containing the trained model}
+\item{predictionModel}{An \code{optimisedmodel} object containing the
+trained model}
 
-\item{input}{A \code{RasterLayer} object containing a single population
+\item{dataframe}{A \code{RasterLayer} object containing a single population
 attribute, or a data.frame containing population and location data}
 }
 \value{

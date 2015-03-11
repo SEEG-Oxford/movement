@@ -100,30 +100,31 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 #' # 3        c 100 0.07126503 0.19544754
 #' # 4        d 113 0.97817937 0.22771625
 #' # 5        e 107 0.87233335 0.06695538
-#' @param model An \code{optimisedmodel} object containing the trained model
-#' @param input A \code{RasterLayer} object containing a single population
+#' @param predictionModel An \code{optimisedmodel} object containing the
+#' trained model
+#' @param dataframe A \code{RasterLayer} object containing a single population
 #' attribute, or a data.frame containing population and location data
 #' @return A list containing a location dataframe from the input, and a matrix
 #' containing the predicted population movements.
 #'
 #' @seealso \code{\link{movement}}, \code{\link{predict.movementmodel}}
-predict.optimisedmodel <- function(model, input) {
-	m <- model$trainingresults
-	m$dataset <- input
-	if(is(input, "RasterLayer")) {
+predict.optimisedmodel <- function(predictionModel, dataframe, ...) {
+	m <- predictionModel$trainingresults
+	m$dataset <- dataframe
+	if(is(dataframe, "RasterLayer")) {
 		prediction <- predict.movementmodel(m)
 		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
 		return (list(
 			df_locations = df,
 			movement_matrix = prediction$prediction))
-	} else if (is(input, "data.frame")) {
-		prediction <- predict.movementmodel(m, input)
+	} else if (is(dataframe, "data.frame")) {
+		prediction <- predict.movementmodel(m, dataframe)
 		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
 		return (list(
 			df_locations = df,
 			movement_matrix = prediction$prediction))
 	} else {
-		cat('Error: Expected parameter `input` to be either a RasterLayer or a data.frame\n')
+		cat('Error: Expected parameter `dataframe` to be either a RasterLayer or a data.frame\n')
 	}
 }
 
