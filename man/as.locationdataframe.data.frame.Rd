@@ -4,10 +4,10 @@
 \alias{as.locationdataframe.data.frame}
 \title{Convert a merged data.frame into a single location data.frame}
 \usage{
-\method{as.locationdataframe}{data.frame}(dataframe)
+\method{as.locationdataframe}{data.frame}(input, ...)
 }
 \arguments{
-\item{dataframe}{A data.frame of the format
+\item{input}{A data.frame of the format
 #   origin destination movement pop_origin  pop_destination
 # 1      a           b       10        100               88
 # 2      a           c        8        100              100

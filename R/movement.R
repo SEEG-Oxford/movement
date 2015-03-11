@@ -1098,15 +1098,15 @@ as.movementmatrix <- function(dataframe) {
 	return (mat)
 }
 
-as.locationdataframe <- function(dataframe, ...) {
-	UseMethod("as.locationdataframe", dataframe)
+as.locationdataframe <- function(input, ...) {
+	UseMethod("as.locationdataframe", input)
 }
 
 #' Convert a merged data.frame into a single location data.frame
 #'
 #' Takes a data.frame containing location and population data and converts it
 #' into a single data.frame containing location data only.
-#' @param dataframe A data.frame of the format
+#' @param input A data.frame of the format
 #' #   origin destination movement pop_origin  pop_destination  
 #' # 1      a           b       10        100               88
 #' # 2      a           c        8        100              100
@@ -1126,12 +1126,12 @@ as.locationdataframe <- function(dataframe, ...) {
 #' # 3        c 100 0.07126503 0.19544754
 #' # 4        d 113 0.97817937 0.22771625
 #' # 5        e 107 0.87233335 0.06695538
-as.locationdataframe.data.frame <- function(dataframe) {
-	  dataframe <- dataframe[!duplicated(dataframe$origin),]
-	  pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
-	  lat <- as.numeric(dataframe["lat_origin"]$lat_origin)
-	  long <- as.numeric(dataframe["long_origin"]$long_origin)
-	  locations <- as.numeric(dataframe["origin"]$origin)
+as.locationdataframe.data.frame <- function(input, ...) {
+	  input <- input[!duplicated(input$origin),]
+	  pop <- as.numeric(input["pop_origin"]$pop_origin)
+	  lat <- as.numeric(input["lat_origin"]$lat_origin)
+	  long <- as.numeric(input["long_origin"]$long_origin)
+	  locations <- as.numeric(input["origin"]$origin)
 
 	  return (data.frame(location = locations,
 				   pop = pop,
@@ -1143,8 +1143,8 @@ as.locationdataframe.data.frame <- function(dataframe) {
 # make sure it is cropped to the correct region first using raster::crop
 # for portugal, this works: crop(gadm, extent(-10, -6.189142, 30, 42.154232))
 # portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
-as.locationdataframe.SpatialPolygonsDataFrame <- function(gadm, populationraster) {
-	result <- data.frame(simplifytext(gadm$NAME_2),gadm$ID_2,raster::extract(populationraster,gadm, fun=sum),sp::coordinates(gadm))
+as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraster) {
+	result <- data.frame(simplifytext(input$NAME_2),input$ID_2,raster::extract(populationraster,input, fun=sum),sp::coordinates(input))
 	colnames(result) <- c("name", "location", "pop", "lon", "lat")
 	return (result)
 }
