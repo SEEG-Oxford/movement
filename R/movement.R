@@ -1196,7 +1196,7 @@ correlateregions <- function(location, regionlist, movementdata) {
 	if(!is(movementdata, "data.frame")) {
 		stop ("Parameter 'movementdata' must be a data.frame!")
 	}
-	allnames <- as.vector(dataframe$name)
+	allnames <- as.vector(location$name)
 	datanames <- as.vector(regionlist$V2)
 	
 	# work out which regions in the regionlist are present in the location dataframe	
@@ -1210,7 +1210,7 @@ correlateregions <- function(location, regionlist, movementdata) {
 	allpresentindata <- which(allindata$inlist == TRUE)
 	
 	datanames <- regionlist[datapresentinall,]
-	allnames <- dataframe[allpresentindata,]
+	allnames <- location[allpresentindata,]
 
 	if(length(datanames[,1]) != length(allnames[,1])) {
 		stop("Something is wrong with the data provided. The number of regions found doesn't match!\n")
