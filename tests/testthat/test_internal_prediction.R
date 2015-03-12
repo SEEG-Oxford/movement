@@ -101,3 +101,17 @@ test_that("predict.movementmodel calls movement.predict with the correct flux me
 		expect_equal(predict.movementmodel(radiationPredictionModel)$prediction, "continuum")
 	)
 })
+
+test_that("fittingwrapper calls predictedresults with correct parameters", {
+	with_mock(predict.movementmodel = function(x, y, ...) return (paste(x,y,..., sep=",", collapse=",")),
+		analysepredictionusingdpois = function(x, y) return (x),
+		expect_equal(fittingwrapper(c(1,1), list(), c(1,2), c(3,4)), "c(1, 1),3,c(1, 1),4")
+	)
+})
+
+test_that("fittingwrapper calls analysepredictionusingdpois with correct parameters", {
+	with_mock(predict.movementmodel = function(x, y, ...) return ("predictedResults"),
+		analysepredictionusingdpois = function(x, y) return (paste(x,y,sep=",",collapse=",")),
+		expect_equal(fittingwrapper(c(1,1), list(), c(1,2), c(3,4)), "predictedResults,1,predictedResults,2")
+	)
+})
