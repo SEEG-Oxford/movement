@@ -1232,6 +1232,14 @@ correlateregions <- function(dataframe, regionlist, movementdata) {
 	return (list(locations=allnames[,c(1,3,4,5)],observed=as.movementmatrix(movementdata)))	
 }
 
+#' Show a plot comparing and optimised model, and an observed dataset.
+#'
+#' Plots the observed movement matrix, predicted movement matrix and the
+#' difference between the two.
+#'
+#' @param optimisedmodel An \code{OptimisedModel} object containing a trained
+#' dataset.
+#' @param observed An observed movement matrix
 showcomparisonplot <- function(optimisedmodel, observed) {
 	par(mfrow=c(2,2))
 	plot(raster::raster(observed), main="Observed movement matrix")
