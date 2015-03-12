@@ -993,7 +993,14 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 # Data manipulation helper functions                                          #
 ###############################################################################
 
-# utility function to rasterize a shape file an discard unnecessary layers
+#' Convert a shapefile to a \code{RasterLayer}
+#'
+#' Converts a given shapefile and converts it to a \code{RasterLayer} and
+#' discards any unnecessary layers.
+#'
+#' @param filename The path to the shapefile to convert
+#' @param keeplist A list of layers in the shapefile to keep
+#' @return A \code{RasterLayer} object
 rasterizeShapeFile <- function(filename, keeplist)  {
 	# load the shapefile into a SpatialPolygonsDataFrame
 	dsn = dirname(filename)
