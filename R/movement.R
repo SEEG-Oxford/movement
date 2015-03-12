@@ -1157,13 +1157,38 @@ as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraste
 	return (result)
 }
 
+#' Standardise a text string to upper case ASCII with no spaces
+#'
+#' @param string The input string to simplify
+#' @return A standardised text string.
 simplifytext <- function(string) {
 	return (gsub("\\s", "_", toupper(iconv(string, from='UTF-8', to='ASCII//TRANSLIT'))))
 }
 
-correlateregions <- function(dataframe, regionlist, movementdata) {
-	if(!is(dataframe, "data.frame")) {
-		stop ("Parameter 'dataframe' must be a data.frame!")
+#' Correlate the regions in a location dataframe with a list of regions which
+#' map to an observed movement dataset.
+#'
+#' A utility function that creates a list containing a location dataframe and
+#' a movement matrix. The \code{regionlist} and \code{movementdata} should be
+#' from the same source, i.e. the IDs in the \code{movementdata} correspond to
+#' the IDs in the regionlist. The data \code{location} is likely to be an
+#' external datasource, and the locations may not precisely match those in the
+#' \code{regionlist}. This function removes items from \code{location} which
+#' don't exist in \code{regionlist} and vice-versa. It then converts
+#' \code{movementdata} to a movement matrix with named rows and columns (based
+#' on \code{regionlist}).
+#'
+#' @param location A \code{data.frame} containing "name", "location", "pop",
+#' "lon" and "lat".
+#' @param regionlist A \code{data.frame} containing "name" and "id"
+#' @param movementdata A \code{data.frame} containing "origin", "destination",
+#' "movement"
+#' @return A \code{list} containing a \code{locations} \code{data.frame} with
+#' "name", "lat", "lon" and "pop" fields, and a \code{observed} \code{matrix}
+#' containing a movement matrix.
+correlateregions <- function(location, regionlist, movementdata) {
+	if(!is(location, "data.frame")) {
+		stop ("Parameter 'location' must be a data.frame!")
 	}
 	if(!is(regionlist, "data.frame")) {
 		stop ("Parameter 'regionlist' must be a data.frame!")
