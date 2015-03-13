@@ -58,3 +58,12 @@ test_that("continuum.flux gives expected results with radiation with selection m
 	actual <- continuum.flux(i, j, distance, population, model="radiation with selection", theta=c(0.1,0.1))
 	expect_equal(actual, c(66.64445184938352895188, 66.64445184938352895188))
 })
+
+test_that("continuum.flux gives expected results with intervening opportunities model", {
+	i <- 1
+	j <- 2
+	distance <- matrix(c(0,1,1,0),nrow=2)
+	population <- c(1000,2000)
+	actual <- continuum.flux(i, j, distance, population, model="intervening opportunities", theta=c(0.1,0.1))
+	expect_equal(actual, c(100, 200))
+})
