@@ -40,3 +40,12 @@ test_that("gravity.flux gives expected results with changed theta set", {
 	population <- c(1000,2000)
 	expect_equal(gravity.flux(i, j, distance, population, symmetric=TRUE, theta=c(2, 0.5, 0.2, 2)), 645.3029881934739933058)
 })
+
+test_that("continuum.flux gives expected results with default parameters", {
+	i <- 1
+	j <- 2
+	distance <- matrix(c(0,1,1,0),nrow=2)
+	population <- c(1000,2000)
+	actual <- continuum.flux(i, j, distance, population)
+	expect_equal(actual, c(666.6666666666666287711, 666.6666666666666287711))
+})
