@@ -32,3 +32,11 @@ test_that("gravity.flux gives expected results with maxrange set", {
 	population <- c(1000,2000)
 	expect_equal(gravity.flux(i, j, distance, population, symmetric=TRUE, maxrange=0.1), Inf)
 })
+
+test_that("gravity.flux gives expected results with changed theta set", {
+	i <- 1
+	j <- 2
+	distance <- matrix(c(0,1,1,0),nrow=2)
+	population <- c(1000,2000)
+	expect_equal(gravity.flux(i, j, distance, population, symmetric=TRUE, theta=c(2, 0.5, 0.2, 2)), 645.3029881934739933058)
+})
