@@ -49,3 +49,13 @@ test_that("continuum.flux gives expected results with default parameters", {
 	actual <- continuum.flux(i, j, distance, population)
 	expect_equal(actual, c(666.6666666666666287711, 666.6666666666666287711))
 })
+
+test_that("continuum.flux gives expected results with radiation with selection model", {
+	i <- 1
+	j <- 2
+	distance <- matrix(c(0,1,1,0),nrow=2)
+	population <- c(1000,2000)
+	actual <- continuum.flux(i, j, distance, population, model="radiation with selection", theta=c(0.1,0.1))
+	print(actual, digits=22)
+	expect_equal(actual, c(66.64445184938352895188, 66.64445184938352895188))
+})
