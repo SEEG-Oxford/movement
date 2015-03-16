@@ -109,7 +109,6 @@ test_that("movement.predict produces correct result for simple case", {
 	population <- c(1000,2000)
 	mock_flux <- function(i, j, distance, population, symmetric) return (1)
 	actual <- movement.predict(distance, population, flux=mock_flux, progress=FALSE)
-	print(actual, digits=22)
 	expect_equal(actual, matrix(c(0,NA,1,0), nrow=2))
 })
 
@@ -118,7 +117,6 @@ test_that("movement.predict produces correct result for simple case with symmetr
 	population <- c(1000,2000)
 	mock_flux <- function(i, j, distance, population, symmetric) return (1)
 	actual <- movement.predict(distance, population, flux=mock_flux, progress=FALSE, symmetric=TRUE)
-	print(actual, digits=22)
 	expect_equal(actual, matrix(c(0,1,1,0), nrow=2))
 })
 
