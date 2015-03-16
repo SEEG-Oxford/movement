@@ -74,7 +74,6 @@ test_that("continuum.flux gives expected results with uniform selection model", 
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
 	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9)
-	print(actual, digits=22)
 	expect_equal(actual, c(900, 1800))
 })
 
@@ -84,7 +83,6 @@ test_that("continuum.flux gives expected results with uniform selection model in
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
 	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9, symmetric=TRUE)
-	print(actual, digits=22)
 	expect_equal(actual, c(2700))
 })
 
@@ -94,7 +92,6 @@ test_that("continuum.flux gives expected results with uniform selection model wi
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
 	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9, minpop=1001)
-	print(actual, digits=22)
 	expect_equal(actual, c(0,0))
 })
 
@@ -104,7 +101,15 @@ test_that("continuum.flux gives expected results with uniform selection model wi
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
 	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9, maxrange=0.5)
-	print(actual, digits=22)
 	expect_equal(actual, c(0,0))
+})
+
+test_that("movement.predict produces correct result for simple case", {
+	distance <- matrix(c(0,1,1,0),nrow=2)
+	population <- c(1000,2000)
+	mock_flux <- function(i, j, distance, population, symmetric) return (1)
+	actual <- movement.predict(distance, population, flux=mock_flux, progress=FALSE)
+	print(actual, digits=22)
+	expect_equal(actual, matrix(c(0,NA,1,0), nrow=2))
 })
 
