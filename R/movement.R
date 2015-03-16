@@ -113,13 +113,13 @@ predict.optimisedmodel <- function(predictionModel, dataframe, ...) {
 	m$dataset <- dataframe
 	if(is(dataframe, "RasterLayer")) {
 		prediction <- predict.movementmodel(m)
-		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
+		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
 		return (list(
 			df_locations = df,
 			movement_matrix = prediction$prediction))
 	} else if (is(dataframe, "data.frame")) {
 		prediction <- predict.movementmodel(m, dataframe)
-		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, prediction$net$coordinates)
+		df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
 		return (list(
 			df_locations = df,
 			movement_matrix = prediction$prediction))
