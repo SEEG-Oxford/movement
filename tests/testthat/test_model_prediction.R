@@ -67,3 +67,13 @@ test_that("continuum.flux gives expected results with intervening opportunities 
 	actual <- continuum.flux(i, j, distance, population, model="intervening opportunities", theta=c(0.1,0.1))
 	expect_equal(actual, c(100, 200))
 })
+
+test_that("continuum.flux gives expected results with uniform selection model", {
+	i <- 1
+	j <- 2
+	distance <- matrix(c(0,1,1,0),nrow=2)
+	population <- c(1000,2000)
+	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9)
+	print(actual, digits=22)
+	expect_equal(actual, c(900, 1800))
+})
