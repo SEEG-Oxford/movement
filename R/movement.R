@@ -6,7 +6,7 @@
 #'
 #' Uses the \code{\link{optim}} method to create an optimised model of
 #' population movements.
-#' @param locations A vector containing populations
+#' @param locations A vector containing locations
 #' @param coords A data frame containing coordinates of the \code{locations}
 #' @param population A vector containing populations of the \code{locations}
 #' @param movement_matrix A square matrix containing the observed population

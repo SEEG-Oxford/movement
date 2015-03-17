@@ -9,7 +9,7 @@
 movement(locations, coords, population, movement_matrix, model, ...)
 }
 \arguments{
-\item{locations}{A vector containing populations}
+\item{locations}{A vector containing locations}
 
 \item{coords}{A data frame containing coordinates of the \code{locations}}
 
