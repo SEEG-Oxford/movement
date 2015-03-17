@@ -124,7 +124,7 @@ predict.optimisedmodel <- function(predictionModel, dataframe, ...) {
 			df_locations = df,
 			movement_matrix = prediction$prediction))
 	} else {
-		cat('Error: Expected parameter `dataframe` to be either a RasterLayer or a data.frame\n')
+		stop('Error: Expected parameter `dataframe` to be either a RasterLayer or a data.frame')
 	}
 }
 

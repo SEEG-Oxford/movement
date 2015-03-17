@@ -17,3 +17,9 @@ test_that("predict.optimisedmodel returns list of correct data when given a data
 		expect_equal(predict.optimisedmodel(predictionModel,dataframe),list(df_locations=data.frame(location=1,pop=1,coordinates=1),movement_matrix=2))
 	)
 })
+
+test_that("predict.optimisedmodel throws an error if given the wrong type", {
+	predictionModel <- list(trainingresults=NULL)
+	dataframe <- 1
+	expect_error(predict.optimisedmodel(predictionModel,dataframe),"Error: Expected parameter `dataframe` to be either a RasterLayer or a data.frame")
+})
