@@ -53,8 +53,7 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 		upper <- c(Inf, Inf, Inf, Inf)
 		lower <- c(1e-20, -Inf, -Inf, -Inf)
 	} else {
-		cat("Error: Unknown model type given\n")
-		return ()
+		stop("Error: Unknown model type given")
 	}
 	
 	# statistics
