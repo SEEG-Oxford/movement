@@ -129,3 +129,20 @@ test_that("movement throws error for unknown model", {
 		expect_error(movement(locations, coords, population, movement_matrix, "no gravity"),"Error: Unknown model type given")
 	)
 })
+
+test_that("movement creates population_data correctly", {
+	locations <- c("a","b","c")
+	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
+	population <- c(1000,2000,3000)
+	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, upper, lower, ...) {
+			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian, upper=upper, lower=lower)))
+		},
+		predict.movementmodel = function(predictionModel, population_data, progress) {
+			return (list(modelparams=NULL,prediction=NULL))
+		},
+		analysepredictionusingdpois = function(x, y) return (1),
+		print((movement(locations, coords, population, movement_matrix, "gravity"))$optimisationresults$inputs$population_data),
+		expect_equal((movement(locations, coords, population, movement_matrix, "gravity"))$optimisationresults$inputs$population_data, data.frame(origin=locations, pop_origin=population, long_origin=coords[,1], lat_origin=coords[,2]))
+	)
+})
