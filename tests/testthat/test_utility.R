@@ -103,3 +103,9 @@ test_that("createobservedmatrixfromcsv can correctly process csv file", {
 	actual <- createobservedmatrixfromcsv("data/observedmatrixtest.csv", "origin", "destination", "movement")
 	expect_equal(actual, expectedobserved)
 })
+
+test_that("rasterizeShapeFile returns a raster", {
+	actual <- rasterizeShapeFile("data/ne_110m_admin_1_states_provinces.shp",1)
+	print(class(actual))
+	expect_true(is(actual,"RasterLayer"))
+})
