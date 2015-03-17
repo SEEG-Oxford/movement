@@ -9,3 +9,11 @@ test_that("predict.optimisedmodel returns list of correct data when given a Rast
 		expect_equal(predict.optimisedmodel(predictionModel,dataframe),list(df_locations=data.frame(location=1,pop=1,coordinates=1),movement_matrix=2))
 	)
 })
+
+test_that("predict.optimisedmodel returns list of correct data when given a data.frame", {
+	predictionModel <- list(trainingresults=NULL)
+	dataframe <- data.frame(c(1))
+	with_mock(predict.movementmodel = function(x, y) {return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))},
+		expect_equal(predict.optimisedmodel(predictionModel,dataframe),list(df_locations=data.frame(location=1,pop=1,coordinates=1),movement_matrix=2))
+	)
+})
