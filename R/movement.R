@@ -999,8 +999,9 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 #'
 #' @param filename The path to the shapefile to convert
 #' @param keeplist A list of layers in the shapefile to keep
+#' @param n The multiplier to use when creating the raster from the extent
 #' @return A \code{RasterLayer} object
-rasterizeShapeFile <- function(filename, keeplist)  {
+rasterizeShapeFile <- function(filename, keeplist,n=5)  {
 	# load the shapefile into a SpatialPolygonsDataFrame
 	dsn = dirname(filename)
 	filename = basename(filename)
@@ -1018,8 +1019,7 @@ rasterizeShapeFile <- function(filename, keeplist)  {
 	# set up a raster template to use in rasterize()
 	ext <- raster::extent (xmin, xmax, ymin, ymax)
 	xy <- abs(apply(as.matrix(sp::bbox(ext)), 1, diff))
-	n <- 5
-	r <- raster::raster(ext, ncol=xy[1]*50, nrow=xy[2]*50)
+	r <- raster::raster(ext, ncol=xy[1]*n, nrow=xy[2]*n)
 	
 	rr <- raster::rasterize(shapeObject, r)
 	## create a population only rasterlayer (i.e. remove the RAT table)
