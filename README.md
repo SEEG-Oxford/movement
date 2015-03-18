@@ -51,6 +51,9 @@ Andrew Schofield @ [Tessella][tessella]
 You can report bugs, issues and suggestions for extra functions using the issues button on the right hand side of this page.
 
 
+
+Development of this software package is partly funded by the Research for Health in Humanitarian Crises (R2HC) Programme, managed by ELRHA. The Research for Health in Humanitarian Crises (R2HC) programme aims to improve health outcomes by strengthening the evidence base for public health interventions in humanitarian crises. Visit www.elrha.org/work/r2hc for more information. The £8 million R2HC programme is funded equally by the Wellcome Trust and DFID, with Enhancing Learning and Research for Humanitarian Assistance (ELRHA) overseeing the programme’s execution and management.
+
 [Nick]: http://www.map.ox.ac.uk/about-map/map-team/nicholas-golding/
 [seeg]: http://simonhay.zoo.ox.ac.uk/staff.php
 [devtools]: http://cran.r-project.org/web/packages/devtools/index.html
