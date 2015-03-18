@@ -14,7 +14,7 @@ An AfriPop raster of the modelled 2010 population in Kenya.
 }
 \examples{
 data(kenya)
-plot(kenya)
+sp::plot(kenya)
 }
 \references{
 Linard C., Gilbert, M. Snow, R.W., Noor, A.M. & Tatem, A.J. (2010)

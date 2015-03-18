@@ -6,10 +6,10 @@
 \alias{movement-package}
 \title{Create an optimised movement model}
 \usage{
-movement(locations, coords, population, movement_matrix, model)
+movement(locations, coords, population, movement_matrix, model, ...)
 }
 \arguments{
-\item{locations}{A vector containing populations}
+\item{locations}{A vector containing locations}
 
 \item{coords}{A data frame containing coordinates of the \code{locations}}
 
@@ -22,6 +22,8 @@ movements between \code{locations}}
 models are \code{original radiation}, \code{radiation with selection},
 \code{uniform selection}, \code{intervening opportunities},
 \code{gravity}}
+
+\item{\dots}{Extra parameters to be passed to the prediction code.}
 }
 \value{
 An \code{optimisedmodel} object containing the training results,
@@ -66,13 +68,13 @@ using \code{\link{as.movementmatrix}}
 # load kenya raster
 data(kenya)
 # aggregate to 10km to speed things up
-kenya10 <- aggregate(kenya, 10, sum)
+kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
 # predict the population movement from the model
 predictedMovements = predict(predictionModel)
 # visualise the distance matrix
-plot(raster(predictedMovements$net$distance_matrix))
+sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 # visualise the predicted movements overlaid onto the original raster
 showprediction(predictedMovements)
 }

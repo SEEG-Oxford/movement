@@ -1,11 +1,11 @@
 Package: movement
 Type: Package
 Title: Functions for the analysis of movement data in disease modelling and mapping
-Version: 0.1
-Date: 2013-08-08
+Version: 0.2
+Date: 2015-03-18
 Author: Nick Golding, Andrew Schofield
 Maintainer: Nick Golding <nick.golding@zoo.ox.ac.uk>
 Description: Movement of humans and animals has a crucial role in the epidemiology of a number of diseases. Movement data is increasingly available to epidemiologists and its incorporation in models and maps of disease is increasingly popular. This package is a collaborative effort to improve our ability to analyses movement data and to build and apply epidemiological movement models.
 License: GPL(>=2)
-Depends: raster
-LinkingTo: raster
+Imports: raster, rgdal, tools, sp
+Suggests: testthat
