@@ -34,6 +34,7 @@
 #' \code{\link{as.locationdataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
 #' using \code{\link{as.movementmatrix}}
+#' @export
 movement <- function(locations, coords, population, movement_matrix, model, model.params=NULL, ...) {
 	# create the correct params object with (hopefully sane) default values
 	if(model == "original radiation" || model == "uniform selection") {
@@ -128,6 +129,7 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' containing the predicted population movements.
 #'
 #' @seealso \code{\link{movement}}, \code{\link{predict.movementmodel}}
+#' @export
 predict.optimisedmodel <- function(predictionModel, dataframe, ...) {
 	m <- predictionModel$trainingresults
 	m$dataset <- dataframe
@@ -148,6 +150,7 @@ predict.optimisedmodel <- function(predictionModel, dataframe, ...) {
 	}
 }
 
+#' @export
 print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 	cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
     if(length(coef(x))) {
@@ -166,6 +169,7 @@ print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), 
     invisible(x)
 }
 
+#' @export
 summary.optimisedmodel <- function(x) {
 	coef.p <- x$trainingresults$modelparams
 	dn <- c("Estimate", "Std. Error")
@@ -184,6 +188,7 @@ summary.optimisedmodel <- function(x) {
 	return (ans)
 }
 
+#' @export
 print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
 	cat(paste('Model:  ', x$model, '\n\n'))
 	cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
@@ -272,6 +277,7 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach.
 #' \emph{PLoS ONE} 8(3): e60069.
 #' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
+#' @export
 continuum.flux <- function(i, j, distance, population,
                            model = 'original radiation',
                            theta = c(1), symmetric = FALSE,
@@ -438,6 +444,7 @@ continuum.flux <- function(i, j, distance, population,
 #' @references
 #' Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
 #' of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
+#' @export
 gravity.flux <- function(i, j, distance, population,
                          theta = c(1, 0.6, 0.3, 3),
                          symmetric = FALSE,
@@ -528,6 +535,7 @@ gravity.flux <- function(i, j, distance, population,
 #'   }
 #' }
 #' @seealso \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
+#' @export
 movement.predict <- function(distance, population,
                            flux = continuum.flux,
                            symmetric = FALSE,
@@ -621,6 +629,7 @@ movement.predict <- function(distance, population,
 #' @param \dots Extra parameters to pass to plot
 #'
 #' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
+#' @export
 show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 	# visualise the distance matrix
 	sp::plot(raster::raster(network$distance_matrix))
@@ -673,11 +682,13 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' showprediction(predictedMovements)
 #'
 #' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
+#' @export
 showprediction <- function(predictionModel, ...) {
 	UseMethod("showprediction", predictionModel)
 }
 
 #' @describeIn showprediction Default action for showprediction
+#' @export
 showprediction.default <- function(predictionModel, ...) {
 	print("showprediction doesn't know how to handle this object.")
 	return (predictionModel)
@@ -686,6 +697,7 @@ showprediction.default <- function(predictionModel, ...) {
 #' @describeIn showprediction Given a movement model, plot the underlying
 #' raster, the configured location points and the predicted movements
 #' between locations.
+#' @export
 showprediction.movementmodel <- function(predictionModel, ...) {
 	network <- predictionModel$net
 	move <- predictionModel$prediction
@@ -741,6 +753,7 @@ showprediction.movementmodel <- function(predictionModel, ...) {
 #'
 #' @seealso \code{\link{raster}}, \code{\link{dist}},
 #' \code{\link{movement.predict}}
+#' @export
 get.network <- function(raster, min = 1, matrix = TRUE) {
   # extract necessary components for movement modelling
   # from a population raster
@@ -799,6 +812,7 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 #'
 #' @seealso \code{\link{raster}}, \code{\link{dist}},
 #' \code{\link{movement.predict}}
+#' @export
 get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   dataframe <- dataframe[!duplicated(dataframe$origin),]
   pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
@@ -859,6 +873,7 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #' showprediction(predictedMovements)
 #'
 #' @seealso \code{\link{predict}}, \code{\link{showprediction}}
+#' @export
 movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
 	me <- list(
 		dataset = dataset,
@@ -867,7 +882,7 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 		symmetric = symmetric,
 		modelparams = modelparams
 		)
-	class(me) <- append(class(me), "movementmodel")
+	class(me) <- "movementmodel"
 	return (me)
 }
 
@@ -899,6 +914,7 @@ predict <- function(predictionModel, dataframe, ...) {
 }
 
 #' @describeIn predict Default action for predict
+#' @export
 predict.default <- function(predictionModel, dataframe, ...) {
 	print("predict doesn't know how to handle this object.")
 	return (predictionModel)
@@ -908,6 +924,7 @@ predict.default <- function(predictionModel, dataframe, ...) {
 #' flux function to predict movement between all sites.
 #' Any extra arguments of the flux functions can specified using the
 #' \code{dots} argument.
+#' @export
 predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 	if(is.null(dataframe)) {
 	  net <- get.network(predictionModel$dataset, min = predictionModel$min_network_pop)
@@ -935,6 +952,7 @@ predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 #' @return The log likelihood
 #'
 #' @seealso \code{\link{movementmodel}}, \code{\link{attemptoptimisation}}
+#' @export
 analysepredictionusingdpois <- function(prediction, observed) {	
 	observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
 	predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
@@ -959,6 +977,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 #' @param populationdata A dataframe containing population coordinate data
 #' @param \dots Parameters passed to \code{\link{movement.predict}}
 #' @return The log likelihood of the prediction given the observed data.
+#' @export
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
 	# set the initial model params to par
 	predictionModel$modelparams = par
@@ -1004,6 +1023,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #' \code{\link{createobservedmatrixfromcsv}},
 #' \code{\link{createpopulationfromcsv}},
 #' \code{\link{analysepredictionusingdpois}}
+#' @export
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
 	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
@@ -1022,6 +1042,7 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 #' @param keeplist A list of layers in the shapefile to keep
 #' @param n The multiplier to use when creating the raster from the extent
 #' @return A \code{RasterLayer} object
+#' @export
 rasterizeShapeFile <- function(filename, keeplist,n=5)  {
 	# load the shapefile into a SpatialPolygonsDataFrame
 	dsn = dirname(filename)
@@ -1061,6 +1082,7 @@ rasterizeShapeFile <- function(filename, keeplist,n=5)  {
 #' @return A matrix containing observed population movements. Row and column
 #' numbers correspond to the indexes of a sorted list of the origins found in
 #' the csv file. Values are the actual population movements.
+#' @export
 createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
 	data <- read.csv(file=filename,header=TRUE,sep=",")
 	nrows = length(unique(data[origincolname])[,1])
@@ -1087,6 +1109,7 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 #'
 #' @param filename File path of the csv file to process
 #' @return A dataframe containing csv data.
+#' @export
 createpopulationfromcsv <- function(filename) {
 	data <- read.csv(file=filename,header=TRUE,sep=",")
 	
@@ -1109,6 +1132,7 @@ createpopulationfromcsv <- function(filename) {
 #' # 5      a           f        8
 #' (truncated)
 #' @return A square matrix
+#' @export
 as.movementmatrix <- function(dataframe) {
 	nrows <- length(unique(dataframe[1])[,])
 	ncols <- length(unique(dataframe[2])[,])
@@ -1126,6 +1150,7 @@ as.movementmatrix <- function(dataframe) {
 	return (mat)
 }
 
+#' @export
 as.locationdataframe <- function(input, ...) {
 	UseMethod("as.locationdataframe", input)
 }
@@ -1154,6 +1179,7 @@ as.locationdataframe <- function(input, ...) {
 #' # 3        c 100 0.07126503 0.19544754
 #' # 4        d 113 0.97817937 0.22771625
 #' # 5        e 107 0.87233335 0.06695538
+#' @export
 as.locationdataframe.data.frame <- function(input, ...) {
 	  input <- input[!duplicated(input$origin),]
 	  pop <- as.numeric(input["pop_origin"]$pop_origin)
@@ -1171,6 +1197,7 @@ as.locationdataframe.data.frame <- function(input, ...) {
 # make sure it is cropped to the correct region first using raster::crop
 # for portugal, this works: crop(gadm, extent(-10, -6.189142, 30, 42.154232))
 # portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
+#' @export
 as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraster) {
 	result <- data.frame(simplifytext(input$NAME_2),input$ID_2,raster::extract(populationraster,input, fun=sum),sp::coordinates(input))
 	colnames(result) <- c("name", "location", "pop", "lon", "lat")
@@ -1181,6 +1208,7 @@ as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraste
 #'
 #' @param string The input string to simplify
 #' @return A standardised text string.
+#' @export
 simplifytext <- function(string) {
 	return (gsub("\\s", "_", toupper(iconv(string, from='UTF-8', to='ASCII//TRANSLIT'))))
 }
@@ -1206,6 +1234,7 @@ simplifytext <- function(string) {
 #' @return A \code{list} containing a \code{locations} \code{data.frame} with
 #' "name", "lat", "lon" and "pop" fields, and a \code{observed} \code{matrix}
 #' containing a movement matrix.
+#' @export
 correlateregions <- function(location, regionlist, movementdata) {
 	if(!is(location, "data.frame")) {
 		stop ("Parameter 'location' must be a data.frame!")
@@ -1285,6 +1314,7 @@ correlateregions <- function(location, regionlist, movementdata) {
 #' @param optimisedmodel An \code{OptimisedModel} object containing a trained
 #' dataset.
 #' @param observed An observed movement matrix
+#' @export
 showcomparisonplot <- function(optimisedmodel, observed) {
 	par(mfrow=c(2,2))
 	plot(raster::raster(observed), main="Observed movement matrix")
@@ -1292,6 +1322,7 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 	plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
 }
 
+#' @export
 resultasdataframe <- function(predictedresult) {
 	locations = predictedresult$df_locations
 	mm = predictedresult$movement_matrix

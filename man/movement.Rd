@@ -6,7 +6,8 @@
 \alias{movement-package}
 \title{Create an optimised movement model}
 \usage{
-movement(locations, coords, population, movement_matrix, model, ...)
+movement(locations, coords, population, movement_matrix, model,
+  model.params = NULL, ...)
 }
 \arguments{
 \item{locations}{A vector containing locations}
