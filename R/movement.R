@@ -1292,6 +1292,28 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 	plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
 }
 
+resultasdataframe <- function(predictedresult) {
+	locations = predictedresult$df_locations
+	mm = predictedresult$movement_matrix
+	
+	if (nrow(locations) != nrow(mm) ||  nrow(mm) != ncol(mm)) {
+		stop("Something is wrong with this predicted result. The dimensions of the square matrix should be of the same length as the list of locations")
+	}
+	
+	result <- data.frame(matrix(nrow=(nrow(mm)^2),ncol=3))
+
+	for(idx in 1:nrow(mm)) {
+		for(idx2 in 1:ncol(mm)) {
+			row <- c(as.vector(locations[idx,1]),as.vector(locations[idx2,1]),mm[idx,idx2])
+			rownum <- ((idx -1) * nrow(mm)) + idx2
+			result[rownum,] <- row
+		}
+	}
+	#head(result)
+	colnames(result) <- c("Origin", "Destination", "Movement")
+	return (result)
+}
+
 #' Kenya 2010 population raster
 #'
 #' An AfriPop raster of the modelled 2010 population in Kenya.
