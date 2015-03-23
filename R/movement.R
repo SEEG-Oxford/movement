@@ -34,22 +34,42 @@
 #' \code{\link{as.locationdataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
 #' using \code{\link{as.movementmatrix}}
-movement <- function(locations, coords, population, movement_matrix, model, ...) {
+movement <- function(locations, coords, population, movement_matrix, model, model.params=NULL, ...) {
 	# create the correct params object with (hopefully sane) default values
 	if(model == "original radiation" || model == "uniform selection") {
-		params <- c(theta=0.9)
+		if(is.null(model.params)) {
+			params <- c(theta=0.9)
+		}
+		else {
+			params <- model.params
+		}
 		upper <- c(Inf)
 		lower <- c(0)
 	} else if(model == "radiation with selection") {
-		params <- c(theta=0.1,lambda=0.2)
+		if(is.null(model.params)) {
+			params <- c(theta=0.1,lambda=0.2)
+		}
+		else {
+			params <- model.params
+		}
 		upper <- c(Inf, 1)
 		lower <- c(0, 0)
 	} else if(model == "intervening opportunities") {
-		params <- c(theta=0.001, L=0.00001)
+		if(is.null(model.params)) {
+			params <- c(theta=0.001, L=0.00001)
+		}
+		else {
+			params <- model.params
+		}
 		upper <- c(Inf, Inf)
 		lower <- c(1e-20, 1e-05)
 	} else if(model == "gravity") {
-		params <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
+		if(is.null(model.params)) {
+			params <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
+		}
+		else {
+			params <- model.params
+		}
 		upper <- c(Inf, Inf, Inf, Inf)
 		lower <- c(1e-20, -Inf, -Inf, -Inf)
 	} else {
@@ -68,7 +88,8 @@ movement <- function(locations, coords, population, movement_matrix, model, ...)
 	population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
 	
 	# attempt to parameterise the model using optim
-	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, upper=upper, lower=lower, ...) #, upper=upper, lower=lower
+	#optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, upper=upper, lower=lower, ...) #, upper=upper, lower=lower
+	optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
 	predictionModel$modelparams = optimresults$par
 	
 	# populate the training results (so we can see the end result)
@@ -985,7 +1006,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #' \code{\link{analysepredictionusingdpois}}
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 	# run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-	optim(predictionModel$modelparams, fittingwrapper, method="L-BFGS-B", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+	optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 }
 
 ###############################################################################
