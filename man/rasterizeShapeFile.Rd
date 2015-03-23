@@ -4,12 +4,14 @@
 \alias{rasterizeShapeFile}
 \title{Convert a shapefile to a \code{RasterLayer}}
 \usage{
-rasterizeShapeFile(filename, keeplist)
+rasterizeShapeFile(filename, keeplist, n = 5)
 }
 \arguments{
 \item{filename}{The path to the shapefile to convert}
 
 \item{keeplist}{A list of layers in the shapefile to keep}
+
+\item{n}{The multiplier to use when creating the raster from the extent}
 }
 \value{
 A \code{RasterLayer} object
