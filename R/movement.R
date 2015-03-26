@@ -1140,12 +1140,15 @@ as.movementmatrix <- function(dataframe) {
 		stop ("Error: Expected a square matrix!")
 	}
 	
-	mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(sort(unique(dataframe[1])[,]),sort(unique(dataframe[2])[,])))
+	mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(unique(dataframe[1])[,],unique(dataframe[2])[,]))
 	for(idx in 1:nrow(dataframe)) {
 		mat[as.character(dataframe[idx,2]),as.character(dataframe[idx,1])] <- dataframe[idx,3]
 	}
 	
-	mat[is.na(mat)] <- 0
+	mat[is.na(mat)] <- 0	
+	
+	mat <- mat[order(rownames(mat)),]
+	mat <- mat[,order(colnames(mat))]
 	
 	return (mat)
 }
