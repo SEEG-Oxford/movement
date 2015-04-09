@@ -73,6 +73,15 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 		}
 		upper <- c(Inf, Inf, Inf, Inf)
 		lower <- c(1e-20, -Inf, -Inf, -Inf)
+	} else if(model == "gravity with distance") {
+		if(is.null(model.params)) {
+			params <- c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=1, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)
+		}
+		else {
+			params <- model.params
+		}
+		upper <- c(Inf, Inf, Inf, Inf, 0, Inf, Inf, Inf, Inf)
+		lower <- c(1e-20, -Inf, -Inf, -Inf, 0, 1e-20, -Inf, -Inf, -Inf, -Inf)
 	} else {
 		stop("Error: Unknown model type given")
 	}
@@ -477,6 +486,107 @@ gravity.flux <- function(i, j, distance, population,
 
   # and the opposite direction
   T_ji <- theta[1] * (n_j ^ theta[2]) * (m_i ^ theta[3]) / (r_ij ^ theta[4])
+
+  # return this
+  if (symmetric) return (T_ij + T_ji)
+  else return (c(T_ij, T_ji))
+}
+
+#' Use the Simini et al. 2012 modified gravitation model to predict
+#' movement between two sites.
+#'
+#' Given indices \code{i} and \code{j}, a vector of population sizes
+#' \code{population}, a (dense) distance matrix \code{distance} giving the
+#' euclidean distances between all pairs of sites, and a set of parameters
+#' \code{theta}, to predict movements between sites \code{i} and \code{j}.
+#' The flux can be calculated either for both directions (by setting
+#'  \code{symmetric = FALSE}, returning movements for each direction) or for
+#'  the summed movement between the two (\code{symmetric = TRUE}).
+#' The model can be sped up somewhat by setting \code{minpop} and
+#' \code{maxrange}. If either of the two sites has a population lower than
+#' \code{minpop} (minimum population size), or if the distance between the two
+#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
+#' no travel occurs between these points.
+#' Note that this function only works for individual sites, use
+#' \code{\link{movement.predict}} to calculate movements for multiple
+#' populations. The modification from Simini et al. introduces a nine parameter
+#' form where a different set of parameters are used if the distance is greater
+#' than \code{delta}.
+#'
+#' @param i Index for \code{population} and \code{distance} giving the first
+#' site
+#' @param j Index for \code{population} and \code{distance} giving the second
+#' site
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param theta A vector of parameters in the order: scalar, exponent on donor
+#' pop, exponent on recipient pop, exponent on distance
+#' @param symmetric Whether to return a single value giving the total predicted
+#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
+#' giving movements from i to j (first element) and from j to i (second element)
+#' @param minpop The minimum population size to consider (by default 1, consider
+#' all sites)
+#' @param maxrange The maximum distance between sites to consider (by default
+#' \code{Inf}, consider all sites)
+#' @return A vector (of length either 1 or 2) giving the predicted number of
+#' people moving between the two sites.
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict movement between sites 3 and 4 using the radiation model
+#' T_ij <- gravitywithdistance.flux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3))
+#' T_ij
+#'
+#' @seealso \code{\link{movement.predict}}
+#'
+#' @references
+#' Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
+#' of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
+#' @export
+gravitywithdistance.flux <- function(i, j, distance, population,
+                         theta = c(1, 0.6, 0.3, 3, 1, 1, 0.6, 0.3, 3),
+                         symmetric = FALSE,
+                         minpop = 1, maxrange = Inf) {
+  # given the indices $i$ and $j$, vector of population sizes
+  # 'population', (dense) distance matrix 'distance', vector of parameters
+  # 'theta' in the order [scalar, exponent on donor pop, exponent on recipient
+  # pop, exponent on distance], calculate $T_{ij}$, the number of people
+  # travelling between $i$ and $j$. If the pairwise distance is greater than
+  # 'max' it is assumed that no travel occurs between these points. This can
+  # speed up the model.
+
+  # get the population sizes $m_i$ and $n_j$
+  m_i <- population[i]
+  n_j <- population[j]
+
+  # if the population at the centre is below the minimum,
+  # return 0 (saves some calculation time)
+  m_i[m_i < minpop] <- 0
+
+  # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
+  r_ij <- distance[i, j]
+
+  # if it's beyond the maximum range return 0 - this way to vectorize with ease...
+  r_ij[r_ij > maxrange] <- 0
+  
+  mytheta = theta[1:4]
+  
+  if(r_ij > theta[5]) {
+	mytheta = theta[6:9]
+  }
+
+  # calculate the number of commuters T_{ij} moving between sites
+  # $i$ and $j$ using equation 1 in Viboud et al. (2006)
+  T_ij <- mytheta[1] * (m_i ^ mytheta[2]) * (n_j ^ mytheta[3]) / (r_ij ^ mytheta[4])
+
+  # and the opposite direction
+  T_ji <- mytheta[1] * (n_j ^ mytheta[2]) * (m_i ^ mytheta[3]) / (r_ij ^ mytheta[4])
 
   # return this
   if (symmetric) return (T_ij + T_ji)
@@ -935,6 +1045,8 @@ predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
 	predictionModel$net = net
 	if(predictionModel$predictionmodel == 'gravity'){
 		predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = predictionModel$symmetric, theta = predictionModel$modelparams, ...)
+	} else if(predictionModel$predictionmodel == 'gravity with distance'){
+		predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravitywithdistance.flux, symmetric = predictionModel$symmetric, theta = predictionModel$modelparams, ...)
 	} else {
 		predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = predictionModel$symmetric, model = predictionModel$predictionmodel, theta = predictionModel$modelparams, ...)
 	}
@@ -1140,12 +1252,15 @@ as.movementmatrix <- function(dataframe) {
 		stop ("Error: Expected a square matrix!")
 	}
 	
-	mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(sort(unique(dataframe[1])[,]),sort(unique(dataframe[2])[,])))
+	mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(unique(dataframe[1])[,],unique(dataframe[2])[,]))
 	for(idx in 1:nrow(dataframe)) {
 		mat[as.character(dataframe[idx,2]),as.character(dataframe[idx,1])] <- dataframe[idx,3]
 	}
 	
-	mat[is.na(mat)] <- 0
+	mat[is.na(mat)] <- 0	
+	
+	mat <- mat[order(rownames(mat)),]
+	mat <- mat[,order(colnames(mat))]
 	
 	return (mat)
 }
