@@ -46,6 +46,8 @@ prediction <- predict(m, df_locations)
 
 Andrew Schofield @ [Tessella][tessella]
 
+Moritz Kraemer @ [Spatial Ecology and Epidemiology Group, Oxford][seeg]
+
 ### Reporting Bugs
 
 You can report bugs, issues and suggestions for extra functions using the issues button on the right hand side of this page.
