@@ -1,6 +1,6 @@
-#' Functions to analyse and model movement data for epidemiology.
+#' @title Modelling and Analysing Movement Data for Epidemiology
 #'
-#' Movement of humans and animals has a crucial role in the epidemiology of a
+#' @description Movement of humans and animals has a crucial role in the epidemiology of a
 #' number of diseases. Movement data is increasingly available to
 #' epidemiologists and its incorporation in models and maps of disease is
 #' increasingly popular. This package is a collaborative effort to improve our
@@ -8,7 +8,7 @@
 #' movement models.
 #'
 #' @docType package
-#' @name movement
+#' @name movement-package
 #'
 #' @details
 #' \tabular{ll}{
@@ -25,8 +25,8 @@
 #' \code{\link{continuum.flux}}, \code{\link{attemptoptimisation}}
 #'
 #' @author
-#' Nick Golding + others (to be added)
-#' Maintainer: Nick Golding <nick.golding at zoo.ox.ac.uk>
+#' Nick Golding, Andrew Schofield, Moritz Kraemer and Alex T. Perkins
+#' Maintainer: Nick Golding <nick.golding.research at gmail.com>
 #'
 #' @examples
 #' # load kenya raster
@@ -34,7 +34,11 @@
 #' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' predictionModel <- movementmodel(dataset=kenya10, min_network_pop = 50000, predictionmodel= 'original radiation', symmetric = TRUE, modelparams = 0.1)
+#' predictionModel <- movementmodel(dataset=kenya10,
+#'                                  min_network_pop = 50000,
+#'                                  predictionmodel= 'original radiation',
+#'                                  symmetric = TRUE,
+#'                                  modelparams = 0.1)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
