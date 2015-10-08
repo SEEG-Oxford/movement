@@ -1,4 +1,8 @@
-# movement [![Build Status](https://travis-ci.org/andrew-schofield-tessella/movement.svg?branch=master)](https://travis-ci.org/andrew-schofield-tessella/movement) [![Coverage Status](https://coveralls.io/repos/andrew-schofield-tessella/movement/badge.svg)](https://coveralls.io/r/andrew-schofield-tessella/movement) 
+# movement
+
+[![Build Status](https://travis-ci.org/SEEG-Oxford/movement.svg?branch=master)](https://travis-ci.org/SEEG-Oxford/movement)
+[![codecov.io](https://codecov.io/github/SEEG-Oxford/movement/coverage.svg?branch=master)](https://codecov.io/github/SEEG-Oxford/movement?branch=master
+
 ## R package containing useful functions for the analysis of movement data in disease modelling and mapping
 
 This package is a collaborative effort between a group of researchers to foster research into the analysis of human and animal movement for epidemiology. It's still in the very early stages of development, so expect the content to change a great deal in the future.
