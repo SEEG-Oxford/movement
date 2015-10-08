@@ -36,6 +36,23 @@
 #' The \code{movement_matrix} can be extracted from a list of movements
 #' using \code{\link{as.movementmatrix}}
 #' @export
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
+#' predictionModel <- movementmodel(dataset=kenya10,
+#'                                  min_network_pop = 50000,
+#'                                  predictionmodel= 'original radiation',
+#'                                  symmetric = TRUE,
+#'                                  modelparams = 0.1)
+#' # predict the population movement from the model
+#' predictedMovements = predict(predictionModel)
+#' # visualise the distance matrix
+#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
+#' # visualise the predicted movements overlaid onto the original raster
+#' showprediction(predictedMovements)
 movement <- function(locations, coords, population, movement_matrix, model, model.params=NULL, ...) {
   # create the correct params object with (hopefully sane) default values
   if(model == "original radiation" || model == "uniform selection") {
