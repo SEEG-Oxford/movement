@@ -2,32 +2,18 @@
 % Please edit documentation in R/movement.R
 \name{showprediction}
 \alias{showprediction}
-\alias{showprediction.default}
-\alias{showprediction.movementmodel}
 \title{Display the movement predictions on a plot}
 \usage{
-showprediction(predictionModel, ...)
-
-\method{showprediction}{default}(predictionModel, ...)
-
-\method{showprediction}{movementmodel}(predictionModel, ...)
+showprediction(object, ...)
 }
 \arguments{
-\item{predictionModel}{A configured prediction model}
+\item{object}{A configured prediction model}
 
 \item{\dots}{Extra parameters to pass to plot}
 }
 \description{
 Display the movement predictions on a plot
 }
-\section{Methods (by class)}{
-\itemize{
-\item \code{default}: Default action for showprediction
-
-\item \code{movementmodel}: Given a movement model, plot the underlying
-raster, the configured location points and the predicted movements
-between locations.
-}}
 \examples{
 # load kenya raster
 data(kenya)

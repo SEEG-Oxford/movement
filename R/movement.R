@@ -182,6 +182,7 @@ predict.optimisedmodel <- function(object, newdata, ...) {
 }
 
 #' @export
+#' @method print optimisedmodel
 print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
   if(length(coef(x))) {
@@ -200,26 +201,37 @@ print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), 
   invisible(x)
 }
 
+#' @title Summarize an optimised model
+#' 
+#' Print a summary of an optimised model
+#' 
+#' @param object an \code{optimisedmodel} object
+#' @param \dots additional arguments affecting the summary produced.
+#' 
+#' @name summary.optimisedmodel
 #' @export
-summary.optimisedmodel <- function(x) {
-  coef.p <- x$trainingresults$modelparams
+#' @method summary optimisedmodel
+#' 
+summary.optimisedmodel <- function(object, ...) {
+  coef.p <- object$trainingresults$modelparams
   dn <- c("Estimate", "Std. Error")
-  stderrors <- sqrt(abs(diag(solve(x$optimisationresults$hessian)))) # need to plug this into the coef table
+  stderrors <- sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
   ans <- list(
-    model = x$trainingresults$predictionmodel,
+    model = object$trainingresults$predictionmodel,
     deviance.resid = 1,
     coefficients = coef.p,
-    nulldeviance = x$null.deviance,
-    residdeviance = x$deviance,
-    aic = x$aic,
-    df.null = x$df.null,
-    df.residual = x$df.residual,
+    nulldeviance = object$null.deviance,
+    residdeviance = object$deviance,
+    aic = object$aic,
+    df.null = object$df.null,
+    df.residual = object$df.residual,
     stderrors = stderrors)
   class(ans) <- "summary.optimisedmodel"
   return (ans)
 }
 
 #' @export
+#' @method print summary.optimisedmodel
 print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste('Model:  ', x$model, '\n\n'))
   cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
@@ -824,25 +836,31 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #'
 #' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
 #' @export
-showprediction <- function(predictionModel, ...) {
-  UseMethod("showprediction", predictionModel)
+showprediction <- function(object, ...) {
+  UseMethod("showprediction", object)
 }
 
-#' @describeIn showprediction Default action for showprediction
+#' @rdname showprediction
+#' 
+#' Default action for showprediction
+#' 
 #' @export
-showprediction.default <- function(predictionModel, ...) {
+showprediction.default <- function(object, ...) {
   print("showprediction doesn't know how to handle this object.")
-  return (predictionModel)
+  return (object)
 }
 
-#' @describeIn showprediction Given a movement model, plot the underlying
+#' @rdname showprediction
+#' 
+#' Given a movement model, plot the underlying
 #' raster, the configured location points and the predicted movements
 #' between locations.
+#' 
 #' @export
-showprediction.movementmodel <- function(predictionModel, ...) {
-  network <- predictionModel$net
-  move <- predictionModel$prediction
-  raster <- predictionModel$dataset
+showprediction.movementmodel <- function(object, ...) {
+  network <- object$net
+  move <- object$prediction
+  raster <- object$dataset
   show.prediction(network, raster, move, ...)
 }
 
@@ -1301,16 +1319,12 @@ as.movementmatrix <- function(dataframe) {
   return (mat)
 }
 
-#' @export
-as.locationdataframe <- function(input, ...) {
-  UseMethod("as.locationdataframe", input)
-}
-
-#' Convert a merged data.frame into a single location data.frame
-#'
-#' Takes a data.frame containing location and population data and converts it
-#' into a single data.frame containing location data only.
-#' @param input A data.frame of the format
+#' @title Conversion to locationdataframe
+#' 
+#' @description Convert objects to \code{locationdataframe} objects
+#' 
+#' @param input object to convert to a \code{locationdataframe} object.
+#' Either a data.frame of the format
 #' #   origin destination movement pop_origin  pop_destination  
 #' # 1      a           b       10        100               88
 #' # 2      a           c        8        100              100
@@ -1323,7 +1337,10 @@ as.locationdataframe <- function(input, ...) {
 #' #   0.07826932  0.13612404       0.97817937       0.22771625
 #' #   0.07826932  0.13612404       0.87233335       0.06695538
 #' #   0.07826932  0.13612404       0.23157835       0.19573021
-#' @param \dots further arguments passed to or from other methods
+#' or a \code{SpatialPolygonsDataFrame} object
+#' 
+#' @param \dots further arguments passed to or from other methods.
+#' 
 #' @return A data.frame containing location data of the format
 #' #   location pop        lat        lon
 #' # 1        a 100 0.07826932 0.13612404
@@ -1331,7 +1348,15 @@ as.locationdataframe <- function(input, ...) {
 #' # 3        c 100 0.07126503 0.19544754
 #' # 4        d 113 0.97817937 0.22771625
 #' # 5        e 107 0.87233335 0.06695538
+#' @name as.locationdataframe
 #' @export
+as.locationdataframe <- function(input, ...) {
+  UseMethod("as.locationdataframe", input)
+}
+
+#' @rdname as.locationdataframe
+#' @export
+#' @method as.locationdataframe data.frame
 as.locationdataframe.data.frame <- function(input, ...) {
   input <- input[!duplicated(input$origin),]
   pop <- as.numeric(input["pop_origin"]$pop_origin)
@@ -1349,8 +1374,12 @@ as.locationdataframe.data.frame <- function(input, ...) {
 # make sure it is cropped to the correct region first using raster::crop
 # for portugal, this works: crop(gadm, extent(-10, -6.189142, 30, 42.154232))
 # portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
+#' @rdname as.locationdataframe
+#' @param populationraster a \code{RasterLayer} object with each the value of
+#'  each cell giving the associated population density.
 #' @export
-as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraster) {
+#' @method as.locationdataframe SpatialPolygonsDataFrame
+as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraster, ...) {
   result <- data.frame(simplifytext(input$NAME_2),input$ID_2,raster::extract(populationraster,input, fun=sum),sp::coordinates(input))
   colnames(result) <- c("name", "location", "pop", "lon", "lat")
   return (result)
@@ -1474,7 +1503,7 @@ showcomparisonplot <- function(optimisedmodel, observed) {
   plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
 }
 
-#' @export
+# @export
 resultasdataframe <- function(predictedresult) {
   locations = predictedresult$df_locations
   mm = predictedresult$movement_matrix
