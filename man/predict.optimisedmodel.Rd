@@ -2,24 +2,24 @@
 % Please edit documentation in R/movement.R
 \name{predict.optimisedmodel}
 \alias{predict.optimisedmodel}
-\title{Predict population movements from a population input}
+\title{Predict from an optimisedmodel object}
 \usage{
-\method{predict}{optimisedmodel}(predictionModel, dataframe, ...)
+\method{predict}{optimisedmodel}(object, newdata, ...)
 }
 \arguments{
-\item{predictionModel}{An \code{optimisedmodel} object containing the
-trained model}
+\item{object}{A configured prediction model of class \code{optimisedmodel}, ??}
 
-\item{dataframe}{A \code{RasterLayer} object containing a single population
-attribute, or a data.frame containing population and location data}
+\item{newdata}{An optional data.frame or RasterLayer containing population data}
 
 \item{\dots}{Extra arguments to pass to the flux function}
 }
 \value{
-A list containing a location dataframe from the input, and a matrix
+A \code{movementmodel} containing a (dense) matrix giving predicted
+movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
 containing the predicted population movements.
 }
 \description{
+\code{optimisedmodel}:
 Use a trained \code{optimisedmodel} object to predict population movements
 given either a RasterLayer containing a single population layer, or a
 data.frame containing population and location data formatted as:
@@ -29,8 +29,5 @@ data.frame containing population and location data formatted as:
 # 3        c 100 0.07126503 0.19544754
 # 4        d 113 0.97817937 0.22771625
 # 5        e 107 0.87233335 0.06695538
-}
-\seealso{
-\code{\link{movement}}, \code{\link{predict.movementmodel}}
 }
 

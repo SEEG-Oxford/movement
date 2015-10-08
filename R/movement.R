@@ -120,8 +120,9 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
   return (me)
 }
 
-#' Predict population movements from a population input
-#'
+#' Predict from an optimisedmodel object
+#' 
+#' \code{optimisedmodel}:
 #' Use a trained \code{optimisedmodel} object to predict population movements
 #' given either a RasterLayer containing a single population layer, or a
 #' data.frame containing population and location data formatted as:
@@ -131,33 +132,35 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' # 3        c 100 0.07126503 0.19544754
 #' # 4        d 113 0.97817937 0.22771625
 #' # 5        e 107 0.87233335 0.06695538
-#' @param predictionModel An \code{optimisedmodel} object containing the
-#' trained model
-#' @param dataframe A \code{RasterLayer} object containing a single population
-#' attribute, or a data.frame containing population and location data
+#' 
+#' @param object A configured prediction model of class \code{optimisedmodel}, ??
+#' @param newdata An optional data.frame or RasterLayer containing population data
 #' @param \dots Extra arguments to pass to the flux function
-#' @return A list containing a location dataframe from the input, and a matrix
+#' 
+#' @return A \code{movementmodel} containing a (dense) matrix giving predicted
+#' movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
 #' containing the predicted population movements.
-#'
-#' @seealso \code{\link{movement}}, \code{\link{predict.movementmodel}}
+#' 
+#' @name predict.optimisedmodel
+#' @method predict optimisedmodel
 #' @export
-predict.optimisedmodel <- function(predictionModel, dataframe, ...) {
-  m <- predictionModel$trainingresults
-  m$dataset <- dataframe
-  if(is(dataframe, "RasterLayer")) {
+predict.optimisedmodel <- function(object, newdata, ...) {
+  m <- object$trainingresults
+  m$dataset <- newdata
+  if(is(newdata, "RasterLayer")) {
     prediction <- predict.movementmodel(m)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))
-  } else if (is(dataframe, "data.frame")) {
-    prediction <- predict.movementmodel(m, dataframe)
+  } else if (is(newdata, "data.frame")) {
+    prediction <- predict.movementmodel(m, newdata)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))
   } else {
-    stop('Error: Expected parameter `dataframe` to be either a RasterLayer or a data.frame')
+    stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
   }
 }
 
@@ -781,7 +784,7 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 
 #' Display the movement predictions on a plot
 #'
-#' @param predictionModel A configured prediction model
+#' @param object A configured prediction model
 #' @param \dots Extra parameters to pass to plot
 #'
 #' @examples
@@ -1011,14 +1014,25 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
   return (me)
 }
 
-#' Create a movement prediction based on a configured movement model
-#'
-#' @param predictionModel A configured prediction model
-#' @param dataframe An optional data frame containing population data
+
+#' Predictions from ovementmodel objects
+#' 
+#' Given a movement model, use the configured distances and
+#' flux function to predict movement between all sites.
+#' Any extra arguments of the flux functions can specified using the
+#' \code{dots} argument.
+#' 
+#' @param object A configured prediction model of class \code{optimisedmodel}, ??
+#' @param newdata An optional data.frame or RasterLayer containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' @return A \code{movementmodel} containing a (dense) matrix giving predicted
-#' movements between all sites.
-#'
+#' movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
+#' containing the predicted population movements.
+#' 
+#' @name predict.movementmodel 
+#' @method predict movementmodel
+#' @export
+#' 
 #' @examples
 #' # load kenya raster
 #' data(kenya)
@@ -1036,41 +1050,23 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-#'
-#' @seealso \code{\link{movementmodel}}, \code{\link{showprediction}}
-predict <- function(predictionModel, dataframe, ...) {
-  UseMethod("predict", predictionModel)
-}
-
-#' @describeIn predict Default action for predict
-#' @export
-predict.default <- function(predictionModel, dataframe, ...) {
-  print("predict doesn't know how to handle this object.")
-  return (predictionModel)
-}
-
-#' @describeIn predict Given a movement model, use the configured distances and
-#' flux function to predict movement between all sites.
-#' Any extra arguments of the flux functions can specified using the
-#' \code{dots} argument.
-#' @export
-predict.movementmodel <- function(predictionModel, dataframe = NULL, ...) {
-  if(is.null(dataframe)) {
-    net <- get.network(predictionModel$dataset, min = predictionModel$min_network_pop)
+predict.movementmodel <- function(object, newdata = NULL, ...) {
+  if(is.null(newdata)) {
+    net <- get.network(object$dataset, min = object$min_network_pop)
   }
   else {
-    net <- get.network.fromdataframe(dataframe, min = predictionModel$min_network_pop)
+    net <- get.network.fromdataframe(newdata, min = object$min_network_pop)
   }
-  predictionModel$net = net
-  if(predictionModel$predictionmodel == 'gravity'){
-    predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = predictionModel$symmetric, theta = predictionModel$modelparams, ...)
-  } else if(predictionModel$predictionmodel == 'gravity with distance'){
-    predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravitywithdistance.flux, symmetric = predictionModel$symmetric, theta = predictionModel$modelparams, ...)
+  object$net = net
+  if(object$predictionmodel == 'gravity'){
+    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
+  } else if(object$predictionmodel == 'gravity with distance'){
+    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravitywithdistance.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
   } else {
-    predictionModel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = predictionModel$symmetric, model = predictionModel$predictionmodel, theta = predictionModel$modelparams, ...)
+    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
   }
   
-  return (predictionModel)
+  return (object)
 }
 
 #' Calculate the log likelihood of the prediction given the observed data.
