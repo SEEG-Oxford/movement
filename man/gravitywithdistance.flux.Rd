@@ -20,8 +20,13 @@ pairs of sites}
 
 \item{population}{A vector giving the population at all sites}
 
-\item{theta}{A vector of parameters in the order: scalar, exponent on donor
-pop, exponent on recipient pop, exponent on distance}
+\item{theta}{A vector of nine parameters in the order: scalar1,
+exponent1 on donor pop, exponent1 on recipient pop, exponent1 on distance,
+theshhold, scalar2, exponent2 on donor pop, exponent2 on recipient pop,
+exponent2 on distance. The first four parameters are used as the parameters
+of \code{gravity.flux} if the distance is less than threshold (5th
+parameter), otherwise the last four parameters are used for the gravity
+flux.}
 
 \item{symmetric}{Whether to return a single value giving the total predicted
 movements from i to j and j to i (if \code{TRUE}) or vector of length 2
@@ -64,7 +69,7 @@ pop <- round(runif(n) * 1000)
 # calculate the distance between pairs of sites
 d <- as.matrix(dist(coords))
 # predict movement between sites 3 and 4 using the radiation model
-T_ij <- gravitywithdistance.flux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3))
+T_ij <- gravitywithdistance.flux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3,1,1e-4,0.6,0.3,3))
 T_ij
 }
 \references{
