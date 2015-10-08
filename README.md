@@ -1,7 +1,7 @@
 # movement
 
 [![Build Status](https://travis-ci.org/SEEG-Oxford/movement.svg?branch=master)](https://travis-ci.org/SEEG-Oxford/movement)
-[![codecov.io](https://codecov.io/github/SEEG-Oxford/movement/coverage.svg?branch=master)](https://codecov.io/github/SEEG-Oxford/movement?branch=master
+[![codecov.io](https://codecov.io/github/SEEG-Oxford/movement/coverage.svg?branch=master)](https://codecov.io/github/SEEG-Oxford/movement?branch=master)
 
 ## R package containing useful functions for the analysis of movement data in disease modelling and mapping
 
