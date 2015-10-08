@@ -17,7 +17,7 @@
 #'
 #' @importFrom graphics arrows par plot points
 #' @importFrom grDevices rgb
-# @importFrom methods is
+#' @importFrom methods is
 #' @importFrom stats coef dist dpois naprint optim
 #' @importFrom utils read.csv setTxtProgressBar txtProgressBar
 #' 
