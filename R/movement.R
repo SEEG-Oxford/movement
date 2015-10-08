@@ -845,6 +845,7 @@ showprediction <- function(object, ...) {
 #' Default action for showprediction
 #' 
 #' @export
+#' @method showprediction default
 showprediction.default <- function(object, ...) {
   print("showprediction doesn't know how to handle this object.")
   return (object)
@@ -857,6 +858,7 @@ showprediction.default <- function(object, ...) {
 #' between locations.
 #' 
 #' @export
+#' @method showprediction movementmodel
 showprediction.movementmodel <- function(object, ...) {
   network <- object$net
   move <- object$prediction

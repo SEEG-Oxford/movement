@@ -15,6 +15,12 @@
 #' \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}},
 #' \code{\link{continuum.flux}}, \code{\link{attemptoptimisation}}
 #'
+#' @importFrom graphics arrows par plot points
+#' @importFrom grDevices rgb
+# @importFrom methods is
+#' @importFrom stats coef dist dpois naprint optim
+#' @importFrom utils read.csv setTxtProgressBar txtProgressBar
+#' 
 #' @author
 #' Nick Golding, Andrew Schofield, Moritz Kraemer and Alex T. Perkins
 #' Maintainer: Nick Golding <nick.golding.research at gmail.com>
