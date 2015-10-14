@@ -17,16 +17,7 @@ as.locationdataframe(input, ...)
 \item{input}{object to convert to a \code{locationdataframe} object.
 Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
 \code{pop_origin} (numberic), \code{pop_destination} (numberic), \code{lat_origin} (numberic), \code{long_origin} (numberic),
-\code{lat_destination} (numberic) and \code{long_destination} (numberic), such as:
-\tabular{ccccccccc}{
- origin \tab destination \tab movement \tab pop_origin \tab  pop_destination \tab  lat_origin \tab long_origin \tab lat_destination \tab long_destination \cr
- a   \tab     b    \tab    10   \tab     100     \tab      88          \tab 0.07826932  \tab 0.13612404  \tab     0.12114115   \tab    0.58984725 \cr
- a   \tab     c    \tab     8   \tab     100     \tab      100         \tab 0.07826932  \tab 0.13612404  \tab    0.07126503    \tab   0.19544754 \cr
- a   \tab     d    \tab    10   \tab     100     \tab      113         \tab 0.07826932  \tab 0.13612404  \tab     0.97817937   \tab    0.22771625 \cr
- a   \tab     e    \tab    11   \tab     100     \tab      107         \tab 0.07826932  \tab 0.13612404  \tab     0.87233335   \tab    0.06695538 \cr
- a   \tab     f    \tab    8    \tab     100     \tab      67          \tab 0.07826932  \tab  0.13612404 \tab    0.23157835    \tab   0.19573021 \cr
-}
-or a \code{SpatialPolygonsDataFrame} object}
+\code{lat_destination} (numberic) and \code{long_destination} (numberic) or a \code{SpatialPolygonsDataFrame} object}
 
 \item{populationraster}{a \code{RasterLayer} object with each the value of
 each cell giving the associated population density.}
