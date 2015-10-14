@@ -1326,7 +1326,9 @@ as.movementmatrix <- function(dataframe) {
 #' @description Convert objects to \code{locationdataframe} objects
 #' 
 #' @param input object to convert to a \code{locationdataframe} object.
-#' Either a data.frame of the format
+#' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
+#' \code{pop_origin} (numberic), \code{pop_destination} (numberic), \code{lat_origin} (numberic), \code{long_origin} (numberic),
+#' \code{lat_destination} (numberic) and \code{long_destination} (numberic), such as:
 #' \tabular{ccccccccc}{
 #'  origin \tab destination \tab movement \tab pop_origin \tab  pop_destination \tab  lat_origin \tab long_origin \tab lat_destination \tab long_destination \cr
 #'  a   \tab     b    \tab    10   \tab     100     \tab      88          \tab 0.07826932  \tab 0.13612404  \tab     0.12114115   \tab    0.58984725 \cr
