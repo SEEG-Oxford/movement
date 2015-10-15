@@ -2,7 +2,7 @@
 % Please edit documentation in R/movement.R
 \name{predict.movementmodel}
 \alias{predict.movementmodel}
-\title{Predictions from ovementmodel objects}
+\title{Predictions from movementmodel objects}
 \usage{
 \method{predict}{movementmodel}(object, newdata = NULL, ...)
 }

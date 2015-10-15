@@ -1052,7 +1052,7 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 }
 
 
-#' Predictions from ovementmodel objects
+#' Predictions from movementmodel objects
 #' 
 #' Given a movement model, use the configured distances and
 #' flux function to predict movement between all sites.
