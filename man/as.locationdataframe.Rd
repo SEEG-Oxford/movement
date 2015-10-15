@@ -15,20 +15,9 @@ as.locationdataframe(input, ...)
 }
 \arguments{
 \item{input}{object to convert to a \code{locationdataframe} object.
-Either a data.frame of the format
-#   origin destination movement pop_origin  pop_destination
-# 1      a           b       10        100               88
-# 2      a           c        8        100              100
-# 3      a           d       10        100              113
-# 4      a           e       11        100              107
-# 5      a           f        8        100               67
-#   lat_origin long_origin  lat_destination long_destination
-#   0.07826932  0.13612404       0.12114115       0.58984725
-#   0.07826932  0.13612404       0.07126503       0.19544754
-#   0.07826932  0.13612404       0.97817937       0.22771625
-#   0.07826932  0.13612404       0.87233335       0.06695538
-#   0.07826932  0.13612404       0.23157835       0.19573021
-or a \code{SpatialPolygonsDataFrame} object}
+Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
+\code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
+\code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object}
 
 \item{populationraster}{a \code{RasterLayer} object with each the value of
 each cell giving the associated population density.}
