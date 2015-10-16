@@ -19,9 +19,9 @@
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. This can then be used by 
-#' \code{\link{predict}} to generate predictions on new data.
+#' \code{\link{predict.movementmodel}} to generate predictions on new data.
 #'
-#' @seealso \code{\link{predict}}, \code{\link{as.locationdataframe}},
+#' @seealso \code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
 #' \code{\link{as.movementmatrix}}
 #' @note The most likely format of the location data will be as a single
 #' \code{data.frame} of this form:
@@ -777,7 +777,7 @@ movement.predict <- function(distance, population,
 #' between locations.
 #' @param \dots Extra parameters to pass to plot
 #'
-#' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
+#' @seealso \code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 #' @export
 show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   # visualise the distance matrix
@@ -834,7 +834,7 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
 #'
-#' @seealso \code{\link{movementmodel}}, \code{\link{predict}}
+#' @seealso \code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 #' @export
 showprediction <- function(object, ...) {
   UseMethod("showprediction", object)
@@ -1037,7 +1037,7 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
 #'
-#' @seealso \code{\link{predict}}, \code{\link{showprediction}}
+#' @seealso \code{\link{predict.movementmodel}}, \code{\link{showprediction}}
 #' @export
 movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
   me <- list(
