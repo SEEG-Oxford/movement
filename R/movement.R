@@ -116,8 +116,8 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
   population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
   
   # attempt to parameterise the model using optim
-  #optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, upper=upper, lower=lower, ...) #, upper=upper, lower=lower
-  optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, upper=upper, lower=lower, ...) #, upper=upper, lower=lower
+  #optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
   predictionModel$modelparams = optimresults$par
   
   # populate the training results (so we can see the end result)
