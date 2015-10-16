@@ -33,6 +33,6 @@ sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 showprediction(predictedMovements)
 }
 \seealso{
-\code{\link{movementmodel}}, \code{\link{predict}}
+\code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 }
 

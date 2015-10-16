@@ -29,7 +29,7 @@ models are \code{original radiation}, \code{radiation with selection},
 \value{
 An \code{optimisedmodel} object containing the training results,
 and the optimisation results. This can then be used by
-\code{\link{predict}} to generate predictions on new data.
+\code{\link{predict.movementmodel}} to generate predictions on new data.
 }
 \description{
 Uses the \code{\link{optim}} method to create an optimised model of
@@ -68,7 +68,7 @@ sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 showprediction(predictedMovements)
 }
 \seealso{
-\code{\link{predict}}, \code{\link{as.locationdataframe}},
+\code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
 \code{\link{as.movementmatrix}}
 }
 

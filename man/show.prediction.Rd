@@ -21,6 +21,6 @@ between locations.}
 Display the movement predictions on a plot
 }
 \seealso{
-\code{\link{movementmodel}}, \code{\link{predict}}
+\code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 }
 
