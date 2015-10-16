@@ -25,13 +25,15 @@ each cell giving the associated population density.}
 \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-A data.frame containing location data of the format
-#   location pop        lat        lon
-# 1        a 100 0.07826932 0.13612404
-# 2        b  88 0.12114115 0.58984725
-# 3        c 100 0.07126503 0.19544754
-# 4        d 113 0.97817937 0.22771625
-# 5        e 107 0.87233335 0.06695538
+A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric),
+\code{lat} (numeric) and \code{lon} (numeric), such as
+\tabular{cccc}{
+location \tab pop \tab lat         \tab lon          \cr
+a        \tab 100 \tab 0.07826932  \tab  0.13612404  \cr
+b        \tab 88  \tab 0.12114115  \tab  0.58984725  \cr
+c        \tab 100  \tab 0.07126503  \tab  0.19544754  \cr
+d        \tab 113  \tab 0.97817937  \tab  0.22771625  \cr
+}
 }
 \description{
 Convert objects to \code{locationdataframe} objects
