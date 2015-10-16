@@ -53,7 +53,7 @@
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-movement <- function(locations, coords, population, movement_matrix, model, model.params=NULL, ...) {
+movement <- function(locationdataframe, movement_matrix, model, model.params=NULL, ...) {
   # create the correct params object with (hopefully sane) default values
   if(model == "original radiation" || model == "uniform selection") {
     if(is.null(model.params)) {
@@ -112,18 +112,20 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
   # create the prediction model
   predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
   
-  # assemble a population_data data.frame for predict.movementmodel to use
-  population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
+  # assemble a population_data data.frame for predict.movementmodel to use => this is now the given input 'locationdataframe'
+  # @Nick:often the phrase 'population_data' is used for the same data frame as the locationdataframe => is that the same then? In which
+  # case we want to get some renaming in the code done for consistency?
+  #population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
   
   ### this is a problem as the first call let the unit test pass, but break the model; the second cause some unit test to fail (see issue#46)
   ### for now ensure that the code is running and comment out unit tests which fail after that change
   # attempt to parameterise the model using optim  
   #optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, upper=upper, lower=lower, ...) #, upper=upper, lower=lower
-  optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, locationdataframe, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
   predictionModel$modelparams = optimresults$par
   
   # populate the training results (so we can see the end result)
-  training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
+  training_results <- predict.movementmodel(predictionModel, locationdataframe, progress=FALSE)
   training_results$modelparams <- optimresults$par
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
