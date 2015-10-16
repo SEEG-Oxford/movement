@@ -213,7 +213,7 @@ test_that("movement throws error for unknown model", {
 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, upper, lower, ...) {
 			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian, upper=upper, lower=lower)))
 		},
-		predict.movementmodel = function(predictionModel, population_data, progress) {
+		`movement::predict.movementmodel` = function(predictionModel, population_data, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
