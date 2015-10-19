@@ -4,16 +4,11 @@
 \alias{movement}
 \title{Create an optimised movement model}
 \usage{
-movement(locations, coords, population, movement_matrix, model,
-  model.params = NULL, ...)
+movement(locationdataframe = locationdataframe,
+  movement_matrix = movement_matrix, model = model, model.params = NULL,
+  ...)
 }
 \arguments{
-\item{locations}{A vector containing locations}
-
-\item{coords}{A data frame containing coordinates of the \code{locations}}
-
-\item{population}{A vector containing populations of the \code{locations}}
-
 \item{movement_matrix}{A square matrix containing the observed population
 movements between \code{locations}}
 
@@ -23,6 +18,12 @@ models are \code{original radiation}, \code{radiation with selection},
 \code{gravity}}
 
 \item{model.params}{Optional model parameters to define.}
+
+\item{locations}{A vector containing locations}
+
+\item{coords}{A data frame containing coordinates of the \code{locations}}
+
+\item{population}{A vector containing populations of the \code{locations}}
 
 \item{\dots}{Extra parameters to be passed to the prediction code.}
 }
