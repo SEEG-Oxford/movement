@@ -58,6 +58,7 @@ test_that("movement sets correct parameters and bounds for original radiation mo
 	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
 	population <- c(1000,2000,3000)
 	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+  locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
@@ -65,7 +66,7 @@ test_that("movement sets correct parameters and bounds for original radiation mo
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
-		expect_equal((movement(locations, coords, population, movement_matrix, "original radiation"))$optimisationresults$par, c(theta=0.9))
+		expect_equal((movement(locationdataframe, movement_matrix, "original radiation"))$optimisationresults$par, c(theta=0.9))
 	)
 })
 
@@ -92,6 +93,7 @@ test_that("movement sets correct parameters and bounds for uniform selection mod
 	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
 	population <- c(1000,2000,3000)
 	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+  locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
@@ -99,7 +101,7 @@ test_that("movement sets correct parameters and bounds for uniform selection mod
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
-		expect_equal((movement(locations, coords, population, movement_matrix, "uniform selection"))$optimisationresults$par, c(theta=0.9))
+		expect_equal((movement(locationdataframe, movement_matrix, "uniform selection"))$optimisationresults$par, c(theta=0.9))
 	)
 })
 
@@ -126,6 +128,7 @@ test_that("movement sets correct parameters and bounds for radiation with select
 	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
 	population <- c(1000,2000,3000)
 	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+	locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
@@ -133,7 +136,7 @@ test_that("movement sets correct parameters and bounds for radiation with select
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
-		expect_equal((movement(locations, coords, population, movement_matrix, "radiation with selection"))$optimisationresults$par, c(theta=0.1,lambda=0.2))
+		expect_equal((movement(locationdataframe, movement_matrix, "radiation with selection"))$optimisationresults$par, c(theta=0.1,lambda=0.2))
 	)
 })
 
@@ -160,6 +163,7 @@ test_that("movement sets correct parameters and bounds for intervening opportuni
 	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
 	population <- c(1000,2000,3000)
 	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+	locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
@@ -167,7 +171,7 @@ test_that("movement sets correct parameters and bounds for intervening opportuni
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
-		expect_equal((movement(locations, coords, population, movement_matrix, "intervening opportunities"))$optimisationresults$par, c(theta=0.001,L=0.00001))
+		expect_equal((movement(locationdataframe, movement_matrix, "intervening opportunities"))$optimisationresults$par, c(theta=0.001,L=0.00001))
 	)
 })
 
@@ -194,6 +198,7 @@ test_that("movement sets correct parameters and bounds for gravity model", {
 	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
 	population <- c(1000,2000,3000)
 	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+	locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
@@ -201,7 +206,7 @@ test_that("movement sets correct parameters and bounds for gravity model", {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
-		expect_equal((movement(locations, coords, population, movement_matrix, "gravity"))$optimisationresults$par, c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01))
+		expect_equal((movement(locationdataframe, movement_matrix, "gravity"))$optimisationresults$par, c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01))
 	)
 })
 
@@ -226,6 +231,7 @@ test_that("movement creates population_data correctly", {
 	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
 	population <- c(1000,2000,3000)
 	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+	locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
@@ -233,8 +239,6 @@ test_that("movement creates population_data correctly", {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
-    # debug statement onlyy
-		# print((movement(locations, coords, population, movement_matrix, "gravity"))$optimisationresults$inputs$population_data),
-		expect_equal((movement(locations, coords, population, movement_matrix, "gravity"))$optimisationresults$inputs$population_data, data.frame(origin=locations, pop_origin=population, long_origin=coords[,1], lat_origin=coords[,2]))
+		expect_equal((movement(locationdataframe, movement_matrix, "gravity"))$optimisationresults$inputs$population_data, data.frame(origin=locations, pop_origin=population, long_origin=coords[,1], lat_origin=coords[,2]))
 	)
 })
