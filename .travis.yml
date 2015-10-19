@@ -12,6 +12,7 @@ before_install:
 install:
   - sudo apt-get install libgdal1-dev libproj-dev
   - ./pkg-build.sh install_deps
+  - ./pkg-build.sh install_r covr
 
 script:
   - ./pkg-build.sh run_tests
