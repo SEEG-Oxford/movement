@@ -1332,13 +1332,8 @@ as.movementmatrix <- function(dataframe) {
 #' 
 #' @param \dots further arguments passed to or from other methods.
 #' 
-#' @return A data.frame containing location data of the format
-#' #   location pop        lat        lon
-#' # 1        a 100 0.07826932 0.13612404
-#' # 2        b  88 0.12114115 0.58984725
-#' # 3        c 100 0.07126503 0.19544754
-#' # 4        d 113 0.97817937 0.22771625
-#' # 5        e 107 0.87233335 0.06695538
+#' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
+#' \code{lat} (numeric) and \code{lon} (numeric).
 #' @name as.locationdataframe
 #' @export
 as.locationdataframe <- function(input, ...) {
