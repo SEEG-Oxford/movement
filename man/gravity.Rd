@@ -25,7 +25,7 @@ form.
 }
 \note{
 Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-\eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.
+\eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 }
 \references{
 Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.},

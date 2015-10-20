@@ -28,7 +28,7 @@ using WorldPop. District level administrative boundaries were downloaded from GA
 }
 \note{
 Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-\eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.
+\eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 }
 \references{
 Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and

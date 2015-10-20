@@ -158,7 +158,7 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
 #' migration patterns. \emph{Nature}, 484, 96-100.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
@@ -192,7 +192,7 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' Tizzoni, M., Bajardi, P., Decuyper, A., Kon Kam King, G., Schneider, C.M., Blondel, V., et al. (2014). 
 #' On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. Biol.}, 10, e1003716.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}} 
@@ -215,7 +215,7 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #' @references
 #' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
@@ -234,7 +234,7 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' and L = [0, Inf].
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}, 
 #' \code{\link{gravity.with.distance}} 
@@ -265,7 +265,7 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks and the spatial. 
 #' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484–9.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity.with.distance}}
@@ -300,7 +300,7 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #' Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science}, 
 #' 312, 447–51
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{gravitywithdistance.flux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity}}

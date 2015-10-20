@@ -34,7 +34,7 @@ destination population. Therefore we allow the flexibility to adjust based on a 
 }
 \note{
 Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-\eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.
+\eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 }
 \references{
 Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science},

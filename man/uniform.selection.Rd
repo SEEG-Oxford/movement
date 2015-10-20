@@ -21,7 +21,7 @@ population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn
 }
 \note{
 Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
-\eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.
+\eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 }
 \references{
 Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
