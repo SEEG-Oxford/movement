@@ -2,6 +2,9 @@
 # Main interface methods                                                      #
 ###############################################################################
 
+#' eps - global constants
+assign("EPS", sqrt(.Machine$double.eps), envir = .GlobalEnv)
+
 #' Create an optimised movement model
 #'
 #' Uses the \code{\link{optim}} method to create an optimised model of
@@ -138,7 +141,6 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 }
 
 
-
 #' Radiation model
 #'
 #' The (original) radiation model generally assumes the rational of job selection. It follows the general 
@@ -156,7 +158,8 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
-#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
+#' \code{\link{gravity.with.distance}}
 #' @export
 original.radiation  <- function(params = c(theta=0.9)){  
   ans  <- list(params = params, flux = continuum.flux)
@@ -189,7 +192,8 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
-#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}} 
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
+#' \code{\link{gravity.with.distance}} 
 #' @export
 radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){  
   ans  <- list(params = params, flux = continuum.flux)
@@ -211,7 +215,8 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
+#' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
+#' \code{\link{gravity.with.distance}}
 #' @export
 uniform.selection  <- function(params = c(theta=0.9)){  
   ans  <- list(params = params, flux = continuum.flux)
@@ -229,7 +234,8 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}} 
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}, 
+#' \code{\link{gravity.with.distance}} 
 #' @export
 intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){  
   ans  <- list(params = params, flux = continuum.flux)
@@ -259,7 +265,8 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
+#' \code{\link{gravity.with.distance}}
 #' @export
 gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
   ans  <- list(params = params, flux = gravity.flux)
@@ -267,8 +274,40 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
   return(ans)
 }
 
-
-
+#' Gravity with distance model
+#' 
+#' In order to obtain more accurate results, following Viboud et al. 2006 we implement a nine-parameter 
+#' form of the gravity law, in which short and long trips are fitted separately. Similarly to the gravity 
+#' model we fit each parameter (equation 1) using a Poisson regression:
+#' \deqn{T_{ij} = \theta \dfrac{ N_i^{\alpha} N_j^{\beta} }{d_{ij}^{\gamma}} }{%
+#' T_ij = \theta * N_i^\alpha * N_j^{\beta} / d_ij^{\gamma} }
+#' where \eqn{\theta} is a proportionality constant and the exponents \eqn{\alpha} and \eqn{\beta} respectively, 
+#' tune the dependence of dispersal on donor and recipient population sizes (\eqn{N}), and the distance between 
+#' the two communities \eqn{d_{ij}^{\gamma}}{d_ij^\gamma}. By taking the logarithm of on both sides this becomes: 
+#' \deqn{\ln(T_{ij}) = \ln(\theta) + \alpha \ln(N_i) + \beta \ln{N_j} - \gamma \ln(d_{ij}) }{%
+#'  ln(T_ij) = ln(\theta) + \alpha ln(N_i) + \beta ln{N_j} - \gamma ln(d_ij)
+#'  }
+#' Viboud et al. show that below 119km, the population exponents are relatively high and larger for the 
+#' destination population. Therefore we allow the flexibility to adjust based on a distance cutoff for the model.
+#' @param params A list of model parameters. The following limits apply for the parameters: theta1 = [0, Inf],
+#'  alpha1 = [-Inf, Inf], beta1 = [-Inf, Inf], gamma1 = [-Inf, Inf], delta = [0,1], theta2 = [0, Inf],
+#'  alpha2 = [-Inf, Inf], beta2 = [-Inf, Inf] and gamma2 = [-Inf, Inf]
+#' @return A flux model object with the \code{\link{gravitywithdistance.flux}} function and a set of starting 
+#' parameters.
+#' @references
+#' Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science}, 
+#' 312, 447–51
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' @seealso \code{\link{movement}}, \code{\link{gravitywithdistance.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
+#' \code{\link{gravity}}
+#' @export
+gravity.with.distance  <- function( params = c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=(1-2*EPS), theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)){  
+  ans  <- list(params = params, flux = gravitywithdistance.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
 
 #' Predict from an optimisedmodel object
 #' 

@@ -22,6 +22,7 @@ Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe 
 }
 \seealso{
 \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
-\code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}
+\code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}},
+\code{\link{gravity.with.distance}}
 }
 

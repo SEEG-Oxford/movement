@@ -95,3 +95,23 @@ test_that("gravity model can be called with new set of params",{
   model  <- gravity(expected_params)
   expect_equal(model$params, expected_params)
 })
+
+test_that("gravity with distance is of class flux",{
+  model  <- gravity.with.distance()
+  expect_is(model, "flux")
+})
+
+test_that("gravity with distance model has expected default values",{
+  delta_start  <- 1 - 2 * EPS
+  default_params  <- c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=delta_start, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)
+  expected_flux  <- gravitywithdistance.flux
+  model  <- gravity.with.distance()
+  expect_equal(model$params, default_params)
+  expect_equal(model$flux, expected_flux)
+})
+
+test_that("gravity with distance model can be called with new set of params",{
+  expected_params  <- c(theta1=1, alpha1=2, beta1=3, gamma1=4, delta=1, theta2=0.5, alpha2=1.5, beta2=2.5, gamma2=3.5)
+  model  <- gravity(expected_params)
+  expect_equal(model$params, expected_params)
+})

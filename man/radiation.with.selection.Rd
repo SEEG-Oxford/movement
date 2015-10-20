@@ -39,6 +39,7 @@ On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. 
 }
 \seealso{
 \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
-\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
+\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
+\code{\link{gravity.with.distance}}
 }
 
