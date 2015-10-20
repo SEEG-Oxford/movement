@@ -2,8 +2,10 @@
 # Main interface methods                                                      #
 ###############################################################################
 
-#' eps - global constants
-assign("EPS", sqrt(.Machine$double.eps), envir = .GlobalEnv)
+#' set global constants suchs as 'EPS'
+.onLoad  <- function(lib, pkg){
+  assign(".EPS", sqrt(.Machine$double.eps), envir = .GlobalEnv)
+}
 
 #' Create an optimised movement model
 #'
