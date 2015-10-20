@@ -156,7 +156,7 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
-#' \code{\link{uniform.selection}}, \code{\link{gravity}}
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
 #' @export
 original.radiation  <- function(params = c(theta=0.9)){  
   ans  <- list(params = params, flux = continuum.flux)
@@ -189,7 +189,7 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
-#' \code{\link{uniform.selection}}, \code{\link{gravity}} 
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}} 
 #' @export
 radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){  
   ans  <- list(params = params, flux = continuum.flux)
@@ -211,7 +211,7 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{gravity}}
+#' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
 #' @export
 uniform.selection  <- function(params = c(theta=0.9)){  
   ans  <- list(params = params, flux = continuum.flux)
@@ -259,7 +259,7 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}
 #' @export
 gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
   ans  <- list(params = params, flux = gravity.flux)

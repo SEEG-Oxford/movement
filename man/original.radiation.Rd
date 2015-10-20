@@ -31,6 +31,6 @@ migration patterns. \emph{Nature}, 484, 96-100.
 }
 \seealso{
 \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
-\code{\link{uniform.selection}}, \code{\link{gravity}}
+\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
 }
 
