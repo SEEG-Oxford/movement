@@ -2,7 +2,7 @@
 # Main interface methods                                                      #
 ###############################################################################
 
-#' set global constants suchs as 'EPS'
+# set global constants suchs as 'EPS'
 .onLoad  <- function(lib, pkg){
   assign(".EPS", sqrt(.Machine$double.eps), envir = .GlobalEnv)
 }
