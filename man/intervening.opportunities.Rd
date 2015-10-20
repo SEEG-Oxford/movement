@@ -34,6 +34,12 @@ sufficiently attractive as destination, and \eqn{\lambda} and \eqn{\alpha} are f
 Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 }
+\references{
+Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration
+patterns. \emph{Nature}, 484, 96–100.
+Stouffer S. A. (1940). Intervening opportunities: a theory relating mobility and distance. \emph{Am.
+Sociol. Rev.} 5, 845–867.
+}
 \seealso{
 \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
 \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}},

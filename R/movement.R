@@ -247,6 +247,11 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' @param params A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
 #' and L = [0, Inf].
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration 
+#' patterns. \emph{Nature}, 484, 96–100.
+#' Stouffer S. A. (1940). Intervening opportunities: a theory relating mobility and distance. \emph{Am. 
+#' Sociol. Rev.} 5, 845–867.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
