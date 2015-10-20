@@ -14,7 +14,21 @@ and L = [0, Inf].}
 A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 }
 \description{
-TODO
+The intervening-opportunities model (IO) assumes that the number of persons going a given distance
+is directly proportional to the number of opportunities at that distance and inversely proportional
+to the number of intervening opportunities (Stouffer 1940):
+\deqn{T_{ij} = \frac{N_j}{d_{ij} + N_i} }{ T_ij = N_j / (d_ij + N_j) }
+Where \eqn{N_i} is the population in location \eqn{i}, and \eqn{(d_{ij} + N_j)}{(d_ij + N_j)} is
+the population in all locations between \eqn{ij}. From there we apply a stochastic approach to
+derive a probability that a trip will terminate in location \eqn{i} is equal to the probability
+that \eqn{i} contains an acceptable destination and that the acceptable destination is closer to
+the origin \eqn{i} has not been found. Following Simini et al. 2012 the connectivity between \eqn{i}
+and \eqn{j} becomes:
+\deqn{T_{ij} =  e^{ -\lambda (s_{ij} + N_i)^{\alpha}} - e^{ -\lambda (s_{ij} + N_i + N_j)^{\alpha}} }{%
+T_ij = exp(-\lambda * (s_ij + N_i)^\alpha ) - exp(-\lambda * (s_ij + N_i + N_j)^\alpha )
+}
+Where \eqn{e^(-\lambda)}{exp(-\lambda)} is the probability that a single opportunity is not
+sufficiently attractive as destination, and \eqn{\lambda} and \eqn{\alpha} are fitting parameters.
 }
 \note{
 Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
