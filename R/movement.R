@@ -137,6 +137,62 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
   return (me)
 }
 
+
+
+#' Radiation model
+#'
+#' The (original) radiation model generally assumes the rational of job selection. It follows the general 
+#' rule that the number of employment opportunities in each district is proportional to its resident 
+#' population, assuming full employment (people in district = jobs in district). Moreover, the individuals 
+#' in each district choose the closest job to their home. Analytically the radiation model is represented by:
+#' \deqn{T_{ij} = {\frac{PQ}{(P + R) (P + Q + R)}}}{T_ij = P * Q / (P + R) * (P + Q + R)}
+#' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
+#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}
+#' @param params A list of model parameters. The limits for theta are [0,Infinity].  
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
+#' migration patterns. \emph{Nature}, 484, 96-100.
+#' @note For numerical reasons, the limits for theta will be internally changed to [eps, Infinity - eps].
+#' TODO: will later on add a translist for the constraints of the parameters: theta-> positive values; 
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}} 
+#' @export
+original.radiation  <- function(params = c(theta=0.9)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+#' Gravity model
+#'
+#' The gravity law assumes that the number of people moving between locations is 
+#' proportional to some power of the origin and destination population, and decays 
+#' by distance between them following: 
+#'\deqn{T_{ij} = \dfrac{m_i^\alpha \times n_j^\beta }{f(r_{ij})}}{T_ij = m_i^\alpha * n_j^\beta / f(r_ij)}
+#' where, \eqn{m_i} represents the population at origin, \eqn{n_j} the population at the destination 
+#' and \eqn{r_{ij}}{r_ij} the distance between them. \eqn{\alpha} and \eqn{\beta} are tuning parameters 
+#' fitted to each subpopulation size, and \eqn{f(r_{ij})}{f(r_ij)} is a distance-dependent functional 
+#' form.
+#' @param params A list of model starting parameters.
+#' @return A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
+#' @references
+#' Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.}, 
+#' 11, 677–686.
+#' Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks and the spatial. 
+#' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484–9.
+#' @note TODO: will later on add a translist for the constraints of the parameters: theta-> positive values; 
+#'        no constraints on the other params
+#' @seealso \code{\link{movement}}, \code{\link{gravity.flux}} 
+#' @export
+gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
+  ans  <- list(params = params, flux = gravity.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+
+
+
 #' Predict from an optimisedmodel object
 #' 
 #' \code{optimisedmodel}:
