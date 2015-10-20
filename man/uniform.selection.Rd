@@ -15,7 +15,7 @@ A flux model object with the \code{\link{continuum.flux}} function and a set of 
 \description{
 The uniform selection model assumes that a job is selected uniformly at random proportionally to the
 population in each district following:
-\deqn{T_{ij} = \dfrac{P}{Q-R}}{T_ij = P / Q - R}
+\deqn{T_{ij} = \frac{P}{Q-R}}{T_ij = P / Q - R}
 where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total
 population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 }

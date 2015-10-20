@@ -5,8 +5,8 @@
 \title{Gravity with distance model}
 \usage{
 gravity.with.distance(params = c(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03,
-  gamma1 = 0.01, delta = (1 - 2 * EPS), theta2 = 0.01, alpha2 = 0.06, beta2 =
-  0.03, gamma2 = 0.01))
+  gamma1 = 0.01, delta = 0.5, theta2 = 0.01, alpha2 = 0.06, beta2 = 0.03, gamma2
+  = 0.01))
 }
 \arguments{
 \item{params}{A list of model parameters. The following limits apply for the parameters: theta1 = [0, Inf],
@@ -21,7 +21,7 @@ parameters.
 In order to obtain more accurate results, following Viboud et al. 2006 we implement a nine-parameter
 form of the gravity law, in which short and long trips are fitted separately. Similarly to the gravity
 model we fit each parameter (equation 1) using a Poisson regression:
-\deqn{T_{ij} = \theta \dfrac{ N_i^{\alpha} N_j^{\beta} }{d_{ij}^{\gamma}} }{%
+\deqn{T_{ij} = \theta \frac{ N_i^{\alpha} N_j^{\beta} }{d_{ij}^{\gamma}} }{%
 T_ij = \theta * N_i^\alpha * N_j^{\beta} / d_ij^{\gamma} }
 where \eqn{\theta} is a proportionality constant and the exponents \eqn{\alpha} and \eqn{\beta} respectively,
 tune the dependence of dispersal on donor and recipient population sizes (\eqn{N}), and the distance between

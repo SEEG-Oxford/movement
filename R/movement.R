@@ -174,7 +174,7 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' The aim of this index is to represent travel from districts between the affected countries to other 
 #' districts within the core countries. We assume that travel between districts is determined by factors 
 #' such as population and distance. The radiation model with selection is defined as:
-#' \deqn{ T_{ij} = \dfrac{\dfrac{1 - \lambda^{P}}{P} - \dfrac{1 - \lambda^{Q}}{Q}}{\dfrac{1 - \lambda^{R}}{R}} }{%
+#' \deqn{ T_{ij} = \frac{\frac{1 - \lambda^{P}}{P} - \frac{1 - \lambda^{Q}}{Q}}{\frac{1 - \lambda^{R}}{R}} }{%
 #' T_ij = ( 1 - \lambda^P / P ) *  ( 1 - \lambda^Q / Q ) / ( 1 - \lambda^R / R )}
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
@@ -207,7 +207,7 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #'
 #' The uniform selection model assumes that a job is selected uniformly at random proportionally to the 
 #' population in each district following:
-#' \deqn{T_{ij} = \dfrac{P}{Q-R}}{T_ij = P / Q - R}
+#' \deqn{T_{ij} = \frac{P}{Q-R}}{T_ij = P / Q - R}
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 #' @param params A list of model parameters. The limit for theta is [0, Inf].  
@@ -251,7 +251,7 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' The gravity law assumes that the number of people moving between locations is 
 #' proportional to some power of the origin and destination population, and decays 
 #' by distance between them following: 
-#'\deqn{T_{ij} = \dfrac{m_i^\alpha \times n_j^\beta }{f(r_{ij})}}{T_ij = m_i^\alpha * n_j^\beta / f(r_ij)}
+#'\deqn{T_{ij} = \frac{m_i^\alpha \times n_j^\beta }{f(r_{ij})}}{T_ij = m_i^\alpha * n_j^\beta / f(r_ij)}
 #' where, \eqn{m_i} represents the population at origin, \eqn{n_j} the population at the destination 
 #' and \eqn{r_{ij}}{r_ij} the distance between them. \eqn{\alpha} and \eqn{\beta} are tuning parameters 
 #' fitted to each subpopulation size, and \eqn{f(r_{ij})}{f(r_ij)} is a distance-dependent functional 
@@ -281,7 +281,7 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #' In order to obtain more accurate results, following Viboud et al. 2006 we implement a nine-parameter 
 #' form of the gravity law, in which short and long trips are fitted separately. Similarly to the gravity 
 #' model we fit each parameter (equation 1) using a Poisson regression:
-#' \deqn{T_{ij} = \theta \dfrac{ N_i^{\alpha} N_j^{\beta} }{d_{ij}^{\gamma}} }{%
+#' \deqn{T_{ij} = \theta \frac{ N_i^{\alpha} N_j^{\beta} }{d_{ij}^{\gamma}} }{%
 #' T_ij = \theta * N_i^\alpha * N_j^{\beta} / d_ij^{\gamma} }
 #' where \eqn{\theta} is a proportionality constant and the exponents \eqn{\alpha} and \eqn{\beta} respectively, 
 #' tune the dependence of dispersal on donor and recipient population sizes (\eqn{N}), and the distance between 

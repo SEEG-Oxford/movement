@@ -17,7 +17,7 @@ A flux model object with the \code{\link{gravity.flux}} function and a set of st
 The gravity law assumes that the number of people moving between locations is
 proportional to some power of the origin and destination population, and decays
 by distance between them following:
-\deqn{T_{ij} = \dfrac{m_i^\alpha \times n_j^\beta }{f(r_{ij})}}{T_ij = m_i^\alpha * n_j^\beta / f(r_ij)}
+\deqn{T_{ij} = \frac{m_i^\alpha \times n_j^\beta }{f(r_{ij})}}{T_ij = m_i^\alpha * n_j^\beta / f(r_ij)}
 where, \eqn{m_i} represents the population at origin, \eqn{n_j} the population at the destination
 and \eqn{r_{ij}}{r_ij} the distance between them. \eqn{\alpha} and \eqn{\beta} are tuning parameters
 fitted to each subpopulation size, and \eqn{f(r_{ij})}{f(r_ij)} is a distance-dependent functional

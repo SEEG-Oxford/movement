@@ -17,7 +17,7 @@ A flux model object with the \code{\link{continuum.flux}} function and a set of 
 The aim of this index is to represent travel from districts between the affected countries to other
 districts within the core countries. We assume that travel between districts is determined by factors
 such as population and distance. The radiation model with selection is defined as:
-\deqn{ T_{ij} = \dfrac{\dfrac{1 - \lambda^{P}}{P} - \dfrac{1 - \lambda^{Q}}{Q}}{\dfrac{1 - \lambda^{R}}{R}} }{%
+\deqn{ T_{ij} = \frac{\frac{1 - \lambda^{P}}{P} - \frac{1 - \lambda^{Q}}{Q}}{\frac{1 - \lambda^{R}}{R}} }{%
 T_ij = ( 1 - \lambda^P / P ) *  ( 1 - \lambda^Q / Q ) / ( 1 - \lambda^R / R )}
 where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total
 population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
