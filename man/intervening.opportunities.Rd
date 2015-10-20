@@ -36,9 +36,9 @@ Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe 
 }
 \references{
 Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration
-patterns. \emph{Nature}, 484, 96–100.
+patterns. \emph{Nature}, 484, 96-100.
 Stouffer S. A. (1940). Intervening opportunities: a theory relating mobility and distance. \emph{Am.
-Sociol. Rev.} 5, 845–867.
+Sociol. Rev.} 5, 845-867.
 }
 \seealso{
 \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},

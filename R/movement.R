@@ -251,9 +251,9 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration 
-#' patterns. \emph{Nature}, 484, 96–100.
+#' patterns. \emph{Nature}, 484, 96-100.
 #' Stouffer S. A. (1940). Intervening opportunities: a theory relating mobility and distance. \emph{Am. 
-#' Sociol. Rev.} 5, 845–867.
+#' Sociol. Rev.} 5, 845-867.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
@@ -282,9 +282,9 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' @return A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
 #' @references
 #' Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.}, 
-#' 11, 677–686.
+#' 11, 677-686.
 #' Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks and the spatial. 
-#' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484–9.
+#' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484-9. 
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
@@ -319,7 +319,7 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #' parameters.
 #' @references
 #' Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science}, 
-#' 312, 447–51
+#' 312, 447-51
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
 #' @seealso \code{\link{movement}}, \code{\link{gravitywithdistance.flux}}, \code{\link{original.radiation}},

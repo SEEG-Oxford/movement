@@ -38,7 +38,7 @@ Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe 
 }
 \references{
 Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science},
-312, 447–51
+312, 447-51
 }
 \seealso{
 \code{\link{movement}}, \code{\link{gravitywithdistance.flux}}, \code{\link{original.radiation}},

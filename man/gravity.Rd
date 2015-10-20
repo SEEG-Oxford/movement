@@ -29,9 +29,9 @@ Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe 
 }
 \references{
 Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.},
-11, 677–686.
+11, 677-686.
 Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks and the spatial.
-\emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484–9.
+\emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484-9.
 }
 \seealso{
 \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
