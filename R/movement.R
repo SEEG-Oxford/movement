@@ -305,7 +305,7 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity}}
 #' @export
-gravity.with.distance  <- function( params = c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=(1-2*EPS), theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)){  
+gravity.with.distance  <- function( params = c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)){  
   ans  <- list(params = params, flux = gravitywithdistance.flux)
   class(ans)  <- 'flux'
   return(ans)

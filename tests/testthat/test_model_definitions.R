@@ -102,8 +102,7 @@ test_that("gravity with distance is of class flux",{
 })
 
 test_that("gravity with distance model has expected default values",{
-  delta_start  <- 1 - 2 * EPS
-  default_params  <- c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=delta_start, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)
+  default_params  <- c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)
   expected_flux  <- gravitywithdistance.flux
   model  <- gravity.with.distance()
   expect_equal(model$params, default_params)
