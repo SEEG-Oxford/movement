@@ -158,7 +158,8 @@ movement <- function(locationdataframe, movement_matrix, model, model.params=NUL
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
 #' @export
-original.radiation  <- function(params = c(theta=0.9)){  
+original.radiation  <- function(theta=0.9){  
+  params  <- c(theta = theta)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -192,7 +193,8 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}} 
 #' @export
-radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){  
+radiation.with.selection  <- function(theta=0.1,lambda=0.2){  
+  params = c(theta=theta,lambda=lambda)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -215,7 +217,8 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
 #' @export
-uniform.selection  <- function(params = c(theta=0.9)){  
+uniform.selection  <- function(theta=0.9){ 
+  params = c(theta=theta)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -253,7 +256,8 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}, 
 #' \code{\link{gravity.with.distance}} 
 #' @export
-intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){  
+intervening.opportunities  <- function(theta=0.001, L=0.00001){    
+  params = c(theta=theta, L=L)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -284,7 +288,8 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity.with.distance}}
 #' @export
-gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
+gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){  
+  params = c(theta=theta, alpha=alpha, beta=beta, gamma=gamma)
   ans  <- list(params = params, flux = gravity.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -319,7 +324,8 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity}}
 #' @export
-gravity.with.distance  <- function( params = c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)){  
+gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
+  params = c(theta1=theta1, alpha1=alpha1, beta1=beta1, gamma1=gamma1, delta=delta, theta2=theta2, alpha2=alpha2, beta2=beta2, gamma2=gamma2)
   ans  <- list(params = params, flux = gravitywithdistance.flux)
   class(ans)  <- 'flux'
   return(ans)
