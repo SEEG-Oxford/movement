@@ -4,15 +4,12 @@
 \alias{movement}
 \title{Create an optimised movement model}
 \usage{
-movement(locations, coords, population, movement_matrix, model,
-  model.params = NULL, ...)
+movement(locationdataframe, movement_matrix, model, model.params = NULL, ...)
 }
 \arguments{
-\item{locations}{A vector containing locations}
-
-\item{coords}{A data frame containing coordinates of the \code{locations}}
-
-\item{population}{A vector containing populations of the \code{locations}}
+\item{locationdataframe}{A \code{locationdataframe} object, i.e. a data.frame
+containing location data with the column name \code{locations}, \code{population},
+\code{long} and \code{lat}.}
 
 \item{movement_matrix}{A square matrix containing the observed population
 movements between \code{locations}}
@@ -37,14 +34,8 @@ population movements.
 }
 \note{
 The most likely format of the location data will be as a single
-\code{data.frame} of this form:
-#   location pop        lat        lon
-# 1        a 100 0.07826932 0.13612404
-# 2        b  88 0.12114115 0.58984725
-# 3        c 100 0.07126503 0.19544754
-# 4        d 113 0.97817937 0.22771625
-# 5        e 107 0.87233335 0.06695538
-This can be extracted from a larger dataframe with
+\code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and
+\code{long}. This can be extracted from a larger dataframe with
 \code{\link{as.locationdataframe}}
 The \code{movement_matrix} can be extracted from a list of movements
 using \code{\link{as.movementmatrix}}

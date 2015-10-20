@@ -6,9 +6,9 @@
 #'
 #' Uses the \code{\link{optim}} method to create an optimised model of
 #' population movements.
-#' @param locations A vector containing locations
-#' @param coords A data frame containing coordinates of the \code{locations}
-#' @param population A vector containing populations of the \code{locations}
+#' @param locationdataframe A \code{locationdataframe} object, i.e. a data.frame 
+#' containing location data with the column name \code{locations}, \code{population},
+#'\code{long} and \code{lat}.
 #' @param movement_matrix A square matrix containing the observed population
 #' movements between \code{locations}
 #' @param model The name of the movement model to use. Currently supported
@@ -24,14 +24,8 @@
 #' @seealso \code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
 #' \code{\link{as.movementmatrix}}
 #' @note The most likely format of the location data will be as a single
-#' \code{data.frame} of this form:
-#' #   location pop        lat        lon
-#' # 1        a 100 0.07826932 0.13612404
-#' # 2        b  88 0.12114115 0.58984725
-#' # 3        c 100 0.07126503 0.19544754
-#' # 4        d 113 0.97817937 0.22771625
-#' # 5        e 107 0.87233335 0.06695538
-#' This can be extracted from a larger dataframe with
+#' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
+#' \code{long}. This can be extracted from a larger dataframe with
 #' \code{\link{as.locationdataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
 #' using \code{\link{as.movementmatrix}}
@@ -53,7 +47,7 @@
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-movement <- function(locations, coords, population, movement_matrix, model, model.params=NULL, ...) {
+movement <- function(locationdataframe, movement_matrix, model, model.params=NULL, ...) {
   # create the correct params object with (hopefully sane) default values
   if(model == "original radiation" || model == "uniform selection") {
     if(is.null(model.params)) {
@@ -112,16 +106,15 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
   # create the prediction model
   predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
   
-  # assemble a population_data data.frame for predict.movementmodel to use
-  population_data <- data.frame(origin=locations,pop_origin=population,long_origin=coords[,1],lat_origin=coords[,2])
+  # assemble a locationdataframe original data.frame for predict.movementmodel to use 
+  locationdataframe_origin  <- data.frame(origin=locationdataframe$locations, pop_origin=locationdataframe$population, long_origin=locationdataframe$long,lat_origin=locationdataframe$lat)
   
-  # attempt to parameterise the model using optim
-  optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, upper=upper, lower=lower, ...) #, upper=upper, lower=lower
-  #optimresults <- attemptoptimisation(predictionModel, population_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  # attempt to parameterise the model using optim  
+  optimresults <- attemptoptimisation(predictionModel, locationdataframe_origin, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
   predictionModel$modelparams = optimresults$par
   
   # populate the training results (so we can see the end result)
-  training_results <- predict.movementmodel(predictionModel, population_data, progress=FALSE)
+  training_results <- predict.movementmodel(predictionModel, locationdataframe_origin, progress=FALSE)
   training_results$modelparams <- optimresults$par
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
@@ -1193,8 +1186,12 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #' \code{\link{analysepredictionusingdpois}}
 #' @export
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
+
+  
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
   optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+
+  #return transfer here! using the return $par value
 }
 
 ###############################################################################
