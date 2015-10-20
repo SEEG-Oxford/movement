@@ -999,7 +999,13 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   }
 }
 
-#' Display the movement predictions on a plot
+#' @title Plot movement predictions
+#'
+#' @name showprediction
+#'
+#' @description Given a movement model, plot the underlying
+#' raster, the configured location points and the predicted movements
+#' between locations.
 #'
 #' @param object A configured prediction model
 #' @param \dots Extra parameters to pass to plot
@@ -1029,10 +1035,8 @@ showprediction <- function(object, ...) {
 }
 
 #' @rdname showprediction
-#' 
-#' Default action for showprediction
-#' 
-#' @export
+#'
+#' @export 
 #' @method showprediction default
 showprediction.default <- function(object, ...) {
   print("showprediction doesn't know how to handle this object.")
@@ -1040,10 +1044,6 @@ showprediction.default <- function(object, ...) {
 }
 
 #' @rdname showprediction
-#' 
-#' Given a movement model, plot the underlying
-#' raster, the configured location points and the predicted movements
-#' between locations.
 #' 
 #' @export
 #' @method showprediction movementmodel

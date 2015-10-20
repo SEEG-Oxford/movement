@@ -2,9 +2,15 @@
 % Please edit documentation in R/movement.R
 \name{showprediction}
 \alias{showprediction}
-\title{Display the movement predictions on a plot}
+\alias{showprediction.default}
+\alias{showprediction.movementmodel}
+\title{Plot movement predictions}
 \usage{
 showprediction(object, ...)
+
+\method{showprediction}{default}(object, ...)
+
+\method{showprediction}{movementmodel}(object, ...)
 }
 \arguments{
 \item{object}{A configured prediction model}
@@ -12,7 +18,9 @@ showprediction(object, ...)
 \item{\dots}{Extra parameters to pass to plot}
 }
 \description{
-Display the movement predictions on a plot
+Given a movement model, plot the underlying
+raster, the configured location points and the predicted movements
+between locations.
 }
 \examples{
 # load kenya raster
