@@ -4,14 +4,20 @@
 \alias{gravity.with.distance}
 \title{Gravity with distance model}
 \usage{
-gravity.with.distance(params = c(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03,
-  gamma1 = 0.01, delta = 0.5, theta2 = 0.01, alpha2 = 0.06, beta2 = 0.03, gamma2
-  = 0.01))
+gravity.with.distance(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03,
+  gamma1 = 0.01, delta = 0.5, theta2 = 0.01, alpha2 = 0.06,
+  beta2 = 0.03, gamma2 = 0.01)
 }
 \arguments{
-\item{params}{A list of model parameters. The following limits apply for the parameters: theta1 = [0, Inf],
-alpha1 = [-Inf, Inf], beta1 = [-Inf, Inf], gamma1 = [-Inf, Inf], delta = [0,1], theta2 = [0, Inf],
-alpha2 = [-Inf, Inf], beta2 = [-Inf, Inf] and gamma2 = [-Inf, Inf]}
+\item{delta}{Model parameter with default value and the limits delta = [0, 1].}
+
+\item{theta1/2}{Model parameter with default value and the limits theta = [0, Inf].}
+
+\item{alpha1/2}{Model parameter with default value and the limits alpha = [-Inf, Inf].}
+
+\item{beta1/2}{Model parameter with default value and the limits beta = [-Inf, Inf].}
+
+\item{gamma1/2}{Model parameter with default value and the limits gamma = [-Inf, Inf].}
 }
 \value{
 A flux model object with the \code{\link{gravitywithdistance.flux}} function and a set of starting

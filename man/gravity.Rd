@@ -4,11 +4,16 @@
 \alias{gravity}
 \title{Gravity model}
 \usage{
-gravity(params = c(theta = 0.01, alpha = 0.06, beta = 0.03, gamma = 0.01))
+gravity(theta = 0.01, alpha = 0.06, beta = 0.03, gamma = 0.01)
 }
 \arguments{
-\item{params}{A list of model parameters. The following limits apply for the parameters: theta = [0, Inf],
-alpha = [-Inf, Inf], beta = [-Inf, Inf] and gamma = [-Inf, Inf].}
+\item{theta}{Model parameter with default value and the limits theta = [0, Inf].}
+
+\item{alpha}{Model parameter with default value and the limits alpha = [-Inf, Inf].}
+
+\item{beta}{Model parameter with default value and the limits alpha = [-Inf, Inf].}
+
+\item{gamma}{Model parameter with default value and the limits gamma = [-Inf, Inf].}
 }
 \value{
 A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
