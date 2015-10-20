@@ -2,6 +2,13 @@
 # Main interface methods                                                      #
 ###############################################################################
 
+# set global constants: 
+# usage in functions will be options()$eps or options()$ninf
+.onLoad  <- function(lib, pkg){
+  options(eps = sqrt(.Machine$double.eps))
+  options(ninf = sqrt(.Machine$double.xmax))          
+}
+
 #' Create an optimised movement model
 #'
 #' Uses the \code{\link{optim}} method to create an optimised model of
@@ -128,6 +135,194 @@ movement <- function(locationdataframe, movement_matrix, model, model.params=NUL
              aic = optimresults$value + 2 * length(optimresults$value)) # deviance + (2* number of params)
   class(me) <- "optimisedmodel"
   return (me)
+}
+
+
+#' Radiation model
+#'
+#' The (original) radiation model generally assumes the rational of job selection. It follows the general 
+#' rule that the number of employment opportunities in each district is proportional to its resident 
+#' population, assuming full employment (people in district = jobs in district). Moreover, the individuals 
+#' in each district choose the closest job to their home. Analytically the radiation model is represented by:
+#' \deqn{T_{ij} = {\frac{PQ}{(P + R) (P + Q + R)}}}{T_ij = P * Q / (P + R) * (P + Q + R)}
+#' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
+#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
+#' @param params A list of model parameters. The limit for theta is [0, Inf].  
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
+#' migration patterns. \emph{Nature}, 484, 96-100.
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
+#' \code{\link{gravity.with.distance}}
+#' @export
+original.radiation  <- function(params = c(theta=0.9)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+#' Radiation with selection model
+#'
+#' The aim of this index is to represent travel from districts between the affected countries to other 
+#' districts within the core countries. We assume that travel between districts is determined by factors 
+#' such as population and distance. The radiation model with selection is defined as:
+#' \deqn{ T_{ij} = \frac{\frac{1 - \lambda^{P}}{P} - \frac{1 - \lambda^{Q}}{Q}}{\frac{1 - \lambda^{R}}{R}} }{%
+#' T_ij = ( 1 - \lambda^P / P ) *  ( 1 - \lambda^Q / Q ) / ( 1 - \lambda^R / R )}
+#' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
+#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
+#' The radiation model with selection was fitted using a set of known between district (n = 329) movements 
+#' from mobile phone users from France in 2007 (Tizzoni et al. 2014). The model was then used to build a 
+#' movement matrix between all districts of the core countries. District level population data were extracted 
+#' using WorldPop. District level administrative boundaries were downloaded from GADM.
+#' @param params A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
+#' and lambda = [0,1].
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
+#' migration patterns. \emph{Nature}, 484, 96-100.
+#' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
+#' Tizzoni, M., Bajardi, P., Decuyper, A., Kon Kam King, G., Schneider, C.M., Blondel, V., et al. (2014). 
+#' On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. Biol.}, 10, e1003716.
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
+#' \code{\link{gravity.with.distance}} 
+#' @export
+radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+#' Uniform selection model
+#'
+#' The uniform selection model assumes that a job is selected uniformly at random proportionally to the 
+#' population in each district following:
+#' \deqn{T_{ij} = \frac{P}{Q-R}}{T_ij = P / Q - R}
+#' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
+#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
+#' @param params A list of model parameters. The limit for theta is [0, Inf].  
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
+#' \code{\link{gravity.with.distance}}
+#' @export
+uniform.selection  <- function(params = c(theta=0.9)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+#' Intervening opportunities
+#'
+#' The intervening-opportunities model (IO) assumes that the number of persons going a given distance 
+#' is directly proportional to the number of opportunities at that distance and inversely proportional 
+#' to the number of intervening opportunities (Stouffer 1940):
+#' \deqn{T_{ij} = \frac{N_j}{d_{ij} + N_i} }{ T_ij = N_j / (d_ij + N_j) }
+#' Where \eqn{N_i} is the population in location \eqn{i}, and \eqn{(d_{ij} + N_j)}{(d_ij + N_j)} is 
+#' the population in all locations between \eqn{ij}. From there we apply a stochastic approach to 
+#' derive a probability that a trip will terminate in location \eqn{i} is equal to the probability 
+#' that \eqn{i} contains an acceptable destination and that the acceptable destination is closer to 
+#' the origin \eqn{i} has not been found. Following Simini et al. 2012 the connectivity between \eqn{i}
+#' and \eqn{j} becomes:
+#' \deqn{T_{ij} =  e^{ -\lambda (s_{ij} + N_i)^{\alpha}} - e^{ -\lambda (s_{ij} + N_i + N_j)^{\alpha}} }{%
+#' T_ij = exp(-\lambda * (s_ij + N_i)^\alpha ) - exp(-\lambda * (s_ij + N_i + N_j)^\alpha )
+#' }
+#' Where \eqn{e^(-\lambda)}{exp(-\lambda)} is the probability that a single opportunity is not 
+#' sufficiently attractive as destination, and \eqn{\lambda} and \eqn{\alpha} are fitting parameters.
+#' 
+#' @param params A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
+#' and L = [0, Inf].
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration 
+#' patterns. \emph{Nature}, 484, 96-100.
+#' Stouffer S. A. (1940). Intervening opportunities: a theory relating mobility and distance. \emph{Am. 
+#' Sociol. Rev.} 5, 845-867.
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}, 
+#' \code{\link{gravity.with.distance}} 
+#' @export
+intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+
+#' Gravity model
+#'
+#' The gravity law assumes that the number of people moving between locations is 
+#' proportional to some power of the origin and destination population, and decays 
+#' by distance between them following: 
+#'\deqn{T_{ij} = \frac{m_i^\alpha \times n_j^\beta }{f(r_{ij})}}{T_ij = m_i^\alpha * n_j^\beta / f(r_ij)}
+#' where, \eqn{m_i} represents the population at origin, \eqn{n_j} the population at the destination 
+#' and \eqn{r_{ij}}{r_ij} the distance between them. \eqn{\alpha} and \eqn{\beta} are tuning parameters 
+#' fitted to each subpopulation size, and \eqn{f(r_{ij})}{f(r_ij)} is a distance-dependent functional 
+#' form.
+#' @param params A list of model parameters. The following limits apply for the parameters: theta = [0, Inf],
+#'  alpha = [-Inf, Inf], beta = [-Inf, Inf] and gamma = [-Inf, Inf].
+#' @return A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
+#' @references
+#' Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.}, 
+#' 11, 677-686.
+#' Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks and the spatial. 
+#' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484-9. 
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
+#' @seealso \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
+#' \code{\link{gravity.with.distance}}
+#' @export
+gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
+  ans  <- list(params = params, flux = gravity.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+#' Gravity with distance model
+#' 
+#' In order to obtain more accurate results, following Viboud et al. 2006 we implement a nine-parameter 
+#' form of the gravity law, in which short and long trips are fitted separately. Similarly to the gravity 
+#' model we fit each parameter (equation 1) using a Poisson regression:
+#' \deqn{T_{ij} = \theta \frac{ N_i^{\alpha} N_j^{\beta} }{d_{ij}^{\gamma}} }{%
+#' T_ij = \theta * N_i^\alpha * N_j^{\beta} / d_ij^{\gamma} }
+#' where \eqn{\theta} is a proportionality constant and the exponents \eqn{\alpha} and \eqn{\beta} respectively, 
+#' tune the dependence of dispersal on donor and recipient population sizes (\eqn{N}), and the distance between 
+#' the two communities \eqn{d_{ij}^{\gamma}}{d_ij^\gamma}. By taking the logarithm of on both sides this becomes: 
+#' \deqn{\ln(T_{ij}) = \ln(\theta) + \alpha \ln(N_i) + \beta \ln{N_j} - \gamma \ln(d_{ij}) }{%
+#'  ln(T_ij) = ln(\theta) + \alpha ln(N_i) + \beta ln{N_j} - \gamma ln(d_ij)
+#'  }
+#' Viboud et al. show that below 119km, the population exponents are relatively high and larger for the 
+#' destination population. Therefore we allow the flexibility to adjust based on a distance cutoff for the model.
+#' @param params A list of model parameters. The following limits apply for the parameters: theta1 = [0, Inf],
+#'  alpha1 = [-Inf, Inf], beta1 = [-Inf, Inf], gamma1 = [-Inf, Inf], delta = [0,1], theta2 = [0, Inf],
+#'  alpha2 = [-Inf, Inf], beta2 = [-Inf, Inf] and gamma2 = [-Inf, Inf]
+#' @return A flux model object with the \code{\link{gravitywithdistance.flux}} function and a set of starting 
+#' parameters.
+#' @references
+#' Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science}, 
+#' 312, 447-51
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
+#' @seealso \code{\link{movement}}, \code{\link{gravitywithdistance.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
+#' \code{\link{gravity}}
+#' @export
+gravity.with.distance  <- function( params = c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)){  
+  ans  <- list(params = params, flux = gravitywithdistance.flux)
+  class(ans)  <- 'flux'
+  return(ans)
 }
 
 #' Predict from an optimisedmodel object
