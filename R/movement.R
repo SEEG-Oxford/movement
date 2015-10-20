@@ -2,9 +2,11 @@
 # Main interface methods                                                      #
 ###############################################################################
 
-# set global constants suchs as 'EPS'
+# set global constants: 
+# usage in functions will be options()$eps or options()$ninf
 .onLoad  <- function(lib, pkg){
-  assign(".EPS", sqrt(.Machine$double.eps), envir = .GlobalEnv)
+  options(eps = sqrt(.Machine$double.eps))
+  options(ninf = sqrt(.Machine$double.xmax))          
 }
 
 #' Create an optimised movement model
