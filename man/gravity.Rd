@@ -7,7 +7,8 @@
 gravity(params = c(theta = 0.01, alpha = 0.06, beta = 0.03, gamma = 0.01))
 }
 \arguments{
-\item{params}{A list of model starting parameters.}
+\item{params}{A list of model parameters. The following limits apply for the parameters: theta = [0, Inf],
+alpha = [-Inf, Inf], beta = [-Inf, Inf] abd gamma = [-Inf, Inf].}
 }
 \value{
 A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
@@ -23,8 +24,8 @@ fitted to each subpopulation size, and \eqn{f(r_{ij})}{f(r_ij)} is a distance-de
 form.
 }
 \note{
-TODO: will later on add a translist for the constraints of the parameters: theta-> positive values;
-       no constraints on the other params
+Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+\eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.
 }
 \references{
 Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.},

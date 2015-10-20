@@ -7,7 +7,7 @@
 original.radiation(params = c(theta = 0.9))
 }
 \arguments{
-\item{params}{A list of model parameters. The limits for theta are [0,Infinity].}
+\item{params}{A list of model parameters. The limit for theta is [0, Inf].}
 }
 \value{
 A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
@@ -22,8 +22,8 @@ where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \e
 population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}
 }
 \note{
-For numerical reasons, the limits for theta will be internally changed to [eps, Infinity - eps].
-TODO: will later on add a translist for the constraints of the parameters: theta-> positive values;
+Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+\eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.
 }
 \references{
 Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and

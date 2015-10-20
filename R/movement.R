@@ -148,13 +148,13 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' \deqn{T_{ij} = {\frac{PQ}{(P + R) (P + Q + R)}}}{T_ij = P * Q / (P + R) * (P + Q + R)}
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}
-#' @param params A list of model parameters. The limits for theta are [0,Infinity].  
+#' @param params A list of model parameters. The limit for theta is [0, Inf].  
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
 #' migration patterns. \emph{Nature}, 484, 96-100.
-#' @note For numerical reasons, the limits for theta will be internally changed to [eps, Infinity - eps].
-#' TODO: will later on add a translist for the constraints of the parameters: theta-> positive values; 
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{continuum.flux}} 
 #' @export
 original.radiation  <- function(params = c(theta=0.9)){  
@@ -173,15 +173,16 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' and \eqn{r_{ij}}{r_ij} the distance between them. \eqn{\alpha} and \eqn{\beta} are tuning parameters 
 #' fitted to each subpopulation size, and \eqn{f(r_{ij})}{f(r_ij)} is a distance-dependent functional 
 #' form.
-#' @param params A list of model starting parameters.
+#' @param params A list of model parameters. The following limits apply for the parameters: theta = [0, Inf],
+#'  alpha = [-Inf, Inf], beta = [-Inf, Inf] and gamma = [-Inf, Inf].
 #' @return A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
 #' @references
 #' Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.}, 
 #' 11, 677–686.
 #' Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks and the spatial. 
 #' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484–9.
-#' @note TODO: will later on add a translist for the constraints of the parameters: theta-> positive values; 
-#'        no constraints on the other params
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
 #' @seealso \code{\link{movement}}, \code{\link{gravity.flux}} 
 #' @export
 gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
