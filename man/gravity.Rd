@@ -8,7 +8,7 @@ gravity(params = c(theta = 0.01, alpha = 0.06, beta = 0.03, gamma = 0.01))
 }
 \arguments{
 \item{params}{A list of model parameters. The following limits apply for the parameters: theta = [0, Inf],
-alpha = [-Inf, Inf], beta = [-Inf, Inf] abd gamma = [-Inf, Inf].}
+alpha = [-Inf, Inf], beta = [-Inf, Inf] and gamma = [-Inf, Inf].}
 }
 \value{
 A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
@@ -34,6 +34,7 @@ Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks 
 \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484–9.
 }
 \seealso{
-\code{\link{movement}}, \code{\link{gravity.flux}}
+\code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
+\code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}
 }
 

@@ -19,7 +19,7 @@ population, assuming full employment (people in district = jobs in district). Mo
 in each district choose the closest job to their home. Analytically the radiation model is represented by:
 \deqn{T_{ij} = {\frac{PQ}{(P + R) (P + Q + R)}}}{T_ij = P * Q / (P + R) * (P + Q + R)}
 where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total
-population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}
+population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 }
 \note{
 Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
@@ -30,6 +30,7 @@ Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal mo
 migration patterns. \emph{Nature}, 484, 96-100.
 }
 \seealso{
-\code{\link{movement}}, \code{\link{continuum.flux}}
+\code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
+\code{\link{uniform.selection}}, \code{\link{gravity}}
 }
 

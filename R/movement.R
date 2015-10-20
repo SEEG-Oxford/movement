@@ -147,7 +147,7 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' in each district choose the closest job to their home. Analytically the radiation model is represented by:
 #' \deqn{T_{ij} = {\frac{PQ}{(P + R) (P + Q + R)}}}{T_ij = P * Q / (P + R) * (P + Q + R)}
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
-#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}
+#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 #' @param params A list of model parameters. The limit for theta is [0, Inf].  
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @references
@@ -155,13 +155,88 @@ movement <- function(locations, coords, population, movement_matrix, model, mode
 #' migration patterns. \emph{Nature}, 484, 96-100.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
-#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}} 
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
+#' \code{\link{uniform.selection}}, \code{\link{gravity}}
 #' @export
 original.radiation  <- function(params = c(theta=0.9)){  
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
 }
+
+#' Radiation with selection model
+#'
+#' The aim of this index is to represent travel from districts between the affected countries to other 
+#' districts within the core countries. We assume that travel between districts is determined by factors 
+#' such as population and distance. The radiation model with selection is defined as:
+#' \deqn{ T_{ij} = \dfrac{\dfrac{1 - \lambda^{P}}{P} - \dfrac{1 - \lambda^{Q}}{Q}}{\dfrac{1 - \lambda^{R}}{R}} }{%
+#' T_ij = ( 1 - \lambda^P / P ) *  ( 1 - \lambda^Q / Q ) / ( 1 - \lambda^R / R )}
+#' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
+#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
+#' The radiation model with selection was fitted using a set of known between district (n = 329) movements 
+#' from mobile phone users from France in 2007 (Tizzoni et al. 2014). The model was then used to build a 
+#' movement matrix between all districts of the core countries. District level population data were extracted 
+#' using WorldPop. District level administrative boundaries were downloaded from GADM.
+#' @param params A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
+#' and lambda = [0,1].
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
+#' migration patterns. \emph{Nature}, 484, 96-100.
+#' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
+#' Tizzoni, M., Bajardi, P., Decuyper, A., Kon Kam King, G., Schneider, C.M., Blondel, V., et al. (2014). 
+#' On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. Biol.}, 10, e1003716.
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' \code{\link{uniform.selection}}, \code{\link{gravity}} 
+#' @export
+radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+#' Uniform selection model
+#'
+#' The uniform selection model assumes that a job is selected uniformly at random proportionally to the 
+#' population in each district following:
+#' \deqn{T_{ij} = \dfrac{P}{Q-R}}{T_ij = P / Q - R}
+#' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
+#' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
+#' @param params A list of model parameters. The limit for theta is [0, Inf].  
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @references
+#' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{gravity}}
+#' @export
+uniform.selection  <- function(params = c(theta=0.9)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
+#' Intervening opportunities
+#'
+#' TODO 
+#' 
+#' @param params A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
+#' and L = [0, Inf].
+#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
+#' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
+#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}} 
+#' @export
+intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){  
+  ans  <- list(params = params, flux = continuum.flux)
+  class(ans)  <- 'flux'
+  return(ans)
+}
+
 
 #' Gravity model
 #'
@@ -183,7 +258,8 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484–9.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{eps = sqrt(.Machine$double.eps)} and \eqn{Inf = sqrt(.Machine$double.xmax)}, respectively.  
-#' @seealso \code{\link{movement}}, \code{\link{gravity.flux}} 
+#' @seealso \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}
 #' @export
 gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
   ans  <- list(params = params, flux = gravity.flux)
