@@ -14,12 +14,10 @@ containing location data with the column name \code{locations}, \code{population
 \item{movement_matrix}{A square matrix containing the observed population
 movements between \code{locations}}
 
-\item{model}{The name of the movement model to use. Currently supported
+\item{flux_model}{The name of the movement model to use. Currently supported
 models are \code{original radiation}, \code{radiation with selection},
 \code{uniform selection}, \code{intervening opportunities},
 \code{gravity}}
-
-\item{model.params}{Optional model parameters to define.}
 
 \item{\dots}{Extra parameters to be passed to the prediction code.}
 }

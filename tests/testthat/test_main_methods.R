@@ -53,22 +53,27 @@ test_that("predict.optimisedmodel throws an error if given the wrong type", {
 # 	)
 # })
 
-test_that("movement sets correct parameters and bounds for original radiation model", {
-	locations <- c("a","b","c")
-	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
-	population <- c(1000,2000,3000)
-	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
-  locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
-	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
-			return (list(par=predictionModel$modelparams, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
-		},
-		`movement::predict.movementmodel` = function(predictionModel, population_data, progress) {
-			return (list(modelparams=NULL,prediction=NULL))
-		},
-		analysepredictionusingdpois = function(x, y) return (1),
-		expect_equal((movement(locationdataframe, movement_matrix, original.radiation()))$optimisationresults$par, c(theta=0.9))
-	)
-})
+# test_that("movement sets correct parameters and bounds for original radiation model", {
+# 	locations <- c("a","b","c")
+# 	coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
+# 	population <- c(1000,2000,3000)
+# 	movement_matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+#   locationdataframe <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+# 	with_mock(attemptoptimisation = function(predictionModel, population_data, movement_matrix, progress, hessian, ...) {
+#       print("Call mock attemptoptimisation")
+# 			return (list(par=predictionModel$flux_model$parms, value=2,inputs=list(predictionModel=predictionModel, population_data=population_data, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
+# 		},   
+# 		`movement::predict.movementmodel` = function(predictionModel, population_data, progress) {
+#       print("call mock predict.movementmodel")
+# 			return (list(flux_model=NULL,prediction=NULL))
+# 		},		
+# 		analysepredictionusingdpois = function(x, y) return (1),
+# 		#
+#     actual_movement_object <- movement(locationdataframe, movement_matrix, original.radiation()),
+# 		print(str(actual_movement_object)),
+# #		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.9))
+# 	)
+# })
 
 # # test_that("movement sets correct parameters and bounds for uniform selection model", {
 # # 	locations <- c("a","b","c")

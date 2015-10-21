@@ -18,11 +18,10 @@
 #'\code{long} and \code{lat}.
 #' @param movement_matrix A square matrix containing the observed population
 #' movements between \code{locations}
-#' @param model The name of the movement model to use. Currently supported
+#' @param flux_model The name of the movement model to use. Currently supported
 #' models are \code{original radiation}, \code{radiation with selection},
 #' \code{uniform selection}, \code{intervening opportunities},
 #' \code{gravity}
-#' @param model.params Optional model parameters to define.
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. This can then be used by 
@@ -74,8 +73,6 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, locationdataframe_origin, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
-  print("optimresults")
-  print(str(optimresults))
   predictionModel$flux_model$params = optimresults$par
   
   # populate the training results (so we can see the end result) - its a movementmodel object!
@@ -1165,14 +1162,12 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #' @param dataset A raster dataset of population data
 #' @param min_network_pop The minimum population of a site in order for it to be
 #' processed
-#' @param predictionmodel The name of a prediction model used to calculated
+#' @param flux_model A flux object used to calculated
 #' predicted flux between locations. Currently supported prediction models are
 #' \code{gravity}, \code{original radiation}, \code{intervening opportunities},
 #' \code{radiation with selection} and \code{uniform selection}
 #' @param symmetric Whether to calculate symmetric or asymmetric (summed across
 #' both directions) movement
-#' @param modelparams Model parameter values to pass to the prediction model
-#' (such as exponents, scale factors etc.)
 #' @return A movement model object which can be used to run flux predictions.
 #'
 #' @examples
@@ -1193,7 +1188,9 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
 #'
-#' @seealso \code{\link{predict.movementmodel}}, \code{\link{showprediction}}
+#' @seealso \code{\link{predict.movementmodel}}, \code{\link{showprediction}}, \code{\link{original.radiation}}
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, 
+#' \code{\link{gravity}}, \code{\link{gravity.with.distance}}
 #' @export
 movementmodel <- function(dataset, min_network_pop = 50000, flux_model = original.radiation(), symmetric = TRUE) {
   me <- list(
@@ -1214,7 +1211,7 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux_model = origina
 #' Any extra arguments of the flux functions can specified using the
 #' \code{dots} argument.
 #' 
-#' @param object A configured prediction model of class \code{optimisedmodel}, ??
+#' @param movementmodel A configured prediction model of class \code{movementmodel}
 #' @param newdata An optional data.frame or RasterLayer containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' @return A \code{movementmodel} containing a (dense) matrix giving predicted
@@ -1295,7 +1292,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 #' used as the \code{\link{optim}} minimisation value
 #'
 #' @param par theta values for the flux function
-#' @param predictionModel The prediction model being optimised
+#' @param predictionModel The prediction model of movementmodel object type being optimised 
 #' @param observedmatrix A matrix containing the observed population movements
 #' @param populationdata A dataframe containing population coordinate data
 #' @param \dots Parameters passed to \code{\link{movement.predict}}
