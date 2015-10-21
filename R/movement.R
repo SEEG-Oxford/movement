@@ -73,10 +73,18 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, locationdataframe_origin, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
   predictionModel$flux_model$params = optimresults$par
+  print("optimresults$par after attemptoptimisation() call")
+  print(optimresults$par)
+  print("predictionModel$flux_model$params after attemptoptimisation() call")
+  print(predictionModel$flux_model$params)
+  
   
   # populate the training results (so we can see the end result) - its a movementmodel object!
   training_results <- predict.movementmodel(predictionModel, locationdataframe_origin, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
+  print("training_results$flux_model$params after predict.movementmodel() call")
+  print(predictionModel$flux_model$params)
+  
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
   me <- list(optimisationresults = optimresults,
@@ -266,11 +274,15 @@ gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){
 #'  }
 #' Viboud et al. show that below 119km, the population exponents are relatively high and larger for the 
 #' destination population. Therefore we allow the flexibility to adjust based on a distance cutoff for the model.
-#' @param theta1/2 Model parameter with default value and the limits theta = [0, Inf].
-#' @param alpha1/2 Model parameter with default value and the limits alpha = [-Inf, Inf].
-#' @param beta1/2 Model parameter with default value and the limits beta = [-Inf, Inf].
-#' @param gamma1/2 Model parameter with default value and the limits gamma = [-Inf, Inf].
+#' @param theta1 Model parameter with default value and the limits theta = [0, Inf].
+#' @param alpha1 Model parameter with default value and the limits alpha = [-Inf, Inf].
+#' @param beta1 Model parameter with default value and the limits beta = [-Inf, Inf].
+#' @param gamma1 Model parameter with default value and the limits gamma = [-Inf, Inf].
 #' @param delta Model parameter with default value and the limits delta = [0, 1].
+#' @param theta2 Model parameter with default value and the limits theta = [0, Inf].
+#' @param alpha2 Model parameter with default value and the limits alpha = [-Inf, Inf].
+#' @param beta2 Model parameter with default value and the limits beta = [-Inf, Inf].
+#' @param gamma2 Model parameter with default value and the limits gamma = [-Inf, Inf].
 #' @return A flux model object with the \code{\link{gravitywithdistance.flux}} function and a set of starting 
 #' parameters.
 #' @references
@@ -1208,7 +1220,7 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux_model = origina
 #' Any extra arguments of the flux functions can specified using the
 #' \code{dots} argument.
 #' 
-#' @param movementmodel A configured prediction model of class \code{movementmodel}
+#' @param object A configured prediction model of class \code{movementmodel}
 #' @param newdata An optional data.frame or RasterLayer containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' @return A \code{movementmodel} containing a (dense) matrix giving predicted

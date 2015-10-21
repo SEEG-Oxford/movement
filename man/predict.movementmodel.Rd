@@ -7,9 +7,9 @@
 \method{predict}{movementmodel}(object, newdata = NULL, ...)
 }
 \arguments{
-\item{newdata}{An optional data.frame or RasterLayer containing population data}
+\item{object}{A configured prediction model of class \code{movementmodel}}
 
-\item{movementmodel}{A configured prediction model of class \code{movementmodel}}
+\item{newdata}{An optional data.frame or RasterLayer containing population data}
 
 \item{\dots}{Extra arguments to pass to the flux function}
 }
