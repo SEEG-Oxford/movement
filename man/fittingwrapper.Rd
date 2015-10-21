@@ -4,16 +4,16 @@
 \alias{fittingwrapper}
 \title{Internal helper function for optimisation}
 \usage{
-fittingwrapper(par, predictionModel, observedmatrix, populationdata, ...)
+fittingwrapper(predictionModel, observedmatrix, populationdata, ...)
 }
 \arguments{
-\item{par}{theta values for the flux function}
-
 \item{predictionModel}{The prediction model being optimised}
 
 \item{observedmatrix}{A matrix containing the observed population movements}
 
 \item{populationdata}{A dataframe containing population coordinate data}
+
+\item{par}{theta values for the flux function}
 
 \item{\dots}{Parameters passed to \code{\link{movement.predict}}}
 }

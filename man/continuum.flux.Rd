@@ -5,7 +5,7 @@
 \title{Use the continuum model of Simini et al. (2013) to predict movement between
 two sites based on population and distance.}
 \usage{
-continuum.flux(i, j, distance, population, model = "original radiation",
+continuum.flux(i, j, distance, population, flux.model = original.radiation(),
   theta = c(1), symmetric = FALSE, minpop = 1, maxrange = Inf)
 }
 \arguments{
@@ -19,8 +19,6 @@ site}
 pairs of sites}
 
 \item{population}{A vector giving the population at all sites}
-
-\item{model}{The type of continuum model to use}
 
 \item{theta}{A vector of parameters in the order: proportion of all
 inhabitants in the region commuting, parameter required for either the
@@ -36,6 +34,8 @@ consider all sites)}
 
 \item{maxrange}{The maximum distance between sites to consider (by default
 \code{Inf}, consider all sites)}
+
+\item{model}{The type of continuum model to use}
 }
 \value{
 A vector (of length either 1 or 2) giving the predicted number of

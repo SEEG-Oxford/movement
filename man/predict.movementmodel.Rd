@@ -4,12 +4,12 @@
 \alias{predict.movementmodel}
 \title{Predictions from movementmodel objects}
 \usage{
-\method{predict}{movementmodel}(object, newdata = NULL, ...)
+\method{predict}{movementmodel}(modelmovement, newdata = NULL, ...)
 }
 \arguments{
-\item{object}{A configured prediction model of class \code{optimisedmodel}, ??}
-
 \item{newdata}{An optional data.frame or RasterLayer containing population data}
+
+\item{object}{A configured prediction model of class \code{optimisedmodel}, ??}
 
 \item{\dots}{Extra arguments to pass to the flux function}
 }

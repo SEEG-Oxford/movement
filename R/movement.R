@@ -54,75 +54,31 @@
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-movement <- function(locationdataframe, movement_matrix, model, model.params=NULL, ...) {
-  # create the correct params object with (hopefully sane) default values
-  if(model == "original radiation" || model == "uniform selection") {
-    if(is.null(model.params)) {
-      params <- c(theta=0.9)
-    }
-    else {
-      params <- model.params
-    }
-    upper <- c(Inf)
-    lower <- c(0)
-  } else if(model == "radiation with selection") {
-    if(is.null(model.params)) {
-      params <- c(theta=0.1,lambda=0.2)
-    }
-    else {
-      params <- model.params
-    }
-    upper <- c(Inf, 1)
-    lower <- c(0, 0)
-  } else if(model == "intervening opportunities") {
-    if(is.null(model.params)) {
-      params <- c(theta=0.001, L=0.00001)
-    }
-    else {
-      params <- model.params
-    }
-    upper <- c(Inf, Inf)
-    lower <- c(1e-20, 1e-05)
-  } else if(model == "gravity") {
-    if(is.null(model.params)) {
-      params <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
-    }
-    else {
-      params <- model.params
-    }
-    upper <- c(Inf, Inf, Inf, Inf)
-    lower <- c(1e-20, -Inf, -Inf, -Inf)
-  } else if(model == "gravity with distance") {
-    if(is.null(model.params)) {
-      params <- c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=1, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)
-    }
-    else {
-      params <- model.params
-    }
-    upper <- c(Inf, Inf, Inf, Inf, 0, Inf, Inf, Inf, Inf)
-    lower <- c(1e-20, -Inf, -Inf, -Inf, 0, 1e-20, -Inf, -Inf, -Inf, -Inf)
-  } else {
-    stop("Error: Unknown model type given")
-  }
+movement <- function(locationdataframe, movement_matrix, flux.model, ...) {
   
+  # error handling for flux.model input
+  if(!is(flux.model, "flux")){
+    stop("Error: Unknown flux.model type given. The input flux.model has to be an flux object such as 'gravity()' or 'original.radiation()'")
+  }
+    
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
   nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
   nulldf <- nobs # no predictors for null degrees of freedom
   
   # create the prediction model
-  predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, predictionmodel=model, symmetric=FALSE, modelparams=params)
+  predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux.model = flux.model, symmetric=FALSE)
   
   # assemble a locationdataframe original data.frame for predict.movementmodel to use 
   locationdataframe_origin  <- data.frame(origin=locationdataframe$locations, pop_origin=locationdataframe$population, long_origin=locationdataframe$long,lat_origin=locationdataframe$lat)
   
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, locationdataframe_origin, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
-  predictionModel$modelparams = optimresults$par
+  predictionModel$flux.model$params = optimresults$par
   
-  # populate the training results (so we can see the end result)
+  # populate the training results (so we can see the end result) - its a movementmodel object!
   training_results <- predict.movementmodel(predictionModel, locationdataframe_origin, progress=FALSE)
-  training_results$modelparams <- optimresults$par
+  training_results$flux.model$params <- optimresults$par
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
   me <- list(optimisationresults = optimresults,
@@ -510,7 +466,7 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 #' @export
 continuum.flux <- function(i, j, distance, population,
-                           model = 'original radiation',
+                           model = original.radiation(),
                            theta = c(1), symmetric = FALSE,
                            minpop = 1, maxrange = Inf) {
   # get model parameters
@@ -1227,13 +1183,12 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #'
 #' @seealso \code{\link{predict.movementmodel}}, \code{\link{showprediction}}
 #' @export
-movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'original radiation', symmetric = TRUE, modelparams = 0.1) {
+movementmodel <- function(dataset, min_network_pop = 50000, flux.model = original.radiation(), symmetric = TRUE) {
   me <- list(
     dataset = dataset,
     min_network_pop = min_network_pop,
-    predictionmodel = predictionmodel,
-    symmetric = symmetric,
-    modelparams = modelparams
+    flux.model = flux.model,
+    symmetric = symmetric
   )
   class(me) <- "movementmodel"
   return (me)
@@ -1275,23 +1230,17 @@ movementmodel <- function(dataset, min_network_pop = 50000, predictionmodel = 'o
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-predict.movementmodel <- function(object, newdata = NULL, ...) {
+predict.movementmodel <- function(modelmovement, newdata = NULL, ...) {
   if(is.null(newdata)) {
-    net <- get.network(object$dataset, min = object$min_network_pop)
+    net <- get.network(modelmovement$dataset, min = modelmovement$min_network_pop)
   }
   else {
-    net <- get.network.fromdataframe(newdata, min = object$min_network_pop)
+    net <- get.network.fromdataframe(newdata, min = modelmovement$min_network_pop)
   }
-  object$net = net
-  if(object$predictionmodel == 'gravity'){
-    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravity.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
-  } else if(object$predictionmodel == 'gravity with distance'){
-    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = gravitywithdistance.flux, symmetric = object$symmetric, theta = object$modelparams, ...)
-  } else {
-    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = continuum.flux, symmetric = object$symmetric, model = object$predictionmodel, theta = object$modelparams, ...)
-  }
+  modelmovement$net = net
+  modelmovement$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = modelmovement$flux.model$flux, symmetric = modelmovement$symmetric, theta = modelmovement$flux.model$params, ...)
   
-  return (object)
+  return (modelmovement)
 }
 
 #' Calculate the log likelihood of the prediction given the observed data.
@@ -1330,9 +1279,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 #' @param \dots Parameters passed to \code{\link{movement.predict}}
 #' @return The log likelihood of the prediction given the observed data.
 #' @export
-fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
-  # set the initial model params to par
-  predictionModel$modelparams = par
+fittingwrapper <- function(predictionModel, observedmatrix, populationdata, ...) {
   predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
   loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
   return (loglikelihood)
@@ -1384,7 +1331,7 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 
   
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-  optim(predictionModel$modelparams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+  optim(predictionModel$flux.model$params, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 
   #return transfer here! using the return $par value
 }
