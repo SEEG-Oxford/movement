@@ -147,7 +147,7 @@ movement <- function(locationdataframe, movement_matrix, model, model.params=NUL
 #' \deqn{T_{ij} = {\frac{PQ}{(P + R) (P + Q + R)}}}{T_ij = P * Q / (P + R) * (P + Q + R)}
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
-#' @param params A list of model parameters. The limit for theta is [0, Inf].  
+#' @param theta Model parameter \code{theta} with default value and the limits theta = [0, Inf].  
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
@@ -158,7 +158,8 @@ movement <- function(locationdataframe, movement_matrix, model, model.params=NUL
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
 #' @export
-original.radiation  <- function(params = c(theta=0.9)){  
+original.radiation  <- function(theta=0.9){  
+  params  <- c(theta = theta)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -177,8 +178,8 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' from mobile phone users from France in 2007 (Tizzoni et al. 2014). The model was then used to build a 
 #' movement matrix between all districts of the core countries. District level population data were extracted 
 #' using WorldPop. District level administrative boundaries were downloaded from GADM.
-#' @param params A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
-#' and lambda = [0,1].
+#' @param theta Model parameter with default value and the limits theta = [0, Inf].
+#' @param lambda Model parameter with default value and the limits lambda = [0,1].
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
@@ -192,7 +193,8 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}} 
 #' @export
-radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){  
+radiation.with.selection  <- function(theta=0.1,lambda=0.2){  
+  params = c(theta=theta,lambda=lambda)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -205,7 +207,7 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #' \deqn{T_{ij} = \frac{P}{Q-R}}{T_ij = P / Q - R}
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
-#' @param params A list of model parameters. The limit for theta is [0, Inf].  
+#' @param theta Model parameter with default value and the limits theta = [0, Inf].
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
@@ -215,7 +217,8 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
 #' @export
-uniform.selection  <- function(params = c(theta=0.9)){  
+uniform.selection  <- function(theta=0.9){ 
+  params = c(theta=theta)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -239,8 +242,8 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' Where \eqn{e^(-\lambda)}{exp(-\lambda)} is the probability that a single opportunity is not 
 #' sufficiently attractive as destination, and \eqn{\lambda} and \eqn{\alpha} are fitting parameters.
 #' 
-#' @param params A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
-#' and L = [0, Inf].
+#' @param theta Model parameter with default value and the limits theta = [0, Inf].
+#' @param L Model parameter with default value and the limits L = [0, Inf].
 #' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration 
@@ -253,7 +256,8 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}, 
 #' \code{\link{gravity.with.distance}} 
 #' @export
-intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){  
+intervening.opportunities  <- function(theta=0.001, L=0.00001){    
+  params = c(theta=theta, L=L)
   ans  <- list(params = params, flux = continuum.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -270,8 +274,10 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' and \eqn{r_{ij}}{r_ij} the distance between them. \eqn{\alpha} and \eqn{\beta} are tuning parameters 
 #' fitted to each subpopulation size, and \eqn{f(r_{ij})}{f(r_ij)} is a distance-dependent functional 
 #' form.
-#' @param params A list of model parameters. The following limits apply for the parameters: theta = [0, Inf],
-#'  alpha = [-Inf, Inf], beta = [-Inf, Inf] and gamma = [-Inf, Inf].
+#' @param theta Model parameter with default value and the limits theta = [0, Inf].
+#' @param alpha Model parameter with default value and the limits alpha = [-Inf, Inf].
+#' @param beta Model parameter with default value and the limits alpha = [-Inf, Inf].
+#' @param gamma Model parameter with default value and the limits gamma = [-Inf, Inf].
 #' @return A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
 #' @references
 #' Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.}, 
@@ -284,7 +290,8 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity.with.distance}}
 #' @export
-gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
+gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){  
+  params = c(theta=theta, alpha=alpha, beta=beta, gamma=gamma)
   ans  <- list(params = params, flux = gravity.flux)
   class(ans)  <- 'flux'
   return(ans)
@@ -305,9 +312,11 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #'  }
 #' Viboud et al. show that below 119km, the population exponents are relatively high and larger for the 
 #' destination population. Therefore we allow the flexibility to adjust based on a distance cutoff for the model.
-#' @param params A list of model parameters. The following limits apply for the parameters: theta1 = [0, Inf],
-#'  alpha1 = [-Inf, Inf], beta1 = [-Inf, Inf], gamma1 = [-Inf, Inf], delta = [0,1], theta2 = [0, Inf],
-#'  alpha2 = [-Inf, Inf], beta2 = [-Inf, Inf] and gamma2 = [-Inf, Inf]
+#' @param theta1/2 Model parameter with default value and the limits theta = [0, Inf].
+#' @param alpha1/2 Model parameter with default value and the limits alpha = [-Inf, Inf].
+#' @param beta1/2 Model parameter with default value and the limits beta = [-Inf, Inf].
+#' @param gamma1/2 Model parameter with default value and the limits gamma = [-Inf, Inf].
+#' @param delta Model parameter with default value and the limits delta = [0, 1].
 #' @return A flux model object with the \code{\link{gravitywithdistance.flux}} function and a set of starting 
 #' parameters.
 #' @references
@@ -319,7 +328,8 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity}}
 #' @export
-gravity.with.distance  <- function( params = c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)){  
+gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
+  params = c(theta1=theta1, alpha1=alpha1, beta1=beta1, gamma1=gamma1, delta=delta, theta2=theta2, alpha2=alpha2, beta2=beta2, gamma2=gamma2)
   ans  <- list(params = params, flux = gravitywithdistance.flux)
   class(ans)  <- 'flux'
   return(ans)

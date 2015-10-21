@@ -4,10 +4,10 @@
 \alias{original.radiation}
 \title{Radiation model}
 \usage{
-original.radiation(params = c(theta = 0.9))
+original.radiation(theta = 0.9)
 }
 \arguments{
-\item{params}{A list of model parameters. The limit for theta is [0, Inf].}
+\item{theta}{Model parameter \code{theta} with default value and the limits theta = [0, Inf].}
 }
 \value{
 A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
