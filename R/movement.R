@@ -1301,7 +1301,8 @@ analysepredictionusingdpois <- function(prediction, observed) {
 #' @param \dots Parameters passed to \code{\link{movement.predict}}
 #' @return The log likelihood of the prediction given the observed data.
 #' @export
-fittingwrapper <- function(predictionModel, observedmatrix, populationdata, ...) {
+fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
+  predictionModel$flux_model$params = par
   predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
   loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
   return (loglikelihood)
