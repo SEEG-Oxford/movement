@@ -1239,24 +1239,24 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux_model = origina
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-predict.movementmodel <- function(movementmodel, newdata = NULL, ...) {
+predict.movementmodel <- function(object, newdata = NULL, ...) {
   if(is.null(newdata)) {
-    net <- get.network(movementmodel$dataset, min = movementmodel$min_network_pop)
+    net <- get.network(object$dataset, min = object$min_network_pop)
   }
   else {
-    net <- get.network.fromdataframe(newdata, min = movementmodel$min_network_pop)
+    net <- get.network.fromdataframe(newdata, min = object$min_network_pop)
   }
-  movementmodel$net = net
+  object$net = net
   
-  if (identical(movementmodel$flux_model$flux,continuum.flux)) {
+  if (identical(object$flux_model$flux,continuum.flux)) {
     # for the 'continuum.flux' function the flux model string must be passed over to the movement.predict method
-    movementmodel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = movementmodel$flux_model$flux, 
-                                                symmetric = movementmodel$symmetric, model = movementmodel$flux_model$model_string, 
-                                                theta = movementmodel$flux_model$params, ...)
+    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
+                                                symmetric = object$symmetric, model = object$flux_model$model_string, 
+                                                theta = object$flux_model$params, ...)
   } else {
     # for 'gravity.flux' or 'gravity.with.distance.flux' function, the model selected is equivalent to the flux function name
-    movementmodel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = movementmodel$flux_model$flux, 
-                                                symmetric = movementmodel$symmetric, theta = movementmodel$flux_model$params, ...)    
+    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
+                                                symmetric = object$symmetric, theta = object$flux_model$params, ...)    
   }
    
   return (movementmodel)
