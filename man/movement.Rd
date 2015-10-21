@@ -4,7 +4,7 @@
 \alias{movement}
 \title{Create an optimised movement model}
 \usage{
-movement(locationdataframe, movement_matrix, flux.model, ...)
+movement(locationdataframe, movement_matrix, flux_model, ...)
 }
 \arguments{
 \item{locationdataframe}{A \code{locationdataframe} object, i.e. a data.frame

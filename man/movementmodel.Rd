@@ -5,7 +5,7 @@
 \title{Create a movement model to predict movements across a landscape.}
 \usage{
 movementmodel(dataset, min_network_pop = 50000,
-  flux.model = original.radiation(), symmetric = TRUE)
+  flux_model = original.radiation(), symmetric = TRUE)
 }
 \arguments{
 \item{dataset}{A raster dataset of population data}

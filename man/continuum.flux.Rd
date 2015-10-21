@@ -5,8 +5,9 @@
 \title{Use the continuum model of Simini et al. (2013) to predict movement between
 two sites based on population and distance.}
 \usage{
-continuum.flux(i, j, distance, population, flux.model = original.radiation(),
-  theta = c(1), symmetric = FALSE, minpop = 1, maxrange = Inf)
+continuum.flux(i, j, distance, population,
+  flux_model_string = "original radiation", theta = c(1),
+  symmetric = FALSE, minpop = 1, maxrange = Inf)
 }
 \arguments{
 \item{i}{Index for \code{population} and \code{distance} giving the first

@@ -4,7 +4,7 @@
 \alias{predict.movementmodel}
 \title{Predictions from movementmodel objects}
 \usage{
-\method{predict}{movementmodel}(modelmovement, newdata = NULL, ...)
+\method{predict}{movementmodel}(movementmodel, newdata = NULL, ...)
 }
 \arguments{
 \item{newdata}{An optional data.frame or RasterLayer containing population data}

@@ -43,25 +43,25 @@ test_that("get.network.fromdataframe returns locations", {
 
 test_that("movementmodel with default parameters creates correct object", {
 	actual <- movementmodel("test")
-  default_flux.model_params  <- c(theta=0.9)
+  default_flux_model_params  <- c(theta=0.9)
 	expect_true(is(actual, "movementmodel"))
 	expect_equal(actual$dataset, "test")
 	expect_equal(actual$min_network_pop, 50000)
-  expect_is(actual$flux.model, "flux")
+  expect_is(actual$flux_model, "flux")
 	expect_true(actual$symmetric)
-	expect_equal(actual$flux.model$params, default_flux.model_params)
+	expect_equal(actual$flux_model$params, default_flux_model_params)
 })
 
 test_that("movementmodel with non-default parameters creates correct object", {
 	actual <- movementmodel("test", 1, gravity(), FALSE)
-	expected_flux.model_params  <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
-	expected_flux.model_flux  <- gravity.flux
+	expected_flux_model_params  <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
+	expected_flux_model_flux  <- gravity.flux
 	expect_is(actual, "movementmodel")
 	expect_equal(actual$dataset, "test")
 	expect_equal(actual$min_network_pop, 1)
-	expect_is(actual$flux.model, "flux")
-  expect_equal(actual$flux.model$flux, expected_flux.model_flux)
-	expect_equal(actual$flux.model$params, expected_flux.model_params)
+	expect_is(actual$flux_model, "flux")
+  expect_equal(actual$flux_model$flux, expected_flux_model_flux)
+	expect_equal(actual$flux_model$params, expected_flux_model_params)
 	expect_false(actual$symmetric)
 })
 
@@ -84,7 +84,7 @@ test_that("analysepredictionusingdpois using simplest possible matrices returns 
 })
 
 test_that("predict.movementmodel uses the correct version of get.network", {
-	predictionModel = list(flux.model = gravity(), symmetric = FALSE)
+	predictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network"),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network.fromdataframe"),
 		movement.predict = function(distance, population, flux, symmetric, theta, ...) NULL,
@@ -94,8 +94,8 @@ test_that("predict.movementmodel uses the correct version of get.network", {
 })
 
 test_that("predict.movementmodel calls movement.predict with the correct flux method", {
-	gravityPredictionModel = list(flux.model = gravity(), symmetric = FALSE)
-	radiationPredictionModel = list(flux.model = radiation.with.selection(), symmetric = FALSE)
+	gravityPredictionModel = list(flux_model = gravity(), symmetric = FALSE)
+	radiationPredictionModel = list(flux_model = radiation.with.selection(), symmetric = FALSE)
 	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL),
 		gravity.flux = function() return ("gravity"),

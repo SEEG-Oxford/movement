@@ -54,11 +54,11 @@
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-movement <- function(locationdataframe, movement_matrix, flux.model, ...) {
+movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   
-  # error handling for flux.model input
-  if(!is(flux.model, "flux")){
-    stop("Error: Unknown flux.model type given. The input flux.model has to be an flux object such as 'gravity()' or 'original.radiation()'")
+  # error handling for flux_model input
+  if(!is(flux_model, "flux")){
+    stop("Error: Unknown flux_model type given. The input flux_model has to be an flux object such as 'gravity()' or 'original.radiation()'")
   }
     
   # statistics
@@ -67,18 +67,20 @@ movement <- function(locationdataframe, movement_matrix, flux.model, ...) {
   nulldf <- nobs # no predictors for null degrees of freedom
   
   # create the prediction model
-  predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux.model = flux.model, symmetric=FALSE)
+  predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # assemble a locationdataframe original data.frame for predict.movementmodel to use 
   locationdataframe_origin  <- data.frame(origin=locationdataframe$locations, pop_origin=locationdataframe$population, long_origin=locationdataframe$long,lat_origin=locationdataframe$lat)
   
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, locationdataframe_origin, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
-  predictionModel$flux.model$params = optimresults$par
+  print("optimresults")
+  print(str(optimresults))
+  predictionModel$flux_model$params = optimresults$par
   
   # populate the training results (so we can see the end result) - its a movementmodel object!
   training_results <- predict.movementmodel(predictionModel, locationdataframe_origin, progress=FALSE)
-  training_results$flux.model$params <- optimresults$par
+  training_results$flux_model$params <- optimresults$par
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
   me <- list(optimisationresults = optimresults,
@@ -115,7 +117,7 @@ movement <- function(locationdataframe, movement_matrix, flux.model, ...) {
 #' \code{\link{gravity.with.distance}}
 #' @export
 original.radiation  <- function(params = c(theta=0.9)){  
-  ans  <- list(params = params, flux = continuum.flux)
+  ans  <- list(params = params, flux = continuum.flux, model_string = "original radiation")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -149,7 +151,7 @@ original.radiation  <- function(params = c(theta=0.9)){
 #' \code{\link{gravity.with.distance}} 
 #' @export
 radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){  
-  ans  <- list(params = params, flux = continuum.flux)
+  ans  <- list(params = params, flux = continuum.flux, model_string = "radiation with selection")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -172,7 +174,7 @@ radiation.with.selection  <- function(params = c(theta=0.1,lambda=0.2)){
 #' \code{\link{gravity.with.distance}}
 #' @export
 uniform.selection  <- function(params = c(theta=0.9)){  
-  ans  <- list(params = params, flux = continuum.flux)
+  ans  <- list(params = params, flux = continuum.flux, model_string = "uniform selection")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -210,7 +212,7 @@ uniform.selection  <- function(params = c(theta=0.9)){
 #' \code{\link{gravity.with.distance}} 
 #' @export
 intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){  
-  ans  <- list(params = params, flux = continuum.flux)
+  ans  <- list(params = params, flux = continuum.flux, model_string = "intervening opportunities")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -241,7 +243,7 @@ intervening.opportunities  <- function(params = c(theta=0.001, L=0.00001)){
 #' \code{\link{gravity.with.distance}}
 #' @export
 gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){  
-  ans  <- list(params = params, flux = gravity.flux)
+  ans  <- list(params = params, flux = gravity.flux, model_string = "gravity")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -276,7 +278,7 @@ gravity  <- function(params = c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)){
 #' \code{\link{gravity}}
 #' @export
 gravity.with.distance  <- function( params = c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)){  
-  ans  <- list(params = params, flux = gravitywithdistance.flux)
+  ans  <- list(params = params, flux = gravitywithdistance.flux, model_string = "gravity with distance")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -466,7 +468,7 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 #' @export
 continuum.flux <- function(i, j, distance, population,
-                           model = original.radiation(),
+                           model = "original radiation",
                            theta = c(1), symmetric = FALSE,
                            minpop = 1, maxrange = Inf) {
   # get model parameters
@@ -1183,11 +1185,11 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #'
 #' @seealso \code{\link{predict.movementmodel}}, \code{\link{showprediction}}
 #' @export
-movementmodel <- function(dataset, min_network_pop = 50000, flux.model = original.radiation(), symmetric = TRUE) {
+movementmodel <- function(dataset, min_network_pop = 50000, flux_model = original.radiation(), symmetric = TRUE) {
   me <- list(
     dataset = dataset,
     min_network_pop = min_network_pop,
-    flux.model = flux.model,
+    flux_model = flux_model,
     symmetric = symmetric
   )
   class(me) <- "movementmodel"
@@ -1230,17 +1232,27 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux.model = origina
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-predict.movementmodel <- function(modelmovement, newdata = NULL, ...) {
+predict.movementmodel <- function(movementmodel, newdata = NULL, ...) {
   if(is.null(newdata)) {
-    net <- get.network(modelmovement$dataset, min = modelmovement$min_network_pop)
+    net <- get.network(movementmodel$dataset, min = movementmodel$min_network_pop)
   }
   else {
-    net <- get.network.fromdataframe(newdata, min = modelmovement$min_network_pop)
+    net <- get.network.fromdataframe(newdata, min = movementmodel$min_network_pop)
   }
-  modelmovement$net = net
-  modelmovement$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = modelmovement$flux.model$flux, symmetric = modelmovement$symmetric, theta = modelmovement$flux.model$params, ...)
+  movementmodel$net = net
   
-  return (modelmovement)
+  if (identical(movementmodel$flux_model$flux,continuum.flux)) {
+    # for the 'continuum.flux' function the flux model string must be passed over to the movement.predict method
+    movementmodel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = movementmodel$flux_model$flux, 
+                                                symmetric = movementmodel$symmetric, model = movementmodel$flux_model$model_string, 
+                                                theta = movementmodel$flux_model$params, ...)
+  } else {
+    # for 'gravity.flux' or 'gravity.with.distance.flux' function, the model selected is equivalent to the flux function name
+    movementmodel$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = movementmodel$flux_model$flux, 
+                                                symmetric = movementmodel$symmetric, theta = movementmodel$flux_model$params, ...)    
+  }
+   
+  return (movementmodel)
 }
 
 #' Calculate the log likelihood of the prediction given the observed data.
@@ -1331,7 +1343,7 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 
   
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-  optim(predictionModel$flux.model$params, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+  optim(predictionModel$flux_model$params, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 
   #return transfer here! using the return $par value
 }
