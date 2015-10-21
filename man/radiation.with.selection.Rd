@@ -4,11 +4,12 @@
 \alias{radiation.with.selection}
 \title{Radiation with selection model}
 \usage{
-radiation.with.selection(params = c(theta = 0.1, lambda = 0.2))
+radiation.with.selection(theta = 0.1, lambda = 0.2)
 }
 \arguments{
-\item{params}{A list of model parameters.  The following limits apply for the parameters: theta = [0, Inf]
-and lambda = [0,1].}
+\item{theta}{Model parameter with default value and the limits theta = [0, Inf].}
+
+\item{lambda}{Model parameter with default value and the limits lambda = [0,1].}
 }
 \value{
 A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
