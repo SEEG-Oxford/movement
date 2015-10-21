@@ -35,9 +35,8 @@ optimise the parameters of the given prediction model.
 ## selection model
 #predictionModel <- movementmodel(dataset=kenya10,
 #                                min_network_pop = 50000,
-#                                predictionmodel= 'original radiation',
-#                                symmetric = TRUE,
-#                                modelparams = 0.1)
+#                                predictionmodel= original.radiation(),
+#                                symmetric = TRUE)
 #predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
 #= c(0.999, 0.998))
 ## load the observed movement data into a matrix

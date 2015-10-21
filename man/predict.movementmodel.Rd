@@ -4,12 +4,12 @@
 \alias{predict.movementmodel}
 \title{Predictions from movementmodel objects}
 \usage{
-\method{predict}{movementmodel}(movementmodel, newdata = NULL, ...)
+\method{predict}{movementmodel}(object, newdata = NULL, ...)
 }
 \arguments{
-\item{movementmodel}{A configured prediction model of class \code{movementmodel}}
-
 \item{newdata}{An optional data.frame or RasterLayer containing population data}
+
+\item{movementmodel}{A configured prediction model of class \code{movementmodel}}
 
 \item{\dots}{Extra arguments to pass to the flux function}
 }
@@ -32,9 +32,8 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 predictionModel <- movementmodel(dataset=kenya10,
                                  min_network_pop = 50000,
-                                 predictionmodel= 'original radiation',
-                                 symmetric = TRUE,
-                                 modelparams = 0.1)
+                                 flux_model = original.radiation(),
+                                 symmetric = TRUE)
 # predict the population movement from the model
 predictedMovements = predict(predictionModel)
 # visualise the distance matrix

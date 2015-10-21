@@ -44,9 +44,8 @@
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' predictionModel <- movementmodel(dataset=kenya10,
 #'                                  min_network_pop = 50000,
-#'                                  predictionmodel= 'original radiation',
-#'                                  symmetric = TRUE,
-#'                                  modelparams = 0.1)
+#'                                  flux_model = origin.radiation(),
+#'                                  symmetric = TRUE)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
@@ -983,9 +982,8 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' predictionModel <- movementmodel(dataset=kenya10,
 #'                                  min_network_pop = 50000,
-#'                                  predictionmodel= 'original radiation',
-#'                                  symmetric = TRUE,
-#'                                  modelparams = 0.1)
+#'                                  predictionmodel= original.radiation(),
+#'                                  symmetric = TRUE)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
@@ -1178,9 +1176,8 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' predictionModel <- movementmodel(dataset=kenya10,
 #'                                  min_network_pop = 50000,
-#'                                  predictionmodel= 'original radiation',
-#'                                  symmetric = TRUE,
-#'                                  modelparams = 0.1)
+#'                                  flux_model = original.radiation(),
+#'                                  symmetric = TRUE)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
@@ -1230,9 +1227,8 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux_model = origina
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' predictionModel <- movementmodel(dataset=kenya10,
 #'                                  min_network_pop = 50000,
-#'                                  predictionmodel= 'original radiation',
-#'                                  symmetric = TRUE,
-#'                                  modelparams = 0.1)
+#'                                  flux_model = original.radiation(),
+#'                                  symmetric = TRUE)
 #' # predict the population movement from the model
 #' predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
@@ -1329,9 +1325,8 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #' ## selection model
 #' #predictionModel <- movementmodel(dataset=kenya10,
 #' #                                min_network_pop = 50000,
-#' #                                predictionmodel= 'original radiation',
-#' #                                symmetric = TRUE,
-#' #                                modelparams = 0.1)
+#' #                                predictionmodel= original.radiation(),
+#' #                                symmetric = TRUE)
 #' #predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
 #' #= c(0.999, 0.998))
 #' ## load the observed movement data into a matrix
