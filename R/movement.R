@@ -1255,7 +1255,7 @@ predict.movementmodel <- function(object, newdata = NULL, ...) {
                                                 symmetric = object$symmetric, theta = object$flux_model$params, ...)    
   }
    
-  return (movementmodel)
+  return (object)
 }
 
 #' Calculate the log likelihood of the prediction given the observed data.
