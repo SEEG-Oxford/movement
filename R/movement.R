@@ -91,6 +91,118 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   return (me)
 }
 
+#' Predict from an optimisedmodel object
+#' 
+#' \code{optimisedmodel}:
+#' Use a trained \code{optimisedmodel} object to predict population movements
+#' given either a RasterLayer containing a single population layer, or a
+#' data.frame containing population and location data formatted as:
+#' #   location pop        lat        lon
+#' # 1        a 100 0.07826932 0.13612404
+#' # 2        b  88 0.12114115 0.58984725
+#' # 3        c 100 0.07126503 0.19544754
+#' # 4        d 113 0.97817937 0.22771625
+#' # 5        e 107 0.87233335 0.06695538
+#' 
+#' @param object A configured prediction model of class \code{optimisedmodel}, ??
+#' @param newdata An optional data.frame or RasterLayer containing population data
+#' @param \dots Extra arguments to pass to the flux function
+#' 
+#' @return A \code{movementmodel} containing a (dense) matrix giving predicted
+#' movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
+#' containing the predicted population movements.
+#' 
+#' @name predict.optimisedmodel
+#' @method predict optimisedmodel
+#' @export
+predict.optimisedmodel <- function(object, newdata, ...) {
+  m <- object$trainingresults
+  m$dataset <- newdata
+  if(is(newdata, "RasterLayer")) {
+    prediction <- predict.movementmodel(m)
+    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else if (is(newdata, "data.frame")) {
+    prediction <- predict.movementmodel(m, newdata)
+    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else {
+    stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
+  }
+}
+
+#' @export
+#' @method print optimisedmodel
+print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
+  if(length(coef(x))) {
+    cat("Coefficients")
+    cat(":\n")
+    print.default(format(x$coefficients, digits = digits),
+                  print.gap = 2, quote = FALSE)
+  } else cat("No coefficients\n\n")
+  cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
+      x$df.residual, "Residual\n")
+  if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
+  cat("Null Deviance:	   ", x$null.deviance,
+      "\nResidual Deviance: ", x$deviance,
+      "\tAIC:", x$aic)
+  cat("\n")
+  invisible(x)
+}
+
+#' @title Summarize an optimised model
+#' 
+#' Print a summary of an optimised model
+#' 
+#' @param object an \code{optimisedmodel} object
+#' @param \dots additional arguments affecting the summary produced.
+#' 
+#' @name summary.optimisedmodel
+#' @export
+#' @method summary optimisedmodel
+#' 
+summary.optimisedmodel <- function(object, ...) {
+  coef.p <- object$trainingresults$modelparams
+  dn <- c("Estimate", "Std. Error")
+  stderrors <- sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
+  ans <- list(
+    model = object$trainingresults$predictionmodel,
+    deviance.resid = 1,
+    coefficients = coef.p,
+    nulldeviance = object$null.deviance,
+    residdeviance = object$deviance,
+    aic = object$aic,
+    df.null = object$df.null,
+    df.residual = object$df.residual,
+    stderrors = stderrors)
+  class(ans) <- "summary.optimisedmodel"
+  return (ans)
+}
+
+#' @export
+#' @method print summary.optimisedmodel
+print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+  cat(paste('Model:  ', x$model, '\n\n'))
+  cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
+  if(length(coef(x))) {
+    cat("Coefficients")
+    cat(":\n")
+    print.default(format(x$coefficients, digits = digits),
+                  print.gap = 2, quote = FALSE)
+  } else cat("No coefficients\n\n")
+  cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
+  cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
+  cat(paste('AIC:  ', x$aic, '\n'))
+}
+
+###############################################################################
+# Model definition and prediction methods                                     #
+###############################################################################
 
 #' Radiation model
 #'
@@ -292,118 +404,7 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
   return(ans)
 }
 
-#' Predict from an optimisedmodel object
-#' 
-#' \code{optimisedmodel}:
-#' Use a trained \code{optimisedmodel} object to predict population movements
-#' given either a RasterLayer containing a single population layer, or a
-#' data.frame containing population and location data formatted as:
-#' #   location pop        lat        lon
-#' # 1        a 100 0.07826932 0.13612404
-#' # 2        b  88 0.12114115 0.58984725
-#' # 3        c 100 0.07126503 0.19544754
-#' # 4        d 113 0.97817937 0.22771625
-#' # 5        e 107 0.87233335 0.06695538
-#' 
-#' @param object A configured prediction model of class \code{optimisedmodel}, ??
-#' @param newdata An optional data.frame or RasterLayer containing population data
-#' @param \dots Extra arguments to pass to the flux function
-#' 
-#' @return A \code{movementmodel} containing a (dense) matrix giving predicted
-#' movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
-#' containing the predicted population movements.
-#' 
-#' @name predict.optimisedmodel
-#' @method predict optimisedmodel
-#' @export
-predict.optimisedmodel <- function(object, newdata, ...) {
-  m <- object$trainingresults
-  m$dataset <- newdata
-  if(is(newdata, "RasterLayer")) {
-    prediction <- predict.movementmodel(m)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
-    return (list(
-      df_locations = df,
-      movement_matrix = prediction$prediction))
-  } else if (is(newdata, "data.frame")) {
-    prediction <- predict.movementmodel(m, newdata)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
-    return (list(
-      df_locations = df,
-      movement_matrix = prediction$prediction))
-  } else {
-    stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
-  }
-}
 
-#' @export
-#' @method print optimisedmodel
-print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
-  if(length(coef(x))) {
-    cat("Coefficients")
-    cat(":\n")
-    print.default(format(x$coefficients, digits = digits),
-                  print.gap = 2, quote = FALSE)
-  } else cat("No coefficients\n\n")
-  cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
-      x$df.residual, "Residual\n")
-  if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
-  cat("Null Deviance:	   ", x$null.deviance,
-      "\nResidual Deviance: ", x$deviance,
-      "\tAIC:", x$aic)
-  cat("\n")
-  invisible(x)
-}
-
-#' @title Summarize an optimised model
-#' 
-#' Print a summary of an optimised model
-#' 
-#' @param object an \code{optimisedmodel} object
-#' @param \dots additional arguments affecting the summary produced.
-#' 
-#' @name summary.optimisedmodel
-#' @export
-#' @method summary optimisedmodel
-#' 
-summary.optimisedmodel <- function(object, ...) {
-  coef.p <- object$trainingresults$modelparams
-  dn <- c("Estimate", "Std. Error")
-  stderrors <- sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
-  ans <- list(
-    model = object$trainingresults$predictionmodel,
-    deviance.resid = 1,
-    coefficients = coef.p,
-    nulldeviance = object$null.deviance,
-    residdeviance = object$deviance,
-    aic = object$aic,
-    df.null = object$df.null,
-    df.residual = object$df.residual,
-    stderrors = stderrors)
-  class(ans) <- "summary.optimisedmodel"
-  return (ans)
-}
-
-#' @export
-#' @method print summary.optimisedmodel
-print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste('Model:  ', x$model, '\n\n'))
-  cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
-  if(length(coef(x))) {
-    cat("Coefficients")
-    cat(":\n")
-    print.default(format(x$coefficients, digits = digits),
-                  print.gap = 2, quote = FALSE)
-  } else cat("No coefficients\n\n")
-  cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
-  cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
-  cat(paste('AIC:  ', x$aic, '\n'))
-}
-
-###############################################################################
-# Model definition and prediction methods                                     #
-###############################################################################
 
 #' Use the continuum model of Simini et al. (2013) to predict movement between
 #' two sites based on population and distance.
