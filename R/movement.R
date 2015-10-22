@@ -413,6 +413,39 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
   return(ans)
 }
 
+#' @title Print details of a flux object 
+#' @description Print details of a given flux object
+#' @param object a \code{flux} object 
+#' @name print.flux
+#' @method print flux
+#' 
+#' @examples
+#' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
+#' print(flux)
+#' @export
+print.flux  <- function(object){
+  cat(paste('flux object for a ', flux$name, 'model with parameters\n\n'))
+  print.default(format(flux$params),
+                print.gap = 2, quote = FALSE)
+  cat('\n')
+  cat('See ?')
+  cat(paste(flux$name, 'for the model formulation and explanation of parameters\n'))
+}
+
+#' @title Print summary of a flux object 
+#' @description Print summary of a given flux object
+#' @param object a \code{flux} object
+#' @name summary.flux
+#' @method summary flux
+#'
+#' @examples
+#' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
+#' summary(flux)
+#' @export
+summary.flux  <- function(object){
+  print(flux)
+}
+
 #' Use the original radiation model of Simini et al. (2013) to predict movement between
 #' two sites based on population and distance.
 #'
@@ -1560,39 +1593,6 @@ showprediction.movementmodel <- function(object, ...) {
   move <- object$prediction
   raster <- object$dataset
   show.prediction(network, raster, move, ...)
-}
-
-#' @title Print details of a flux object 
-#' @description Print details of a given flux object
-#' @param object a \code{flux} object 
-#' @name print.flux
-#' @method print flux
-#' 
-#' @examples
-#' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
-#' print(flux)
-#' @export
-print.flux  <- function(object){
-  cat(paste('flux object for a ', flux$name, 'model with parameters\n\n'))
-  print.default(format(flux$params),
-                print.gap = 2, quote = FALSE)
-  cat('\n')
-  cat('See ?')
-  cat(paste(flux$name, 'for the model formulation and explanation of parameters\n'))
-}
-
-#' @title Print summary of a flux object 
-#' @description Print summary of a given flux object
-#' @param object a \code{flux} object
-#' @name summary.flux
-#' @method summary flux
-#'
-#' @examples
-#' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
-#' summary(flux)
-#' @export
-summary.flux  <- function(object){
-  print(flux)
 }
 
 ###############################################################################
