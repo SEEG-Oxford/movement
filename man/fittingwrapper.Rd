@@ -9,7 +9,7 @@ fittingwrapper(par, predictionModel, observedmatrix, populationdata, ...)
 \arguments{
 \item{par}{theta values for the flux function}
 
-\item{predictionModel}{The prediction model being optimised}
+\item{predictionModel}{The prediction model of movementmodel object type being optimised}
 
 \item{observedmatrix}{A matrix containing the observed population movements}
 

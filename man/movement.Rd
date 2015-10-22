@@ -4,7 +4,7 @@
 \alias{movement}
 \title{Create an optimised movement model}
 \usage{
-movement(locationdataframe, movement_matrix, model, model.params = NULL, ...)
+movement(locationdataframe, movement_matrix, flux_model, ...)
 }
 \arguments{
 \item{locationdataframe}{A \code{locationdataframe} object, i.e. a data.frame
@@ -14,12 +14,10 @@ containing location data with the column name \code{locations}, \code{population
 \item{movement_matrix}{A square matrix containing the observed population
 movements between \code{locations}}
 
-\item{model}{The name of the movement model to use. Currently supported
+\item{flux_model}{The name of the movement model to use. Currently supported
 models are \code{original radiation}, \code{radiation with selection},
 \code{uniform selection}, \code{intervening opportunities},
 \code{gravity}}
-
-\item{model.params}{Optional model parameters to define.}
 
 \item{\dots}{Extra parameters to be passed to the prediction code.}
 }
@@ -48,9 +46,8 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 predictionModel <- movementmodel(dataset=kenya10,
                                  min_network_pop = 50000,
-                                 predictionmodel= 'original radiation',
-                                 symmetric = TRUE,
-                                 modelparams = 0.1)
+                                 flux_model = original.radiation(),
+                                 symmetric = TRUE)
 # predict the population movement from the model
 predictedMovements = predict(predictionModel)
 # visualise the distance matrix

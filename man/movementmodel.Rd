@@ -5,8 +5,7 @@
 \title{Create a movement model to predict movements across a landscape.}
 \usage{
 movementmodel(dataset, min_network_pop = 50000,
-  predictionmodel = "original radiation", symmetric = TRUE,
-  modelparams = 0.1)
+  flux_model = original.radiation(), symmetric = TRUE)
 }
 \arguments{
 \item{dataset}{A raster dataset of population data}
@@ -14,16 +13,13 @@ movementmodel(dataset, min_network_pop = 50000,
 \item{min_network_pop}{The minimum population of a site in order for it to be
 processed}
 
-\item{predictionmodel}{The name of a prediction model used to calculated
+\item{flux_model}{A flux object used to calculated
 predicted flux between locations. Currently supported prediction models are
 \code{gravity}, \code{original radiation}, \code{intervening opportunities},
 \code{radiation with selection} and \code{uniform selection}}
 
 \item{symmetric}{Whether to calculate symmetric or asymmetric (summed across
 both directions) movement}
-
-\item{modelparams}{Model parameter values to pass to the prediction model
-(such as exponents, scale factors etc.)}
 }
 \value{
 A movement model object which can be used to run flux predictions.
@@ -46,9 +42,8 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 predictionModel <- movementmodel(dataset=kenya10,
                                  min_network_pop = 50000,
-                                 predictionmodel= 'original radiation',
-                                 symmetric = TRUE,
-                                 modelparams = 0.1)
+                                 flux_model = original.radiation(),
+                                 symmetric = TRUE)
 # predict the population movement from the model
 predictedMovements = predict(predictionModel)
 # visualise the distance matrix
@@ -57,6 +52,8 @@ sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 showprediction(predictedMovements)
 }
 \seealso{
-\code{\link{predict.movementmodel}}, \code{\link{showprediction}}
+\code{\link{predict.movementmodel}}, \code{\link{showprediction}}, \code{\link{original.radiation}}
+\code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
+\code{\link{gravity}}, \code{\link{gravity.with.distance}}
 }
 

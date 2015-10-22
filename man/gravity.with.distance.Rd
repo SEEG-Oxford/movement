@@ -9,18 +9,26 @@ gravity.with.distance(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03,
   beta2 = 0.03, gamma2 = 0.01)
 }
 \arguments{
+\item{theta1}{Model parameter with default value and the limits theta = [0, Inf].}
+
+\item{alpha1}{Model parameter with default value and the limits alpha = [-Inf, Inf].}
+
+\item{beta1}{Model parameter with default value and the limits beta = [-Inf, Inf].}
+
+\item{gamma1}{Model parameter with default value and the limits gamma = [-Inf, Inf].}
+
 \item{delta}{Model parameter with default value and the limits delta = [0, 1].}
 
-\item{theta1/2}{Model parameter with default value and the limits theta = [0, Inf].}
+\item{theta2}{Model parameter with default value and the limits theta = [0, Inf].}
 
-\item{alpha1/2}{Model parameter with default value and the limits alpha = [-Inf, Inf].}
+\item{alpha2}{Model parameter with default value and the limits alpha = [-Inf, Inf].}
 
-\item{beta1/2}{Model parameter with default value and the limits beta = [-Inf, Inf].}
+\item{beta2}{Model parameter with default value and the limits beta = [-Inf, Inf].}
 
-\item{gamma1/2}{Model parameter with default value and the limits gamma = [-Inf, Inf].}
+\item{gamma2}{Model parameter with default value and the limits gamma = [-Inf, Inf].}
 }
 \value{
-A flux model object with the \code{\link{gravitywithdistance.flux}} function and a set of starting
+A flux model object with the \code{\link{gravityWithDistanceFlux}} function and a set of starting
 parameters.
 }
 \description{
@@ -47,7 +55,7 @@ Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the sprea
 312, 447-51
 }
 \seealso{
-\code{\link{movement}}, \code{\link{gravitywithdistance.flux}}, \code{\link{original.radiation}},
+\code{\link{movement}}, \code{\link{gravityWithDistanceFlux}}, \code{\link{original.radiation}},
 \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 \code{\link{gravity}}
 }
