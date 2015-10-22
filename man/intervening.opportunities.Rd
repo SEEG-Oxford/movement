@@ -12,7 +12,7 @@ intervening.opportunities(theta = 0.001, L = 1e-05)
 \item{L}{Model parameter with default value and the limits L = [0, Inf].}
 }
 \value{
-A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+A flux model object with the \code{\link{interveningOpportunitiesFlux}} function and a set of starting parameters.
 }
 \description{
 The intervening-opportunities model (IO) assumes that the number of persons going a given distance
@@ -42,7 +42,7 @@ Stouffer S. A. (1940). Intervening opportunities: a theory relating mobility and
 Sociol. Rev.} 5, 845-867.
 }
 \seealso{
-\code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+\code{\link{movement}}, \code{\link{interveningOpportunitiesFlux}}, \code{\link{original.radiation}},
 \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}},
 \code{\link{gravity.with.distance}}
 }

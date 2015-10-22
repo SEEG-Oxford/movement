@@ -10,7 +10,7 @@ uniform.selection(theta = 0.9)
 \item{theta}{Model parameter with default value and the limits theta = [0, Inf].}
 }
 \value{
-A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+A flux model object with the \code{\link{uniformSelectionFlux}} function and a set of starting parameters.
 }
 \description{
 The uniform selection model assumes that a job is selected uniformly at random proportionally to the
@@ -27,7 +27,7 @@ Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe 
 Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
 }
 \seealso{
-\code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+\code{\link{movement}}, \code{\link{uniformSelectionFlux}}, \code{\link{original.radiation}},
 \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 \code{\link{gravity.with.distance}}
 }

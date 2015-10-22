@@ -36,7 +36,7 @@ Using a friction raster (giving time taken to cross each cell)
 }
 \details{
 This is a thin wrapper around functionality in the \code{gdistance}
- R package to facilitate the constuction of travel time matrices ofr use in
+ R package to facilitate the constuction of travel time matrices for use in
  movement models.
 }
 \examples{

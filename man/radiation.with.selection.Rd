@@ -12,7 +12,7 @@ radiation.with.selection(theta = 0.1, lambda = 0.2)
 \item{lambda}{Model parameter with default value and the limits lambda = [0,1].}
 }
 \value{
-A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+A flux model object with the \code{\link{radiationWithSelectionFlux}} function and a set of starting parameters.
 }
 \description{
 The aim of this index is to represent travel from districts between the affected countries to other
@@ -39,7 +39,7 @@ Tizzoni, M., Bajardi, P., Decuyper, A., Kon Kam King, G., Schneider, C.M., Blond
 On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. Biol.}, 10, e1003716.
 }
 \seealso{
-\code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+\code{\link{movement}}, \code{\link{radiationWithSelectionFlux}}, \code{\link{original.radiation}},
 \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 \code{\link{gravity.with.distance}}
 }
