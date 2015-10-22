@@ -55,7 +55,7 @@ test_that("movementmodel with default parameters creates correct object", {
 test_that("movementmodel with non-default parameters creates correct object", {
 	actual <- movementmodel("test", 1, gravity(), FALSE)
 	expected_flux_model_params  <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
-	expected_flux_model_flux  <- gravity.flux
+	expected_flux_model_flux  <- gravityFlux
 	expect_is(actual, "movementmodel")
 	expect_equal(actual$dataset, "test")
 	expect_equal(actual$min_network_pop, 1)
@@ -98,7 +98,7 @@ test_that("predict.movementmodel calls movement.predict with the correct flux me
 	radiationPredictionModel = list(flux_model = radiation.with.selection(), symmetric = FALSE)
 	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL),
-		gravity.flux = function() return ("gravity"),
+		gravityFlux = function() return ("gravity"),
 		continuum.flux = function() return("continuum"),
 		movement.predict = function(distance, population, flux, symmetric, theta, ...) return (flux()),
 		expect_equal(predict.movementmodel(gravityPredictionModel)$prediction, "gravity"),

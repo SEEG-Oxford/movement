@@ -217,7 +217,6 @@ intervening.opportunities  <- function(theta=0.001, L=0.00001){
   return(ans)
 }
 
-
 #' Gravity model
 #'
 #' The gravity law assumes that the number of people moving between locations is 
@@ -232,7 +231,7 @@ intervening.opportunities  <- function(theta=0.001, L=0.00001){
 #' @param alpha Model parameter with default value and the limits alpha = [-Inf, Inf].
 #' @param beta Model parameter with default value and the limits alpha = [-Inf, Inf].
 #' @param gamma Model parameter with default value and the limits gamma = [-Inf, Inf].
-#' @return A flux model object with the \code{\link{gravity.flux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{\link{gravityFlux}} function and a set of starting parameters.
 #' @references
 #' Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.}, 
 #' 11, 677-686.
@@ -240,13 +239,13 @@ intervening.opportunities  <- function(theta=0.001, L=0.00001){
 #' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484-9. 
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{gravity.flux}}, \code{\link{original.radiation}},
+#' @seealso \code{\link{movement}}, \code{\link{gravityFlux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity.with.distance}}
 #' @export
 gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){  
   params = c(theta=theta, alpha=alpha, beta=beta, gamma=gamma)
-  ans  <- list(params = params, flux = gravity.flux, model_string = "gravity")
+  ans  <- list(params = params, flux = gravityFlux, model_string = "gravity")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -275,20 +274,20 @@ gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){
 #' @param alpha2 Model parameter with default value and the limits alpha = [-Inf, Inf].
 #' @param beta2 Model parameter with default value and the limits beta = [-Inf, Inf].
 #' @param gamma2 Model parameter with default value and the limits gamma = [-Inf, Inf].
-#' @return A flux model object with the \code{\link{gravitywithdistance.flux}} function and a set of starting 
+#' @return A flux model object with the \code{\link{gravityWithDistanceFlux}} function and a set of starting 
 #' parameters.
 #' @references
 #' Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science}, 
 #' 312, 447-51
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{gravitywithdistance.flux}}, \code{\link{original.radiation}},
+#' @seealso \code{\link{movement}}, \code{\link{gravityWithDistanceFlux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
 #' \code{\link{gravity}}
 #' @export
 gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
   params = c(theta1=theta1, alpha1=alpha1, beta1=beta1, gamma1=gamma1, delta=delta, theta2=theta2, alpha2=alpha2, beta2=beta2, gamma2=gamma2)
-  ans  <- list(params = params, flux = gravitywithdistance.flux, model_string = "gravity with distance")
+  ans  <- list(params = params, flux = gravityWithDistanceFlux, model_string = "gravity with distance")
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -635,7 +634,7 @@ continuum.flux <- function(i, j, distance, population,
 #' # calculate the distance between pairs of sites
 #' d <- as.matrix(dist(coords))
 #' # predict movement between sites 3 and 4 using the radiation model
-#' T_ij <- gravity.flux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3))
+#' T_ij <- gravityFlux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3))
 #' T_ij
 #'
 #' @seealso \code{\link{movement.predict}}
@@ -644,7 +643,7 @@ continuum.flux <- function(i, j, distance, population,
 #' Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
 #' of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
 #' @export
-gravity.flux <- function(i, j, distance, population,
+gravityFlux <- function(i, j, distance, population,
                          theta = c(1, 0.6, 0.3, 3),
                          symmetric = FALSE,
                          minpop = 1, maxrange = Inf) {
@@ -714,7 +713,7 @@ gravity.flux <- function(i, j, distance, population,
 #'  exponent1 on donor pop, exponent1 on recipient pop, exponent1 on distance,
 #'  theshhold, scalar2, exponent2 on donor pop, exponent2 on recipient pop,
 #'  exponent2 on distance. The first four parameters are used as the parameters
-#'  of \code{gravity.flux} if the distance is less than threshold (5th
+#'  of \code{gravityFlux} if the distance is less than threshold (5th
 #'  parameter), otherwise the last four parameters are used for the gravity
 #'  flux.
 #' @param symmetric Whether to return a single value giving the total predicted
@@ -735,7 +734,7 @@ gravity.flux <- function(i, j, distance, population,
 #' # calculate the distance between pairs of sites
 #' d <- as.matrix(dist(coords))
 #' # predict movement between sites 3 and 4 using the radiation model
-#' T_ij <- gravitywithdistance.flux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3,1,1e-4,0.6,0.3,3))
+#' T_ij <- gravityWithDistanceFlux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3,1,1e-4,0.6,0.3,3))
 #' T_ij
 #'
 #' @seealso \code{\link{movement.predict}}
@@ -744,7 +743,7 @@ gravity.flux <- function(i, j, distance, population,
 #' Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
 #' of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
 #' @export
-gravitywithdistance.flux <- function(i, j, distance, population,
+gravityWithDistanceFlux <- function(i, j, distance, population,
                                      theta = c(1, 0.6, 0.3, 3, 1, 1, 0.6, 0.3, 3),
                                      symmetric = FALSE,
                                      minpop = 1, maxrange = Inf) {
@@ -805,7 +804,7 @@ gravitywithdistance.flux <- function(i, j, distance, population,
 #' pairs of sites
 #' @param population A vector giving the population at all sites
 #' @param flux A flux function (currently either \code{\link{continuum.flux}}
-#' or \code{\link{gravity.flux}}) used to predict movements
+#' or \code{\link{gravityFlux}}) used to predict movements
 #' @param symmetric Whether to calculate symmetric or asymmetric (summed
 #' across both directions) movement
 #' @param progress Whether to display a progress bar and start and end times
@@ -839,7 +838,7 @@ gravitywithdistance.flux <- function(i, j, distance, population,
 #'            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
 #'   }
 #' }
-#' @seealso \code{\link{gravity.flux}}, \code{\link{continuum.flux}}
+#' @seealso \code{\link{gravityFlux}}, \code{\link{continuum.flux}}
 #' @export
 movement.predict <- function(distance, population,
                              flux = continuum.flux,
@@ -1254,7 +1253,7 @@ predict.movementmodel <- function(object, newdata = NULL, ...) {
                                                 symmetric = object$symmetric, model = object$flux_model$model_string, 
                                                 theta = object$flux_model$params, ...)
   } else {
-    # for 'gravity.flux' or 'gravity.with.distance.flux' function, the model selected is equivalent to the flux function name
+    # for 'gravityFlux' or 'gravityWithDistanceFlux' function, the model selected is equivalent to the flux function name
     object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
                                                 symmetric = object$symmetric, theta = object$flux_model$params, ...)    
   }
@@ -1696,7 +1695,7 @@ NULL
 #' @description Using a friction raster (giving time taken to cross each cell)
 #'  calculate the time taken to travel between pairs of coordinates.
 #' @details This is a thin wrapper around functionality in the \code{gdistance}
-#'  R package to facilitate the constuction of travel time matrices ofr use in
+#'  R package to facilitate the constuction of travel time matrices for use in
 #'  movement models.
 #' @param friction a \code{RasterLayer} object with cell values giving the time
 #'  taken to traverse that cell.

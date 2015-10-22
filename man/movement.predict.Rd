@@ -14,7 +14,7 @@ pairs of sites}
 \item{population}{A vector giving the population at all sites}
 
 \item{flux}{A flux function (currently either \code{\link{continuum.flux}}
-or \code{\link{gravity.flux}}) used to predict movements}
+or \code{\link{gravityFlux}}) used to predict movements}
 
 \item{symmetric}{Whether to calculate symmetric or asymmetric (summed
 across both directions) movement}
@@ -67,6 +67,6 @@ for(i in 2:n) {
 }
 }
 \seealso{
-\code{\link{gravity.flux}}, \code{\link{continuum.flux}}
+\code{\link{gravityFlux}}, \code{\link{continuum.flux}}
 }
 
