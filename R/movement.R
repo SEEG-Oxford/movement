@@ -365,7 +365,9 @@ intervening.opportunities  <- function(theta=0.001, L=0.00001){
 #' @export
 gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){  
   params = c(theta=theta, alpha=alpha, beta=beta, gamma=gamma)
-  ans  <- list(params = params, flux = gravityFlux, model_string = "gravity")
+  ans  <- list(name = "gravity", 
+               params = params, 
+               flux = gravityFlux)
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -407,7 +409,9 @@ gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){
 #' @export
 gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
   params = c(theta1=theta1, alpha1=alpha1, beta1=beta1, gamma1=gamma1, delta=delta, theta2=theta2, alpha2=alpha2, beta2=beta2, gamma2=gamma2)
-  ans  <- list(params = params, flux = gravityWithDistanceFlux, model_string = "gravity with distance")
+  ans  <- list(name = "gravity with distance", 
+               params = params, 
+               flux = gravityWithDistanceFlux)
   class(ans)  <- 'flux'
   return(ans)
 }

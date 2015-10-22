@@ -6,10 +6,12 @@ test_that("original radiation model is of class flux",{
   expect_is(model, "flux")
 })
 
-test_that("original radiation model has expected default values",{
+test_that("original radiation model has expected (default) values",{
   default_params  <- c(theta=0.9)
   expected_flux  <- originalRadiationFlux
+  expected_name  <- "original radiation"
   model  <- original.radiation()
+  expect_equal(model$name, expected_name)
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
 })
@@ -26,10 +28,12 @@ test_that("radiation with selection model is of class flux",{
   expect_is(model, "flux")
 })
 
-test_that("radiation with selection model has expected default values",{
+test_that("radiation with selection model has expected (default) values",{
   default_params  <- c(theta=0.1,lambda=0.2)
   expected_flux  <- radiationWithSelectionFlux
+  expected_name  <- "radiation with selection"
   model  <- radiation.with.selection()
+  expect_equal(model$name, expected_name)
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
 })
@@ -55,10 +59,12 @@ test_that("uniform selection model is of class flux",{
   expect_is(model, "flux")
 })
 
-test_that("uniform selection model has expected default values",{
+test_that("uniform selection model has expected (default) values",{
   default_params  <- c(theta=0.9)
   expected_flux  <- uniformSelectionFlux
+  expected_name  <- "uniform selection"
   model  <- uniform.selection()
+  expect_equal(model$name, expected_name)
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
 })
@@ -75,10 +81,12 @@ test_that("intervening opportunities model is of class flux",{
   expect_is(model, "flux")
 })
 
-test_that("intervening opportunities model has expected default values",{
+test_that("intervening opportunities model has expected (default) values",{
   default_params  <- c(theta=0.001, L=0.00001)
   expected_flux  <- interveningOpportunitiesFlux
+  expected_name  <- "intervening opportunities"
   model  <- intervening.opportunities()
+  expect_equal(model$name, expected_name)
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
 })
@@ -107,7 +115,9 @@ test_that("gravity model is of class flux",{
 test_that("gravity model has expected default values",{
   default_params  <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
   expected_flux  <- gravityFlux
+  expected_name  <- "gravity"
   model  <- gravity()
+  expect_equal(model$name, expected_name)
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
 })
@@ -140,7 +150,9 @@ test_that("gravity with distance is of class flux",{
 test_that("gravity with distance model has expected default values",{
   default_params  <- c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01)
   expected_flux  <- gravityWithDistanceFlux
+  expected_name  <- "gravity with distance"
   model  <- gravity.with.distance()
+  expect_equal(model$name, expected_name)
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
 })
