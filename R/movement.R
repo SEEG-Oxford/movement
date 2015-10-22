@@ -1690,3 +1690,68 @@ resultasdataframe <- function(predictedresult) {
 #' \url{http://www.plosone.org/article/info:doi/10.1371/journal.pone.0031743}
 #' @name kenya
 NULL
+
+#' @name travelTime
+#' @title Calculate travel times between coordinates
+#' @description Using a friction raster (giving time taken to cross each cell)
+#'  calculate the time taken to travel between pairs of coordinates.
+#' @details This is a thin wrapper around functionality in the \code{gdistance}
+#'  R package to facilitate the constuction of travel time matrices ofr use in
+#'  movement models.
+#' @param friction a \code{RasterLayer} object with cell values giving the time
+#'  taken to traverse that cell.
+#' @param coords a two-column matrix or dataframe, or a SpatialPoints object,
+#'  giving coordinates to compute travel time from. If \code{coords2 = NULL},
+#'  the a square matrix will be returned, giving travel time between these pairs
+#'  of coordinates
+#' @param coords2 an optional two-column matrix or dataframe, or a SpatialPoints
+#'  object, giving coordinates to compute travel time to.
+#' @param directions directions in which cells are connected, can be either 4,
+#'  8, 16 or some other number. See \code{\link[gdistance]{adjacent}} for
+#'  details
+#' @param \dots additional arguments to pass to
+#'  \code{\link[gdistance]{transition}}.
+#'  
+#' @return a matrix, with dimensions \code{nrow(coords), nrow(coords)}
+#'  (If \code{coords2 = NULL}) or dimensions \code{nrow(coords), nrow(coords2)}
+#'  otherwise
+#' @importFrom gdistance transition costDistance
+#' @export
+#' @examples
+#' # create a dummy friction matrix, assuming travel time is
+#' # inversely proportional to population density
+#' data(kenya)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' friction <- 1 / kenya10
+#' 
+#' # example coordinates
+#' coords <- matrix(c(38, 37, 36, 1, 0, 2), ncol = 2)
+#' 
+#' # calculate travel time between them
+#' tt <- travelTime(friction, as.data.frame(coords))
+#' tt
+travelTime <- function (friction,
+                        coords,
+                        coords2 = NULL,
+                        directions = 8,
+                        ...) {
+  
+  # get self-distances if not specified
+  if (is.null(coords2)) coords2 <- coords
+  
+  # coerce from dataframes to matrics
+  if (is.data.frame(coords)) coords <- as.matrix(coords)
+  if (is.data.frame(coords2)) coords2 <- as.matrix(coords2)
+  
+  # generate transition object
+  tr <- transition(x = friction,
+                   transitionFunction = function(x) {1 / mean(x)},
+                   directions = directions)
+  
+  # get distance matrix
+  access_distance <- costDistance(tr,
+                                  coords,
+                                  coords2)
+  
+  return (access_distance)
+}
