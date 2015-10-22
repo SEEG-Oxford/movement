@@ -56,7 +56,7 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   
   # error handling for flux_model input
   if(!is(flux_model, "flux")){
-    stop("Error: Unknown flux_model type given. The input flux_model has to be an flux object such as 'gravity()' or 'original.radiation()'")
+    stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
   }
     
   # statistics
@@ -64,7 +64,7 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
   nulldf <- nobs # no predictors for null degrees of freedom
   
-  # create the prediction model
+  # create the prediction model which is a movementmodel object
   predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # assemble a locationdataframe original data.frame for predict.movementmodel to use 
@@ -72,18 +72,10 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, locationdataframe_origin, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
-  predictionModel$flux_model$params = optimresults$par
-  print("optimresults$par after attemptoptimisation() call")
-  print(optimresults$par)
-  print("predictionModel$flux_model$params after attemptoptimisation() call")
-  print(predictionModel$flux_model$params)
-  
-  
-  # populate the training results (so we can see the end result) - its a movementmodel object!
+    
+  # populate the training results (so we can see the end result); this is also a movementmodel object
   training_results <- predict.movementmodel(predictionModel, locationdataframe_origin, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
-  print("training_results$flux_model$params after predict.movementmodel() call")
-  print(predictionModel$flux_model$params)
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
