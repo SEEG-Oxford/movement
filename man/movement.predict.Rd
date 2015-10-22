@@ -4,7 +4,7 @@
 \alias{movement.predict}
 \title{Use a movement model to predict movements across a landscape.}
 \usage{
-movement.predict(distance, population, flux = continuum.flux,
+movement.predict(distance, population, flux = originalRadiationFlux,
   symmetric = FALSE, progress = TRUE, ...)
 }
 \arguments{
@@ -13,8 +13,10 @@ pairs of sites}
 
 \item{population}{A vector giving the population at all sites}
 
-\item{flux}{A flux function (currently either \code{\link{continuum.flux}}
-or \code{\link{gravityFlux}}) used to predict movements}
+\item{flux}{A flux function (currently either \code{\link{originalRadiationFlux}},
+\code{\link{radiationWithSelectionFlux}}, \code{\link{uniformSelectionFlux}},
+\code{\link{interveningOpportunitiesFlux}}, \code{\link{gravityFlux}}
+or \code{\link{gravityWithDistanceFlux}}) used to predict movements}
 
 \item{symmetric}{Whether to calculate symmetric or asymmetric (summed
 across both directions) movement}
@@ -47,7 +49,7 @@ pop <- round(runif(n) * 1000)
 # calculate the distance between pairs of sites
 d <- as.matrix(dist(coords))
 # predict total movement between them using the radiation model
-move <- movement.predict(d, pop, flux = continuum.flux, symmetric = TRUE,
+move <- movement.predict(d, pop, flux = originalRadiationFlux, symmetric = TRUE,
     theta = 0.1)
 # plot the points
 plot(coords, pch = 16, cex = pop / 500,
@@ -67,6 +69,8 @@ for(i in 2:n) {
 }
 }
 \seealso{
-\code{\link{gravityFlux}}, \code{\link{continuum.flux}}
+\code{\link{originalRadiationFlux}}, \code{\link{radiationWithSelectionFlux}},
+\code{\link{uniformSelectionFlux}}, \code{\link{interveningOpportunitiesFlux}},
+\code{\link{gravityFlux}} and \code{\link{gravityWithDistanceFlux}}
 }
 

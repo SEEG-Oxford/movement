@@ -41,66 +41,66 @@ test_that("gravityFlux gives expected results with changed theta set", {
 	expect_equal(gravityFlux(i, j, distance, population, symmetric=TRUE, theta=c(2, 0.5, 0.2, 2)), 645.3029881934739933058)
 })
 
-test_that("continuum.flux gives expected results with default parameters", {
+test_that("originalRadiationFlux gives expected results", {
 	i <- 1
 	j <- 2
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	actual <- continuum.flux(i, j, distance, population)
+	actual <- originalRadiationFlux(i, j, distance, population)
 	expect_equal(actual, c(666.6666666666666287711, 666.6666666666666287711))
 })
 
-test_that("continuum.flux gives expected results with radiation with selection model", {
+test_that("radiationWithSelectionFlux gives expected results", {
 	i <- 1
 	j <- 2
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	actual <- continuum.flux(i, j, distance, population, model="radiation with selection", theta=c(0.1,0.1))
+	actual <- radiationWithSelectionFlux(i, j, distance, population, theta=c(0.1,0.1))
 	expect_equal(actual, c(66.64445184938352895188, 66.64445184938352895188))
 })
 
-test_that("continuum.flux gives expected results with intervening opportunities model", {
+test_that("interveningOpportunitiesFlux gives expected results with intervening opportunities model", {
 	i <- 1
 	j <- 2
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	actual <- continuum.flux(i, j, distance, population, model="intervening opportunities", theta=c(0.1,0.1))
+	actual <- interveningOpportunitiesFlux(i, j, distance, population, theta=c(0.1,0.1))
 	expect_equal(actual, c(100, 200))
 })
 
-test_that("continuum.flux gives expected results with uniform selection model", {
+test_that("uniformSelectionFlux gives expected results", {
 	i <- 1
 	j <- 2
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9)
+	actual <- uniformSelectionFlux(i, j, distance, population, theta=0.9)
 	expect_equal(actual, c(900, 1800))
 })
 
-test_that("continuum.flux gives expected results with uniform selection model in symmetric mode", {
+test_that("uniformSelectionFlux gives expected results in symmetric mode", {
 	i <- 1
 	j <- 2
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9, symmetric=TRUE)
+	actual <- uniformSelectionFlux(i, j, distance, population, theta=0.9, symmetric=TRUE)
 	expect_equal(actual, c(2700))
 })
 
-test_that("continuum.flux gives expected results with uniform selection model with minpop set", {
+test_that("uniformSelectionFlux gives expected results with minpop set", {
 	i <- 1
 	j <- 2
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9, minpop=1001)
+	actual <- uniformSelectionFlux(i, j, distance, population, theta=0.9, minpop=1001)
 	expect_equal(actual, c(0,0))
 })
 
-test_that("continuum.flux gives expected results with uniform selection model with maxrange set", {
+test_that("uniformSelectionFlux gives expected results with maxrange set", {
 	i <- 1
 	j <- 2
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	actual <- continuum.flux(i, j, distance, population, model="uniform selection", theta=0.9, maxrange=0.5)
+	actual <- uniformSelectionFlux(i, j, distance, population, theta=0.9, maxrange=0.5)
 	expect_equal(actual, c(0,0))
 })
 

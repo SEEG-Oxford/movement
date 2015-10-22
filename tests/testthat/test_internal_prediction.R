@@ -99,10 +99,10 @@ test_that("predict.movementmodel calls movement.predict with the correct flux me
 	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL),
 		gravityFlux = function() return ("gravity"),
-		continuum.flux = function() return("continuum"),
+		radiationWithSelectionFlux = function() return("radiation with selection"),
 		movement.predict = function(distance, population, flux, symmetric, theta, ...) return (flux()),
 		expect_equal(predict.movementmodel(gravityPredictionModel)$prediction, "gravity"),
-		expect_equal(predict.movementmodel(radiationPredictionModel)$prediction, "continuum")
+		expect_equal(predict.movementmodel(radiationPredictionModel)$prediction, "radiation with selection")
 	)
 })
 

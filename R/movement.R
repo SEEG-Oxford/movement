@@ -214,19 +214,21 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 #' @param theta Model parameter \code{theta} with default value and the limits theta = [0, Inf].  
-#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{\link{originalRadiationFlux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
 #' migration patterns. \emph{Nature}, 484, 96-100.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{radiation.with.selection}},
+#' @seealso \code{\link{movement}}, \code{\link{originalRadiationFlux}}, \code{\link{radiation.with.selection}},
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
 #' @export
 original.radiation  <- function(theta=0.9){  
   params  <- c(theta = theta)
-  ans  <- list(params = params, flux = continuum.flux, model_string = "original radiation")
+  ans  <- list(name = "original radiation", 
+               params = params, 
+               flux = originalRadiationFlux)
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -246,7 +248,7 @@ original.radiation  <- function(theta=0.9){
 #' using WorldPop. District level administrative boundaries were downloaded from GADM.
 #' @param theta Model parameter with default value and the limits theta = [0, Inf].
 #' @param lambda Model parameter with default value and the limits lambda = [0,1].
-#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{\link{radiationWithSelectionFlux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
 #' migration patterns. \emph{Nature}, 484, 96-100.
@@ -255,13 +257,15 @@ original.radiation  <- function(theta=0.9){
 #' On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. Biol.}, 10, e1003716.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' @seealso \code{\link{movement}}, \code{\link{radiationWithSelectionFlux}}, \code{\link{original.radiation}},
 #' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}} 
 #' @export
 radiation.with.selection  <- function(theta=0.1,lambda=0.2){  
   params = c(theta=theta,lambda=lambda)
-  ans  <- list(params = params, flux = continuum.flux, model_string = "radiation with selection")
+  ans  <- list(name = "radiation with selection",
+               params = params, 
+               flux = radiationWithSelectionFlux)
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -274,18 +278,20 @@ radiation.with.selection  <- function(theta=0.1,lambda=0.2){
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 #' @param theta Model parameter with default value and the limits theta = [0, Inf].
-#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{\link{uniformSelectionFlux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' @seealso \code{\link{movement}}, \code{\link{uniformSelectionFlux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
 #' \code{\link{gravity.with.distance}}
 #' @export
 uniform.selection  <- function(theta=0.9){ 
   params = c(theta=theta)
-  ans  <- list(params = params, flux = continuum.flux, model_string = "uniform selection")
+  ans  <- list(name = "uniform selection",
+               params = params, 
+               flux = uniformSelectionFlux)
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -310,7 +316,7 @@ uniform.selection  <- function(theta=0.9){
 #' 
 #' @param theta Model parameter with default value and the limits theta = [0, Inf].
 #' @param L Model parameter with default value and the limits L = [0, Inf].
-#' @return A flux model object with the \code{\link{continuum.flux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{\link{interveningOpportunitiesFlux}} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration 
 #' patterns. \emph{Nature}, 484, 96-100.
@@ -318,13 +324,15 @@ uniform.selection  <- function(theta=0.9){
 #' Sociol. Rev.} 5, 845-867.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{continuum.flux}}, \code{\link{original.radiation}},
+#' @seealso \code{\link{movement}}, \code{\link{interveningOpportunitiesFlux}}, \code{\link{original.radiation}},
 #' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}, 
 #' \code{\link{gravity.with.distance}} 
 #' @export
 intervening.opportunities  <- function(theta=0.001, L=0.00001){    
   params = c(theta=theta, L=L)
-  ans  <- list(params = params, flux = continuum.flux, model_string = "intervening opportunities")
+  ans  <- list(name = "intervening opportunities", 
+               params = params, 
+               flux = interveningOpportunitiesFlux)
   class(ans)  <- 'flux'
   return(ans)
 }
@@ -404,9 +412,7 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
   return(ans)
 }
 
-
-
-#' Use the continuum model of Simini et al. (2013) to predict movement between
+#' Use the original radiation model of Simini et al. (2013) to predict movement between
 #' two sites based on population and distance.
 #'
 #' Given indices \code{i} and \code{j}, a (dense) distance matrix
@@ -444,7 +450,6 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #' @param distance A distance matrix giving the euclidean distance between
 #' pairs of sites
 #' @param population A vector giving the population at all sites
-#' @param model The type of continuum model to use
 #' @param theta A vector of parameters in the order: proportion of all
 #' inhabitants in the region commuting, parameter required for either the
 #' intervening opportunities or radiation with selection model variants.
@@ -467,28 +472,23 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #' # calculate the distance between pairs of sites
 #' d <- as.matrix(dist(coords))
 #' # predict movement between sites 3 and 4 using the original radiation model
-#' T_ij <- continuum.flux(3, 4, d, pop)
+#' T_ij <- originalRadiationFlux(3, 4, d, pop)
 #' T_ij
 #'
-#' @seealso \code{\link{movement.predict}}
+#' @seealso \code{\link{movement.predict}}, \code{link{radiationWithSelectionFlux}},
+#' \code{\link{uniformSelectionFlux}}, \code{\link{interveningOpportunitiesFlux}}
 #'
 #' @references
 #' Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach.
 #' \emph{PLoS ONE} 8(3): e60069.
 #' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 #' @export
-continuum.flux <- function(i, j, distance, population,
-                           model = "original radiation",
+originalRadiationFlux <- function(i, j, distance, population,
                            theta = c(1), symmetric = FALSE,
                            minpop = 1, maxrange = Inf) {
   # get model parameters
   p <- theta[1]
-  if(model == 'intervening opportunities'){
-    L <- theta[2]
-  } else if(model == 'radiation with selection'){
-    lambda <- theta[2]
-  }
-  
+    
   # get the population sizes $m_i$ and $n_j$
   m_i <- population[i]
   n_j <- population[j]
@@ -557,26 +557,331 @@ continuum.flux <- function(i, j, distance, population,
   m_i_times_n_j <- m_i * n_j
   m_i_plus_n_j <- m_i + n_j
   
-  if(model == 'original radiation'){
-    P_nam_ij <- m_i_times_n_j / ((m_i + i_s_ij) * (m_i_plus_n_j + i_s_ij))
-    P_nam_ji <- m_i_times_n_j / ((n_j + j_s_ij) * (m_i_plus_n_j + j_s_ij))
-  } else if(model == 'intervening opportunities'){
-    P_nam_ij <- (exp(-L * (m_i + i_s_ij)) - exp(-L * (m_i_plus_n_j + i_s_ij))) / exp(-L * m_i)
-    P_nam_ji <- (exp(-L * (n_j + j_s_ij)) - exp(-L * (m_i_plus_n_j + j_s_ij))) / exp(-L * n_j)
-  } else if(model == 'uniform selection'){
-    N <- sum(population)
-    P_nam_ij <- n_j / (N - m_i)
-    P_nam_ji <- m_i / (N - n_j)
-  } else if(model == 'radiation with selection'){
-    P_nam_ij <-
-      ((1 - lambda ^ (m_i + i_s_ij + 1)) / (m_i + i_s_ij + 1) -
-         (1 - lambda ^ (m_i_plus_n_j + i_s_ij + 1)) / (m_i_plus_n_j + i_s_ij + 1)) /
-      ((1 - lambda ^ (m_i + 1)) / (m_i + 1))
-    P_nam_ji <-
-      ((1 - lambda ^ (n_j + j_s_ij + 1)) / (n_j + j_s_ij + 1) -
-         (1 - lambda ^ (m_i_plus_n_j + j_s_ij + 1)) / (m_i_plus_n_j + j_s_ij + 1)) /
-      ((1 - lambda ^ (n_j + 1)) / (n_j + 1))
+  P_nam_ij <- m_i_times_n_j / ((m_i + i_s_ij) * (m_i_plus_n_j + i_s_ij))
+  P_nam_ji <- m_i_times_n_j / ((n_j + j_s_ij) * (m_i_plus_n_j + j_s_ij))
+  
+  T_ij <- T_i * P_nam_ij
+  
+  # and in the opposite direction
+  T_ji <- T_j * P_nam_ji
+    
+  # return this
+  if (symmetric) return (T_ij + T_ji)
+  else return (c(T_ij, T_ji))
+}
+
+#' Use the radiation with selection model of Simini et al. (2013) to predict movement between
+#' two sites based on population and distance.
+#'
+#' Given indices \code{i} and \code{j}, a (dense) distance matrix
+#' \code{distance} giving the euclidean distances between all pairs of sites, a
+#' vector of population sizes \code{population} and a set of parameters, use
+#' any of three variants of the continuum model (Simini et al. 2013) to predict
+#' movements between sites \code{i} and \code{j}.
+#' Specifying which variant of the continuum model to use is achieved by
+#' passing one of three character-string arguments to the \code{model}. The
+#' three options are 'intervening opportunities', 'radiation with selection',
+#' and 'original radiation', which is the default. The mathematical definition
+#' of each variant of the model and an explanation of how they are related can
+#' be found in Simini et al. (2013).
+#' The first parameter, which is required, is supplied as the first element of
+#' the vector \code{theta}. This parameter describes the proportion of all
+#' inhabitants in the region commuting. The default is that everyone commutes
+#' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
+#' supplies a parameter that is necessary for both the intervening
+#' opportunities and radiation with selection variants of the model.
+#' The flux can be calculated either for both directions (by setting
+#' \code{symmetric = FALSE}, returning movements for each direction) or for the
+#' summed movement between the two (\code{symmetric = TRUE}).
+#' The model can be sped up somewhat by setting \code{minpop} and
+#' \code{maxrange}. If either of the two sites has a population lower than
+#' \code{minpop} (minimum population size), or if the distance between the two
+#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
+#' no travel occurs between these points.
+#' Note that this function only works for individual site pairs. To calculate
+#' movements across a whole landscape, use \code{\link{movement.predict}}.
+#'
+#' @param i Index for \code{population} and \code{distance} giving the first
+#' site
+#' @param j Index for \code{population} and \code{distance} giving the second
+#' site
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param theta A vector of parameters in the order: proportion of all
+#' inhabitants in the region commuting, parameter required for either the
+#' intervening opportunities or radiation with selection model variants.
+#' @param symmetric Whether to return a single value giving the total predicted
+#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
+#' giving movements from i to j (first element) and from j to i (second
+#' element)
+#' @param minpop The minimum population size to consider (by default 1,
+#' consider all sites)
+#' @param maxrange The maximum distance between sites to consider (by default
+#' \code{Inf}, consider all sites)
+#' @return A vector (of length either 1 or 2) giving the predicted number of
+#' people moving between the two sites.
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict movement between sites 3 and 4 using the original radiation model
+#' T_ij <- originalRadiationFlux(3, 4, d, pop)
+#' T_ij
+#'
+#' @seealso \code{\link{movement.predict}}, \code{\link{originalRadiationFlux}},
+#' \code{\link{uniformSelectionFlux}}, \code{\link{interveningOpportunitiesFlux}}
+#'
+#' @references
+#' Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach.
+#' \emph{PLoS ONE} 8(3): e60069.
+#' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
+#' @export
+radiationWithSelectionFlux <- function(i, j, distance, population,
+                           theta = c(1), symmetric = FALSE,
+                           minpop = 1, maxrange = Inf) {
+  # get model parameters
+  p <- theta[1]
+  lambda <- theta[2]
+    
+  # get the population sizes $m_i$ and $n_j$
+  m_i <- population[i]
+  n_j <- population[j]
+  
+  # if the population at the centre is below the minimum,
+  # return 0 (saves some calculation time)
+  if (m_i < minpop | n_j < minpop) {
+    # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
   }
+  
+  # calculate the total number of people commuting from i -
+  # the proportion (p) multiplied by the population $m_i$
+  T_i <- m_i * p
+  
+  # and from j
+  T_j <- n_j * p
+  
+  # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
+  r_ij <- distance[i, j]
+  
+  # if it's beyond the maximum range return 0
+  if (r_ij > maxrange) {
+    # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
+  }
+  
+  # get indices of points within this range
+  i_in_radius <- distance[i, ] <= r_ij
+  j_in_radius <- distance[j, ] <= r_ij
+  
+  # sum the total population in this radius (excluding i & j)
+  
+  # calculate $s_{ij}$, the total population in the search radius
+  # (excluding $i$ and $j$)
+  
+  # which to include in the sum
+  i_pop_sum_idx <- i_in_radius
+  # not i or j
+  i_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  i_s_ij <- sum(population[i_pop_sum_idx])
+  
+  # which to include in the sum
+  j_pop_sum_idx <- j_in_radius
+  # not i or j
+  j_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  j_s_ij <- sum(population[j_pop_sum_idx])
+  
+  #   # if the sum is 0 (no populations in that range) return 0 movement
+  #   if (i_ s_ij == 0) return (0)
+  
+  # calculate the number of commuters T_{ij} moving between sites
+  # $i$ and $j$
+  #
+  # this number is calculated as the expectation of a multinomial process
+  # of T_i and T_j individuals moving to each other possible site
+  # $j$ or $i$ with probabilities P_nam_ij and P_nam_ji, which were
+  # derived in Simini et al. (2013)
+  
+  m_i_times_n_j <- m_i * n_j
+  m_i_plus_n_j <- m_i + n_j
+  
+  P_nam_ij <-
+    ((1 - lambda ^ (m_i + i_s_ij + 1)) / (m_i + i_s_ij + 1) -
+       (1 - lambda ^ (m_i_plus_n_j + i_s_ij + 1)) / (m_i_plus_n_j + i_s_ij + 1)) / ((1 - lambda ^ (m_i + 1)) / (m_i + 1))
+  P_nam_ji <-
+    ((1 - lambda ^ (n_j + j_s_ij + 1)) / (n_j + j_s_ij + 1) -
+       (1 - lambda ^ (m_i_plus_n_j + j_s_ij + 1)) / (m_i_plus_n_j + j_s_ij + 1)) / ((1 - lambda ^ (n_j + 1)) / (n_j + 1))
+  
+  T_ij <- T_i * P_nam_ij
+  
+  # and in the opposite direction
+  T_ji <- T_j * P_nam_ji
+  
+  # return this
+  if (symmetric) return (T_ij + T_ji)
+  else return (c(T_ij, T_ji))
+}
+
+
+#' Use the uniform selection model of Simini et al. (2013) to predict movement between
+#' two sites based on population and distance.
+#'
+#' Given indices \code{i} and \code{j}, a (dense) distance matrix
+#' \code{distance} giving the euclidean distances between all pairs of sites, a
+#' vector of population sizes \code{population} and a set of parameters, use
+#' any of three variants of the continuum model (Simini et al. 2013) to predict
+#' movements between sites \code{i} and \code{j}.
+#' Specifying which variant of the continuum model to use is achieved by
+#' passing one of three character-string arguments to the \code{model}. The
+#' three options are 'intervening opportunities', 'radiation with selection',
+#' and 'original radiation', which is the default. The mathematical definition
+#' of each variant of the model and an explanation of how they are related can
+#' be found in Simini et al. (2013).
+#' The first parameter, which is required, is supplied as the first element of
+#' the vector \code{theta}. This parameter describes the proportion of all
+#' inhabitants in the region commuting. The default is that everyone commutes
+#' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
+#' supplies a parameter that is necessary for both the intervening
+#' opportunities and radiation with selection variants of the model.
+#' The flux can be calculated either for both directions (by setting
+#' \code{symmetric = FALSE}, returning movements for each direction) or for the
+#' summed movement between the two (\code{symmetric = TRUE}).
+#' The model can be sped up somewhat by setting \code{minpop} and
+#' \code{maxrange}. If either of the two sites has a population lower than
+#' \code{minpop} (minimum population size), or if the distance between the two
+#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
+#' no travel occurs between these points.
+#' Note that this function only works for individual site pairs. To calculate
+#' movements across a whole landscape, use \code{\link{movement.predict}}.
+#'
+#' @param i Index for \code{population} and \code{distance} giving the first
+#' site
+#' @param j Index for \code{population} and \code{distance} giving the second
+#' site
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param theta A vector of parameters in the order: proportion of all
+#' inhabitants in the region commuting, parameter required for either the
+#' intervening opportunities or radiation with selection model variants.
+#' @param symmetric Whether to return a single value giving the total predicted
+#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
+#' giving movements from i to j (first element) and from j to i (second
+#' element)
+#' @param minpop The minimum population size to consider (by default 1,
+#' consider all sites)
+#' @param maxrange The maximum distance between sites to consider (by default
+#' \code{Inf}, consider all sites)
+#' @return A vector (of length either 1 or 2) giving the predicted number of
+#' people moving between the two sites.
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict movement between sites 3 and 4 using the original radiation model
+#' T_ij <- originalRadiationFlux(3, 4, d, pop)
+#' T_ij
+#'
+#' @seealso \code{\link{movement.predict}}, \code{\link{originalRadiationFlux}}
+#' \code{\link{radiationWithSelectionFlux}}, \code{\link{interveningOpportunitiesFlux}}
+#'
+#' @references
+#' Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach.
+#' \emph{PLoS ONE} 8(3): e60069.
+#' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
+#' @export
+uniformSelectionFlux <- function(i, j, distance, population,
+                           theta = c(1), symmetric = FALSE,
+                           minpop = 1, maxrange = Inf) {
+  # get model parameters
+  p <- theta[1]
+    
+  # get the population sizes $m_i$ and $n_j$
+  m_i <- population[i]
+  n_j <- population[j]
+  
+  # if the population at the centre is below the minimum,
+  # return 0 (saves some calculation time)
+  if (m_i < minpop | n_j < minpop) {
+    # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
+  }
+  
+  # calculate the total number of people commuting from i -
+  # the proportion (p) multiplied by the population $m_i$
+  T_i <- m_i * p
+  
+  # and from j
+  T_j <- n_j * p
+  
+  # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
+  r_ij <- distance[i, j]
+  
+  # if it's beyond the maximum range return 0
+  if (r_ij > maxrange) {
+    # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
+  }
+  
+  # get indices of points within this range
+  i_in_radius <- distance[i, ] <= r_ij
+  j_in_radius <- distance[j, ] <= r_ij
+  
+  # sum the total population in this radius (excluding i & j)
+  
+  # calculate $s_{ij}$, the total population in the search radius
+  # (excluding $i$ and $j$)
+  
+  # which to include in the sum
+  i_pop_sum_idx <- i_in_radius
+  # not i or j
+  i_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  i_s_ij <- sum(population[i_pop_sum_idx])
+  
+  # which to include in the sum
+  j_pop_sum_idx <- j_in_radius
+  # not i or j
+  j_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  j_s_ij <- sum(population[j_pop_sum_idx])
+  
+  #   # if the sum is 0 (no populations in that range) return 0 movement
+  #   if (i_ s_ij == 0) return (0)
+  
+  # calculate the number of commuters T_{ij} moving between sites
+  # $i$ and $j$
+  #
+  # this number is calculated as the expectation of a multinomial process
+  # of T_i and T_j individuals moving to each other possible site
+  # $j$ or $i$ with probabilities P_nam_ij and P_nam_ji, which were
+  # derived in Simini et al. (2013)
+  
+  m_i_times_n_j <- m_i * n_j
+  m_i_plus_n_j <- m_i + n_j
+  
+  N <- sum(population)
+  P_nam_ij <- n_j / (N - m_i)
+  P_nam_ji <- m_i / (N - n_j)
   
   T_ij <- T_i * P_nam_ij
   
@@ -588,6 +893,259 @@ continuum.flux <- function(i, j, distance, population,
   if (symmetric) return (T_ij + T_ji)
   else return (c(T_ij, T_ji))
 }
+
+#' Use the intervening opportunities model of Simini et al. (2013) to predict movement between
+#' two sites based on population and distance.
+#'
+#' Given indices \code{i} and \code{j}, a (dense) distance matrix
+#' \code{distance} giving the euclidean distances between all pairs of sites, a
+#' vector of population sizes \code{population} and a set of parameters, use
+#' any of three variants of the continuum model (Simini et al. 2013) to predict
+#' movements between sites \code{i} and \code{j}.
+#' Specifying which variant of the continuum model to use is achieved by
+#' passing one of three character-string arguments to the \code{model}. The
+#' three options are 'intervening opportunities', 'radiation with selection',
+#' and 'original radiation', which is the default. The mathematical definition
+#' of each variant of the model and an explanation of how they are related can
+#' be found in Simini et al. (2013).
+#' The first parameter, which is required, is supplied as the first element of
+#' the vector \code{theta}. This parameter describes the proportion of all
+#' inhabitants in the region commuting. The default is that everyone commutes
+#' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
+#' supplies a parameter that is necessary for both the intervening
+#' opportunities and radiation with selection variants of the model.
+#' The flux can be calculated either for both directions (by setting
+#' \code{symmetric = FALSE}, returning movements for each direction) or for the
+#' summed movement between the two (\code{symmetric = TRUE}).
+#' The model can be sped up somewhat by setting \code{minpop} and
+#' \code{maxrange}. If either of the two sites has a population lower than
+#' \code{minpop} (minimum population size), or if the distance between the two
+#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
+#' no travel occurs between these points.
+#' Note that this function only works for individual site pairs. To calculate
+#' movements across a whole landscape, use \code{\link{movement.predict}}.
+#'
+#' @param i Index for \code{population} and \code{distance} giving the first
+#' site
+#' @param j Index for \code{population} and \code{distance} giving the second
+#' site
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param theta A vector of parameters in the order: proportion of all
+#' inhabitants in the region commuting, parameter required for either the
+#' intervening opportunities or radiation with selection model variants.
+#' @param symmetric Whether to return a single value giving the total predicted
+#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
+#' giving movements from i to j (first element) and from j to i (second
+#' element)
+#' @param minpop The minimum population size to consider (by default 1,
+#' consider all sites)
+#' @param maxrange The maximum distance between sites to consider (by default
+#' \code{Inf}, consider all sites)
+#' @return A vector (of length either 1 or 2) giving the predicted number of
+#' people moving between the two sites.
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict movement between sites 3 and 4 using the original radiation model
+#' T_ij <- originalRadiationFlux(3, 4, d, pop)
+#' T_ij
+#'
+#' @seealso \code{\link{movement.predict}}, \code{\link{originalRadiationFlux}},  
+#' \code{link{radiationWithSelectionFlux}}, \code{\link{uniformSelectionFlux}}
+#'
+#' @references
+#' Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach.
+#' \emph{PLoS ONE} 8(3): e60069.
+#' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
+#' @export
+interveningOpportunitiesFlux <- function(i, j, distance, population,
+                           theta = c(1), symmetric = FALSE,
+                           minpop = 1, maxrange = Inf) {
+  # get model parameters
+  p <- theta[1]
+  L <- theta[2]
+  
+  # get the population sizes $m_i$ and $n_j$
+  m_i <- population[i]
+  n_j <- population[j]
+  
+  # if the population at the centre is below the minimum,
+  # return 0 (saves some calculation time)
+  if (m_i < minpop | n_j < minpop) {
+    # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
+  }
+  
+  # calculate the total number of people commuting from i -
+  # the proportion (p) multiplied by the population $m_i$
+  T_i <- m_i * p
+  
+  # and from j
+  T_j <- n_j * p
+  
+  # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
+  r_ij <- distance[i, j]
+  
+  # if it's beyond the maximum range return 0
+  if (r_ij > maxrange) {
+    # if it's symmetric return one 0
+    if (symmetric) return (0)
+    # otherwise return two
+    else return (c(0, 0))
+  }
+  
+  # get indices of points within this range
+  i_in_radius <- distance[i, ] <= r_ij
+  j_in_radius <- distance[j, ] <= r_ij
+  
+  # sum the total population in this radius (excluding i & j)
+  
+  # calculate $s_{ij}$, the total population in the search radius
+  # (excluding $i$ and $j$)
+  
+  # which to include in the sum
+  i_pop_sum_idx <- i_in_radius
+  # not i or j
+  i_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  i_s_ij <- sum(population[i_pop_sum_idx])
+  
+  # which to include in the sum
+  j_pop_sum_idx <- j_in_radius
+  # not i or j
+  j_pop_sum_idx[c(i, j)] <- FALSE
+  # get sum
+  j_s_ij <- sum(population[j_pop_sum_idx])
+  
+  #   # if the sum is 0 (no populations in that range) return 0 movement
+  #   if (i_ s_ij == 0) return (0)
+  
+  # calculate the number of commuters T_{ij} moving between sites
+  # $i$ and $j$
+  #
+  # this number is calculated as the expectation of a multinomial process
+  # of T_i and T_j individuals moving to each other possible site
+  # $j$ or $i$ with probabilities P_nam_ij and P_nam_ji, which were
+  # derived in Simini et al. (2013)
+  
+  m_i_times_n_j <- m_i * n_j
+  m_i_plus_n_j <- m_i + n_j
+    
+  P_nam_ij <- (exp(-L * (m_i + i_s_ij)) - exp(-L * (m_i_plus_n_j + i_s_ij))) / exp(-L * m_i)
+  P_nam_ji <- (exp(-L * (n_j + j_s_ij)) - exp(-L * (m_i_plus_n_j + j_s_ij))) / exp(-L * n_j)
+  
+  T_ij <- T_i * P_nam_ij
+  
+  # and in the opposite direction
+  T_ji <- T_j * P_nam_ji
+    
+  # return this
+  if (symmetric) return (T_ij + T_ji)
+  else return (c(T_ij, T_ji))
+}
+
+#' Use the Viboud et al. 2006 (relatively simple) gravitation model to predict
+#' movement between two sites.
+#'
+#' Given indices \code{i} and \code{j}, a vector of population sizes
+#' \code{population}, a (dense) distance matrix \code{distance} giving the
+#' euclidean distances between all pairs of sites, and a set of parameters
+#' \code{theta}, to predict movements between sites \code{i} and \code{j}.
+#' The flux can be calculated either for both directions (by setting
+#'  \code{symmetric = FALSE}, returning movements for each direction) or for
+#'  the summed movement between the two (\code{symmetric = TRUE}).
+#' The model can be sped up somewhat by setting \code{minpop} and
+#' \code{maxrange}. If either of the two sites has a population lower than
+#' \code{minpop} (minimum population size), or if the distance between the two
+#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
+#' no travel occurs between these points.
+#' Note that this function only works for individual sites, use
+#' \code{\link{movement.predict}} to calculate movements for multiple
+#' populations.
+#'
+#' @param i Index for \code{population} and \code{distance} giving the first
+#' site
+#' @param j Index for \code{population} and \code{distance} giving the second
+#' site
+#' @param distance A distance matrix giving the euclidean distance between
+#' pairs of sites
+#' @param population A vector giving the population at all sites
+#' @param theta A vector of parameters in the order: scalar, exponent on donor
+#' pop, exponent on recipient pop, exponent on distance
+#' @param symmetric Whether to return a single value giving the total predicted
+#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
+#' giving movements from i to j (first element) and from j to i (second element)
+#' @param minpop The minimum population size to consider (by default 1, consider
+#' all sites)
+#' @param maxrange The maximum distance between sites to consider (by default
+#' \code{Inf}, consider all sites)
+#' @return A vector (of length either 1 or 2) giving the predicted number of
+#' people moving between the two sites.
+#'
+#' @examples
+#' # generate random coordinates and populations
+#' n <- 30
+#' coords <- matrix(runif(n * 2), ncol = 2)
+#' pop <- round(runif(n) * 1000)
+#' # calculate the distance between pairs of sites
+#' d <- as.matrix(dist(coords))
+#' # predict movement between sites 3 and 4 using the radiation model
+#' T_ij <- gravityFlux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3))
+#' T_ij
+#'
+#' @seealso \code{\link{movement.predict}}
+#'
+#' @references
+#' Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
+#' of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
+#' @export
+gravityFlux <- function(i, j, distance, population,
+                        theta = c(1, 0.6, 0.3, 3),
+                        symmetric = FALSE,
+                        minpop = 1, maxrange = Inf) {
+  # given the indices $i$ and $j$, vector of population sizes
+  # 'population', (dense) distance matrix 'distance', vector of parameters
+  # 'theta' in the order [scalar, exponent on donor pop, exponent on recipient
+  # pop, exponent on distance], calculate $T_{ij}$, the number of people
+  # travelling between $i$ and $j$. If the pairwise distance is greater than
+  # 'max' it is assumed that no travel occurs between these points. This can
+  # speed up the model.
+  
+  # get the population sizes $m_i$ and $n_j$
+  m_i <- population[i]
+  n_j <- population[j]
+  
+  # if the population at the centre is below the minimum,
+  # return 0 (saves some calculation time)
+  m_i[m_i < minpop] <- 0
+  
+  # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
+  r_ij <- distance[i, j]
+  
+  # if it's beyond the maximum range return 0 - this way to vectorize with ease...
+  r_ij[r_ij > maxrange] <- 0
+  
+  # calculate the number of commuters T_{ij} moving between sites
+  # $i$ and $j$ using equation 1 in Viboud et al. (2006)
+  T_ij <- theta[1] * (m_i ^ theta[2]) * (n_j ^ theta[3]) / (r_ij ^ theta[4])
+  
+  # and the opposite direction
+  T_ji <- theta[1] * (n_j ^ theta[2]) * (m_i ^ theta[3]) / (r_ij ^ theta[4])
+  
+  # return this
+  if (symmetric) return (T_ij + T_ji)
+  else return (c(T_ij, T_ji))
+}
+
 
 #' Use the Viboud et al. 2006 (relatively simple) gravitation model to predict
 #' movement between two sites.
@@ -804,8 +1362,10 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 #' @param distance A distance matrix giving the euclidean distance between
 #' pairs of sites
 #' @param population A vector giving the population at all sites
-#' @param flux A flux function (currently either \code{\link{continuum.flux}}
-#' or \code{\link{gravityFlux}}) used to predict movements
+#' @param flux A flux function (currently either \code{\link{originalRadiationFlux}},
+#' \code{\link{radiationWithSelectionFlux}}, \code{\link{uniformSelectionFlux}},
+#' \code{\link{interveningOpportunitiesFlux}}, \code{\link{gravityFlux}}
+#' or \code{\link{gravityWithDistanceFlux}}) used to predict movements
 #' @param symmetric Whether to calculate symmetric or asymmetric (summed
 #' across both directions) movement
 #' @param progress Whether to display a progress bar and start and end times
@@ -821,7 +1381,7 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 #' # calculate the distance between pairs of sites
 #' d <- as.matrix(dist(coords))
 #' # predict total movement between them using the radiation model
-#' move <- movement.predict(d, pop, flux = continuum.flux, symmetric = TRUE,
+#' move <- movement.predict(d, pop, flux = originalRadiationFlux, symmetric = TRUE,
 #'     theta = 0.1)
 #' # plot the points
 #' plot(coords, pch = 16, cex = pop / 500,
@@ -839,10 +1399,12 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 #'            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
 #'   }
 #' }
-#' @seealso \code{\link{gravityFlux}}, \code{\link{continuum.flux}}
+#' @seealso \code{\link{originalRadiationFlux}}, \code{\link{radiationWithSelectionFlux}}, 
+#' \code{\link{uniformSelectionFlux}}, \code{\link{interveningOpportunitiesFlux}}, 
+#' \code{\link{gravityFlux}} and \code{\link{gravityWithDistanceFlux}}
 #' @export
 movement.predict <- function(distance, population,
-                             flux = continuum.flux,
+                             flux = originalRadiationFlux,
                              symmetric = FALSE,
                              progress = TRUE,
                              ...) {
@@ -1248,16 +1810,8 @@ predict.movementmodel <- function(object, newdata = NULL, ...) {
   }
   object$net = net
   
-  if (identical(object$flux_model$flux,continuum.flux)) {
-    # for the 'continuum.flux' function the flux model string must be passed over to the movement.predict method
-    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
-                                                symmetric = object$symmetric, model = object$flux_model$model_string, 
-                                                theta = object$flux_model$params, ...)
-  } else {
-    # for 'gravityFlux' or 'gravityWithDistanceFlux' function, the model selected is equivalent to the flux function name
-    object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
+  object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
                                                 symmetric = object$symmetric, theta = object$flux_model$params, ...)    
-  }
    
   return (object)
 }

@@ -8,7 +8,7 @@ test_that("original radiation model is of class flux",{
 
 test_that("original radiation model has expected default values",{
   default_params  <- c(theta=0.9)
-  expected_flux  <- continuum.flux
+  expected_flux  <- originalRadiationFlux
   model  <- original.radiation()
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
@@ -28,7 +28,7 @@ test_that("radiation with selection model is of class flux",{
 
 test_that("radiation with selection model has expected default values",{
   default_params  <- c(theta=0.1,lambda=0.2)
-  expected_flux  <- continuum.flux
+  expected_flux  <- radiationWithSelectionFlux
   model  <- radiation.with.selection()
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
@@ -57,7 +57,7 @@ test_that("uniform selection model is of class flux",{
 
 test_that("uniform selection model has expected default values",{
   default_params  <- c(theta=0.9)
-  expected_flux  <- continuum.flux
+  expected_flux  <- uniformSelectionFlux
   model  <- uniform.selection()
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
@@ -77,7 +77,7 @@ test_that("intervening opportunities model is of class flux",{
 
 test_that("intervening opportunities model has expected default values",{
   default_params  <- c(theta=0.001, L=0.00001)
-  expected_flux  <- continuum.flux
+  expected_flux  <- interveningOpportunitiesFlux
   model  <- intervening.opportunities()
   expect_equal(model$params, default_params)
   expect_equal(model$flux, expected_flux)
