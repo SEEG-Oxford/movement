@@ -30,7 +30,7 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 predictionModel <- movementmodel(dataset=kenya10,
                                  min_network_pop = 50000,
-                                 predictionmodel= original.radiation(),
+                                 flux_model = original.radiation(),
                                  symmetric = TRUE)
 # predict the population movement from the model
 predictedMovements = predict(predictionModel)
