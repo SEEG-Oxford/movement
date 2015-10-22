@@ -417,25 +417,19 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #'
 #' Given indices \code{i} and \code{j}, a (dense) distance matrix
 #' \code{distance} giving the euclidean distances between all pairs of sites, a
-#' vector of population sizes \code{population} and a set of parameters, use
-#' any of three variants of the continuum model (Simini et al. 2013) to predict
-#' movements between sites \code{i} and \code{j}.
-#' Specifying which variant of the continuum model to use is achieved by
-#' passing one of three character-string arguments to the \code{model}. The
-#' three options are 'intervening opportunities', 'radiation with selection',
-#' and 'original radiation', which is the default. The mathematical definition
-#' of each variant of the model and an explanation of how they are related can
-#' be found in Simini et al. (2013).
-#' The first parameter, which is required, is supplied as the first element of
+#' vector of population sizes \code{population} and a set of parameters, the 
+#' original radiation model as variant of the continuum model (Simini et al. 2013) 
+#' is used to predict movements between sites \code{i} and \code{j}. The mathematical definition
+#' of the model and an explanation of how further continuum models are 
+#' related to each other can be found in Simini et al. (2013).
+#' The parameter, which is required, is supplied as the first element of
 #' the vector \code{theta}. This parameter describes the proportion of all
 #' inhabitants in the region commuting. The default is that everyone commutes
-#' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
-#' supplies a parameter that is necessary for both the intervening
-#' opportunities and radiation with selection variants of the model.
+#' and thus \code{theta[1]=1}. 
 #' The flux can be calculated either for both directions (by setting
 #' \code{symmetric = FALSE}, returning movements for each direction) or for the
 #' summed movement between the two (\code{symmetric = TRUE}).
-#' The model can be sped up somewhat by setting \code{minpop} and
+#' The model can be speed up somewhat by setting \code{minpop} and
 #' \code{maxrange}. If either of the two sites has a population lower than
 #' \code{minpop} (minimum population size), or if the distance between the two
 #' sites is greater than \code{maxrange} (the maximum range) it is assumed that
@@ -450,9 +444,8 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #' @param distance A distance matrix giving the euclidean distance between
 #' pairs of sites
 #' @param population A vector giving the population at all sites
-#' @param theta A vector of parameters in the order: proportion of all
-#' inhabitants in the region commuting, parameter required for either the
-#' intervening opportunities or radiation with selection model variants.
+#' @param theta A vector of the parameter which reflects the proportion of all
+#' inhabitants in the region commuting
 #' @param symmetric Whether to return a single value giving the total predicted
 #' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
 #' giving movements from i to j (first element) and from j to i (second
@@ -475,7 +468,7 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #' T_ij <- originalRadiationFlux(3, 4, d, pop)
 #' T_ij
 #'
-#' @seealso \code{\link{movement.predict}}, \code{link{radiationWithSelectionFlux}},
+#' @seealso \code{\link{movement.predict}}, \code{\link{radiationWithSelectionFlux}},
 #' \code{\link{uniformSelectionFlux}}, \code{\link{interveningOpportunitiesFlux}}
 #'
 #' @references
@@ -570,26 +563,22 @@ originalRadiationFlux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-#' Use the radiation with selection model of Simini et al. (2013) to predict movement between
-#' two sites based on population and distance.
+#' Use the radiation with selection model of Simini et al. (2013) to predict 
+#' movement between two sites based on population and distance.
 #'
 #' Given indices \code{i} and \code{j}, a (dense) distance matrix
 #' \code{distance} giving the euclidean distances between all pairs of sites, a
-#' vector of population sizes \code{population} and a set of parameters, use
-#' any of three variants of the continuum model (Simini et al. 2013) to predict
-#' movements between sites \code{i} and \code{j}.
-#' Specifying which variant of the continuum model to use is achieved by
-#' passing one of three character-string arguments to the \code{model}. The
-#' three options are 'intervening opportunities', 'radiation with selection',
-#' and 'original radiation', which is the default. The mathematical definition
-#' of each variant of the model and an explanation of how they are related can
-#' be found in Simini et al. (2013).
+#' vector of population sizes \code{population} and a set of parameters, the
+#' radiation with selection model as variant of the continuum model (Simini et al. 2013) 
+#' is used to predict movements between sites \code{i} and \code{j}.
+#' The mathematical definition of the model and and an explanation of how further 
+#' continuum models are related to each other can be found in Simini et al. (2013).
 #' The first parameter, which is required, is supplied as the first element of
 #' the vector \code{theta}. This parameter describes the proportion of all
 #' inhabitants in the region commuting. The default is that everyone commutes
 #' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
-#' supplies a parameter that is necessary for both the intervening
-#' opportunities and radiation with selection variants of the model.
+#' supplies a parameter that is also necessary for the radiation with selection 
+#' variants of the model.
 #' The flux can be calculated either for both directions (by setting
 #' \code{symmetric = FALSE}, returning movements for each direction) or for the
 #' summed movement between the two (\code{symmetric = TRUE}).
@@ -609,8 +598,8 @@ originalRadiationFlux <- function(i, j, distance, population,
 #' pairs of sites
 #' @param population A vector giving the population at all sites
 #' @param theta A vector of parameters in the order: proportion of all
-#' inhabitants in the region commuting, parameter required for either the
-#' intervening opportunities or radiation with selection model variants.
+#' inhabitants in the region commuting, and a second parameter required for the  
+#' radiation with selection model variants.
 #' @param symmetric Whether to return a single value giving the total predicted
 #' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
 #' giving movements from i to j (first element) and from j to i (second
@@ -630,7 +619,7 @@ originalRadiationFlux <- function(i, j, distance, population,
 #' # calculate the distance between pairs of sites
 #' d <- as.matrix(dist(coords))
 #' # predict movement between sites 3 and 4 using the original radiation model
-#' T_ij <- originalRadiationFlux(3, 4, d, pop)
+#' T_ij <- radiationWithSelectionFlux(3, 4, d, pop, c(0.1,0.1))
 #' T_ij
 #'
 #' @seealso \code{\link{movement.predict}}, \code{\link{originalRadiationFlux}},
@@ -642,7 +631,7 @@ originalRadiationFlux <- function(i, j, distance, population,
 #' \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 #' @export
 radiationWithSelectionFlux <- function(i, j, distance, population,
-                           theta = c(1), symmetric = FALSE,
+                           theta = c(1,1), symmetric = FALSE,
                            minpop = 1, maxrange = Inf) {
   # get model parameters
   p <- theta[1]
@@ -739,21 +728,15 @@ radiationWithSelectionFlux <- function(i, j, distance, population,
 #'
 #' Given indices \code{i} and \code{j}, a (dense) distance matrix
 #' \code{distance} giving the euclidean distances between all pairs of sites, a
-#' vector of population sizes \code{population} and a set of parameters, use
-#' any of three variants of the continuum model (Simini et al. 2013) to predict
-#' movements between sites \code{i} and \code{j}.
-#' Specifying which variant of the continuum model to use is achieved by
-#' passing one of three character-string arguments to the \code{model}. The
-#' three options are 'intervening opportunities', 'radiation with selection',
-#' and 'original radiation', which is the default. The mathematical definition
-#' of each variant of the model and an explanation of how they are related can
-#' be found in Simini et al. (2013).
-#' The first parameter, which is required, is supplied as the first element of
+#' vector of population sizes \code{population} and a set of parameters, the 
+#' uniform selection model as variant of the continuum model (Simini et al. 2013)
+#' is used to predict movements between sites \code{i} and \code{j}.
+#' The mathematical definition of the model and an explanation of how further 
+#' continuum models are related to each other can be found in Simini et al. (2013).
+#' The parameter, which is required, is supplied as the first element of
 #' the vector \code{theta}. This parameter describes the proportion of all
 #' inhabitants in the region commuting. The default is that everyone commutes
-#' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
-#' supplies a parameter that is necessary for both the intervening
-#' opportunities and radiation with selection variants of the model.
+#' and thus \code{theta[1]=1}.
 #' The flux can be calculated either for both directions (by setting
 #' \code{symmetric = FALSE}, returning movements for each direction) or for the
 #' summed movement between the two (\code{symmetric = TRUE}).
@@ -772,9 +755,8 @@ radiationWithSelectionFlux <- function(i, j, distance, population,
 #' @param distance A distance matrix giving the euclidean distance between
 #' pairs of sites
 #' @param population A vector giving the population at all sites
-#' @param theta A vector of parameters in the order: proportion of all
-#' inhabitants in the region commuting, parameter required for either the
-#' intervening opportunities or radiation with selection model variants.
+#' @param theta  A vector of the parameter which reflects the proportion of all
+#' inhabitants in the region commuting
 #' @param symmetric Whether to return a single value giving the total predicted
 #' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
 #' giving movements from i to j (first element) and from j to i (second
@@ -794,7 +776,7 @@ radiationWithSelectionFlux <- function(i, j, distance, population,
 #' # calculate the distance between pairs of sites
 #' d <- as.matrix(dist(coords))
 #' # predict movement between sites 3 and 4 using the original radiation model
-#' T_ij <- originalRadiationFlux(3, 4, d, pop)
+#' T_ij <- uniformSelectionFlux(3,4,d,pop,theta = c(0.9))
 #' T_ij
 #'
 #' @seealso \code{\link{movement.predict}}, \code{\link{originalRadiationFlux}}
@@ -899,21 +881,17 @@ uniformSelectionFlux <- function(i, j, distance, population,
 #'
 #' Given indices \code{i} and \code{j}, a (dense) distance matrix
 #' \code{distance} giving the euclidean distances between all pairs of sites, a
-#' vector of population sizes \code{population} and a set of parameters, use
-#' any of three variants of the continuum model (Simini et al. 2013) to predict
-#' movements between sites \code{i} and \code{j}.
-#' Specifying which variant of the continuum model to use is achieved by
-#' passing one of three character-string arguments to the \code{model}. The
-#' three options are 'intervening opportunities', 'radiation with selection',
-#' and 'original radiation', which is the default. The mathematical definition
-#' of each variant of the model and an explanation of how they are related can
-#' be found in Simini et al. (2013).
+#' vector of population sizes \code{population} and a set of parameters, the 
+#' intervening opportunities model as variant of the continuum model (Simini et al. 2013) 
+#' is used to predict movements between sites \code{i} and \code{j}.
+#' The mathematical definition of the model and an explanation of how further 
+#' continuum models are related to each other can be found in Simini et al. (2013).
 #' The first parameter, which is required, is supplied as the first element of
 #' the vector \code{theta}. This parameter describes the proportion of all
 #' inhabitants in the region commuting. The default is that everyone commutes
 #' and thus \code{theta[1]=1}. The second (and last) element of \code{theta}
-#' supplies a parameter that is necessary for both the intervening
-#' opportunities and radiation with selection variants of the model.
+#' supplies a parameter that is also necessary for the intervening opportunities
+#' variants of the model.
 #' The flux can be calculated either for both directions (by setting
 #' \code{symmetric = FALSE}, returning movements for each direction) or for the
 #' summed movement between the two (\code{symmetric = TRUE}).
@@ -933,8 +911,8 @@ uniformSelectionFlux <- function(i, j, distance, population,
 #' pairs of sites
 #' @param population A vector giving the population at all sites
 #' @param theta A vector of parameters in the order: proportion of all
-#' inhabitants in the region commuting, parameter required for either the
-#' intervening opportunities or radiation with selection model variants.
+#' inhabitants in the region commuting, parameter required for the
+#' intervening opportunities model variants.
 #' @param symmetric Whether to return a single value giving the total predicted
 #' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
 #' giving movements from i to j (first element) and from j to i (second
@@ -954,7 +932,7 @@ uniformSelectionFlux <- function(i, j, distance, population,
 #' # calculate the distance between pairs of sites
 #' d <- as.matrix(dist(coords))
 #' # predict movement between sites 3 and 4 using the original radiation model
-#' T_ij <- originalRadiationFlux(3, 4, d, pop)
+#' T_ij <- interveningOpportunitiesFlux(3, 4, d, pop, theta = c(0.1, 0.1))
 #' T_ij
 #'
 #' @seealso \code{\link{movement.predict}}, \code{\link{originalRadiationFlux}},  
