@@ -2,9 +2,7 @@
 % Please edit documentation in R/movement.R
 \name{summary.optimisedmodel}
 \alias{summary.optimisedmodel}
-\title{Summarize an optimised model
-
-Print a summary of an optimised model}
+\title{Summarize an optimised model}
 \usage{
 \method{summary}{optimisedmodel}(object, ...)
 }
@@ -14,8 +12,6 @@ Print a summary of an optimised model}
 \item{\dots}{additional arguments affecting the summary produced.}
 }
 \description{
-Summarize an optimised model
-
 Print a summary of an optimised model
 }
 
