@@ -96,11 +96,20 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
 #' @description Use a \code{flux} object to predict population movements
 #' given either a RasterLayer containing a single population layer, or a
 #' data.frame containing population and location data with the columns
-#' \code{locations} (character), \code{population} (numeric), \code{long} (numeric)
-#' and \code{lat} (numeric).
+#' \code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
+#' and \code{lat_origin} (numeric).
 #' 
+#' The model can be calculated either for both directions (by setting the optional parameter
+#' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
+#' the summed movement between the two (\code{symmetric = TRUE}, giving a
+#' symmetric matrix)).
+#'
 #' @param object A theoretical model of type \code{flux} object
 #' @param locationdataframe A data.frame or RasterLayer containing population data
+#' @param min_network_pop Optional parameter for the minimum population of a site 
+#' in order for it to be processed
+#' @param symmetric Optional parameter to define whether to calculate symmetric or 
+#' asymmetric (summed across both directions) movement
 #' 
 #' @return A list containing a location dataframe from the input with columns 
 #' \code{location}, \code{population} and \code{coordinates} and a matrix
