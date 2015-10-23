@@ -108,6 +108,12 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
 #' 
 #' @name predict.flux
 #' @method predict flux
+#' @example
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' predictedMovement  <- predict(flux, kenya10)
 #' @export
 predict.flux <- function(object, locationdataframe) {
   
