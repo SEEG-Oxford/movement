@@ -167,3 +167,10 @@ test_that("movement creates population_data correctly", {
 		expect_equal(actual_movement_object$optimisationresults$inputs$population_data, data.frame(origin=locations, pop_origin=population, long_origin=coords[,1], lat_origin=coords[,2]))
 	)
 })
+
+test_that("predict.flux throws an error if given the wrong locationdataframe parameter", {
+  flux <- original.radiation()
+  dataframe <- 1
+  expect_error(predict(flux,dataframe),"Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame")
+})
+

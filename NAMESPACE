@@ -2,6 +2,7 @@
 
 S3method(as.locationdataframe,SpatialPolygonsDataFrame)
 S3method(as.locationdataframe,data.frame)
+S3method(predict,flux)
 S3method(predict,movementmodel)
 S3method(predict,optimisedmodel)
 S3method(print,flux)

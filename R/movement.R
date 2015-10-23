@@ -91,6 +91,48 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   return (me)
 }
 
+
+#' @title Predict from theoretical flux object
+#' 
+#' @description Use a \code{flux} object to predict population movements
+#' given either a RasterLayer containing a single population layer, or a
+#' data.frame containing population and location data with the columns
+#' \code{locations} (character), \code{population} (numeric), \code{long} (numeric)
+#' and \code{lat} (numeric).
+#' 
+#' @param object A theoretical model of type \code{flux} object
+#' @param locationdataframe A data.frame or RasterLayer containing population data
+#' 
+#' @return A list containing a location dataframe from the input, and a matrix
+#' containing the predicted population movements.
+#' 
+#' @name predict.flux
+#' @method predict flux
+#' @export
+predict.flux <- function(object, locationdataframe) {
+  
+  if(is(locationdataframe, "RasterLayer")) {
+    # create the prediction model (= movementmodel object)
+    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=50000, flux_model = object, symmetric=FALSE)    
+    prediction <- predict.movementmodel(predictionModel)
+    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else if (is(locationdataframe, "data.frame")) {
+    # create the prediction model (= movementmodel object)
+    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=50000, flux_model = object, symmetric=FALSE)   
+    prediction <- predict.movementmodel(predictionModel, locationdataframe)
+    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else {
+    stop('Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame')
+  }
+}
+
+
 #' Predict from an optimisedmodel object
 #' 
 #' \code{optimisedmodel}:
