@@ -91,6 +91,66 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   return (me)
 }
 
+#' @title Predict from theoretical flux object
+#' 
+#' @description Use a \code{flux} object to predict population movements
+#' given either a RasterLayer containing a single population layer, or a
+#' data.frame containing population and location data with the columns
+#' \code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
+#' and \code{lat_origin} (numeric).
+#' 
+#' The model can be calculated either for both directions (by setting the optional parameter
+#' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
+#' the summed movement between the two (\code{symmetric = TRUE}, giving a
+#' symmetric matrix)).
+#'
+#' @param object A theoretical model of type \code{flux} object
+#' @param locationdataframe A data.frame or RasterLayer containing population data
+#' @param min_network_pop Optional parameter for the minimum population of a site 
+#' in order for it to be processed
+#' @param symmetric Optional parameter to define whether to calculate symmetric or 
+#' asymmetric (summed across both directions) movement
+#' 
+#' @return A list containing a location dataframe from the input with columns 
+#' \code{location}, \code{population} and \code{coordinates} and a matrix
+#' containing the predicted population movements.
+#' 
+#' @name predict.flux
+#' @method predict flux
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' # generate a flux object
+#' flux <- radiation.with.selection()
+#' # run the prediction for the theoretical model
+#' predictedMovement  <- predict(flux, kenya10)
+#' @export
+predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE) {
+  
+  if(is(locationdataframe, "RasterLayer")) {
+    # create the prediction model (= movementmodel object)
+    predictionModel <- movementmodel(dataset = locationdataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
+    prediction <- predict.movementmodel(predictionModel)
+    df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else if (is(locationdataframe, "data.frame")) {
+    # create the prediction model (= movementmodel object)
+    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
+    prediction <- predict.movementmodel(predictionModel, locationdataframe)
+    df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else {
+    stop('Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame')
+  }
+}
+
+
 #' Predict from an optimisedmodel object
 #' 
 #' \code{optimisedmodel}:
