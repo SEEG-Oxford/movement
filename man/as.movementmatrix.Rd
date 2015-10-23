@@ -7,14 +7,8 @@
 as.movementmatrix(dataframe)
 }
 \arguments{
-\item{dataframe}{A data.frame of the format
-#   origin destination movement
-# 1      a           b       10
-# 2      a           c        8
-# 3      a           d       10
-# 4      a           e       11
-# 5      a           f        8
-(truncated)}
+\item{dataframe}{A data.frame with the columns \code{origin} (character),
+\code{destination} (character) and \code{movement} (numeric).}
 }
 \value{
 A square matrix

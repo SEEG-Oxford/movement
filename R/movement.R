@@ -2004,21 +2004,16 @@ createpopulationfromcsv <- function(filename) {
   return (data)
 }
 
-#' Convert a data.frame into a movement matrix
+#' @title Convert a data.frame into a movement matrix
 #'
-#' Takes a dataframe listing movements between different locations and converts
+#' @description  Takes a dataframe listing movements between different locations and converts
 #' it into a square matrix using the same location ids.
 #' The dataframe does not need to include the a->a transitions as these are
 #' automatically filled with zero if missing. This results in a zero diagonal
 #' through the matrix.
-#' @param dataframe A data.frame of the format
-#' #   origin destination movement
-#' # 1      a           b       10
-#' # 2      a           c        8
-#' # 3      a           d       10
-#' # 4      a           e       11
-#' # 5      a           f        8
-#' (truncated)
+#' @param dataframe A data.frame with the columns \code{origin} (character),
+#' \code{destination} (character) and \code{movement} (numeric). 
+#'
 #' @return A square matrix
 #' @export
 as.movementmatrix <- function(dataframe) {
