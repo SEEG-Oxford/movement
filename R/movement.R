@@ -118,12 +118,10 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
       bad_args <- FALSE
     } else {
       bad_args <- TRUE
-      cat("objects are not of correct class")
     }
     
   } else {
     bad_args <- TRUE
-    cat("formula has NOT 3 length")
   }
   
   if (bad_args) {
