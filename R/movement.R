@@ -13,11 +13,10 @@
 #'
 #' Uses the \code{\link{optim}} method to create an optimised model of
 #' population movements.
-#' @param locationdataframe A \code{locationdataframe} object, i.e. a data.frame 
-#' containing location data with the column name \code{locations}, \code{population},
-#'\code{long} and \code{lat}.
-#' @param movement_matrix A square matrix containing the observed population
-#' movements between \code{locations}
+#' @param formula A formula with one response (a \code{movementmatrix} object) and 
+#' one predictor (a \code{locationdataframe} object), e.g. movementmatrix ~ locationdataframe.
+#' The \code{locationdataframe} object contains location data and the \code{movementmatrix}
+#' object contains the observed population movements. 
 #' @param flux_model The name of the movement model to use. Currently supported
 #' models are \code{original radiation}, \code{radiation with selection},
 #' \code{uniform selection}, \code{intervening opportunities},
@@ -28,13 +27,16 @@
 #' \code{\link{predict.movementmodel}} to generate predictions on new data.
 #'
 #' @seealso \code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
-#' \code{\link{as.movementmatrix}}
+#' \code{\link{is.locationdataframe}}, \code{\link{as.movementmatrix}}, 
+#' \code{\link{is.movementmatrix}}
 #' @note The most likely format of the location data will be as a single
 #' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
 #' \code{long}. This can be extracted from a larger dataframe with
 #' \code{\link{as.locationdataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
-#' using \code{\link{as.movementmatrix}}
+#' using \code{\link{as.movementmatrix}}. To check that the given objects are suitable, 
+#' the helper functions \code{\link{is.locationdataframe}} and \code{\link{is.movementmatrix}}
+#' can be used.
 #' @export
 #' @examples
 #' # load kenya raster
@@ -63,13 +65,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
   if(!is(flux_model, "flux")){
     stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
   }
-  
-  ## TODO: add some checks here that the input is sane: 
-  # perhaps have a separate function checkInput <- function(matrix, loc, flux_model) which run the checks and stop if required!
-  # possible checks would be
-  # 1) matrix is square
-  # 2) locationdataframe has 4 columns with correct column names ...  
-  
+
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
   nobs <- nrow(movementmatrix) * ncol(movementmatrix) - nrow(movementmatrix) # all values in the movementmatrix except the diagonal
