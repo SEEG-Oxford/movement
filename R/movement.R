@@ -61,6 +61,8 @@ movement <- function(formula, flux_model = gravity(), ...) {
   movementmatrix  <- args$movementmatrix
   locationdataframe  <- args$locationdataframe
   
+  print(str(locationdataframe))
+  
   # error handling for flux_model input
   if(!is(flux_model, "flux")){
     stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
@@ -75,7 +77,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
   predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # assemble a populationdata original data.frame for predict.movementmodel to use 
-  populationdata  <- data.frame(origin=locationdataframe$locations, pop_origin=locationdataframe$population, long_origin=locationdataframe$long,lat_origin=locationdataframe$lat)
+  populationdata  <- data.frame(origin=locationdataframe$location, pop_origin=locationdataframe$population, long_origin=locationdataframe$x,lat_origin=locationdataframe$y)
   
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, populationdata, movementmatrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
@@ -2108,8 +2110,8 @@ is.movementmatrix <- function(x) {
 #' 
 #' @param \dots further arguments passed to or from other methods.
 #' 
-#' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
-#' \code{lat} (numeric) and \code{lon} (numeric).
+#' @return A data.frame containing location data with columns \code{location} (character), \code{population} (numeric), 
+#' \code{x} (numeric) and \code{y} (numeric).
 #' @name as.locationdataframe
 #' @export
 as.locationdataframe <- function(input, ...) {
@@ -2126,9 +2128,9 @@ as.locationdataframe.data.frame <- function(input, ...) {
   long <- as.numeric(input["long_origin"]$long_origin)
   locations <- as.numeric(input["origin"]$origin)
   ans  <- data.frame(location = locations,
-                     pop = pop,
-                     lat = lat,
-                     lon = long)
+                     population = pop,
+                     x = lat,
+                     y = long)
   class(ans)  <- c('locationdataframe', 'data.frame')
   return (ans)
 }
@@ -2144,7 +2146,7 @@ as.locationdataframe.data.frame <- function(input, ...) {
 #' @method as.locationdataframe SpatialPolygonsDataFrame
 as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraster, ...) {
   result <- data.frame(simplifytext(input$NAME_2),input$ID_2,raster::extract(populationraster,input, fun=sum),sp::coordinates(input))
-  colnames(result) <- c("name", "location", "pop", "lon", "lat")
+  colnames(result) <- c("name", "location", "population", "x", "y")
   class(result)  <- c('locationdataframe', 'data.frame')
   return (result)
 }

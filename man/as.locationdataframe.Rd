@@ -25,8 +25,8 @@ each cell giving the associated population density.}
 \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric),
-\code{lat} (numeric) and \code{lon} (numeric).
+A data.frame containing location data with columns \code{location} (character), \code{population} (numeric),
+\code{x} (numeric) and \code{y} (numeric).
 }
 \description{
 Convert objects to \code{locationdataframe} objects

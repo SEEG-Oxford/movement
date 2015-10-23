@@ -38,7 +38,7 @@ test_that("movement function throws an error if given the wrong flux type", {
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -51,7 +51,7 @@ test_that("movement function throws an error if given the wrong matrix type", {
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -63,7 +63,7 @@ test_that("movement sets correct parameters and bounds for original radiation mo
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -85,7 +85,7 @@ test_that("movement sets correct parameters and bounds for uniform selection mod
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -107,7 +107,7 @@ test_that("movement sets correct parameters and bounds for radiation with select
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -129,7 +129,7 @@ test_that("movement sets correct parameters and bounds for intervening opportuni
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -151,7 +151,7 @@ test_that("movement sets correct parameters and bounds for gravity model", {
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -173,7 +173,7 @@ test_that("movement sets correct parameters and bounds for gravity with distance
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
@@ -195,7 +195,7 @@ test_that("movement creates population_data correctly", {
   locations <- c("a","b","c")
   coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
   population <- c(1000,2000,3000)
-  data <- data.frame(locations = locations, population = population, long = coords[,1], lat = coords[,2]) 
+  data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
   class(data) <- c('locationdataframe', 'data.frame')
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
