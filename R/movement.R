@@ -2090,12 +2090,15 @@ as.movementmatrix <- function(dataframe) {
   return (mat)
 }
 
-# helper method to check if a given matrix is of expected class
+#' @title  Check if given matrix if 'movementmatrix' object
+#'
+#' @description
+#' Helper function checking that the given object inherits from \code{movementmatrix} class. 
+#' 
+#' @return True if the given object is a \code{movementmatrix} object; false otherwise
 #' @export
 is.movementmatrix <- function(x) {
   res  <- inherits(x, 'movementmatrix')
-  print("is.movementmatrix")
-  print(res)
   return(res)
 }
 
@@ -2152,12 +2155,15 @@ as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraste
   return (result)
 }
 
-# helper method to check if a given matrix is of expected class
+#' @title  Check if given data.frame is 'locationdataframe' object
+#'
+#' @description
+#' Helper function checking that the given object inherits from \code{locationdataframe} class. 
+#' 
+#' @return True if the given object is a \code{locationdataframe} object; false otherwise
 #' @export
 is.locationdataframe <- function(x) {
   res  <- inherits(x, 'locationdataframe')
-  print("is.locationdataframe")
-  print(res)
   return(res)
 }
 
