@@ -91,7 +91,6 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   return (me)
 }
 
-
 #' @title Predict from theoretical flux object
 #' 
 #' @description Use a \code{flux} object to predict population movements
@@ -108,18 +107,21 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
 #' 
 #' @name predict.flux
 #' @method predict flux
-#' @example
+#' @examples
 #' # load kenya raster
 #' data(kenya)
 #' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' # generate a flux object
+#' flux <- radiation.with.selection()
+#' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
-predict.flux <- function(object, locationdataframe) {
+predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE) {
   
   if(is(locationdataframe, "RasterLayer")) {
     # create the prediction model (= movementmodel object)
-    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=50000, flux_model = object, symmetric=FALSE)    
+    predictionModel <- movementmodel(dataset = locationdataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
     prediction <- predict.movementmodel(predictionModel)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
@@ -127,7 +129,7 @@ predict.flux <- function(object, locationdataframe) {
       movement_matrix = prediction$prediction))
   } else if (is(locationdataframe, "data.frame")) {
     # create the prediction model (= movementmodel object)
-    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=50000, flux_model = object, symmetric=FALSE)   
+    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
     prediction <- predict.movementmodel(predictionModel, locationdataframe)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(

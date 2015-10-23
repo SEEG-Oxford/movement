@@ -4,7 +4,8 @@
 \alias{predict.flux}
 \title{Predict from theoretical flux object}
 \usage{
-\method{predict}{flux}(object, locationdataframe)
+\method{predict}{flux}(object, locationdataframe, min_network_pop = 50000,
+  symmetric = FALSE)
 }
 \arguments{
 \item{object}{A theoretical model of type \code{flux} object}
@@ -21,5 +22,15 @@ given either a RasterLayer containing a single population layer, or a
 data.frame containing population and location data with the columns
 \code{locations} (character), \code{population} (numeric), \code{long} (numeric)
 and \code{lat} (numeric).
+}
+\examples{
+# load kenya raster
+data(kenya)
+# aggregate to 10km to speed things up
+kenya10 <- raster::aggregate(kenya, 10, sum)
+# generate a flux object
+flux <- radiation.with.selection()
+# run the prediction for the theoretical model
+predictedMovement  <- predict(flux, kenya10)
 }
 
