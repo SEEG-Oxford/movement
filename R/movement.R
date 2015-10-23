@@ -102,7 +102,8 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
 #' @param object A theoretical model of type \code{flux} object
 #' @param locationdataframe A data.frame or RasterLayer containing population data
 #' 
-#' @return A list containing a location dataframe from the input, and a matrix
+#' @return A list containing a location dataframe from the input with columns 
+#' \code{location}, \code{population} and \code{coordinates} and a matrix
 #' containing the predicted population movements.
 #' 
 #' @name predict.flux
@@ -123,7 +124,7 @@ predict.flux <- function(object, locationdataframe, min_network_pop = 50000, sym
     # create the prediction model (= movementmodel object)
     predictionModel <- movementmodel(dataset = locationdataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
     prediction <- predict.movementmodel(predictionModel)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
+    df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))
@@ -131,7 +132,7 @@ predict.flux <- function(object, locationdataframe, min_network_pop = 50000, sym
     # create the prediction model (= movementmodel object)
     predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
     prediction <- predict.movementmodel(predictionModel, locationdataframe)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
+    df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))

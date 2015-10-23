@@ -174,3 +174,26 @@ test_that("predict.flux throws an error if given the wrong locationdataframe par
   expect_error(predict(flux,dataframe),"Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame")
 })
 
+test_that("predict.flux returns list of correct data when given a RasterLayer", {
+  flux <- original.radiation()
+  raster <- raster::raster(nrows=108, ncols=21, xmn=0, xmx=10)
+  with_mock(`movement::predict.movementmodel` = function(x) {
+    return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
+  },
+  expect_equal(predict(flux,raster),list(df_locations=data.frame(location=1,population=1,coordinates=1),movement_matrix=2))
+  )
+})
+
+test_that("predict.flux returns list of correct data when given a data.frame", {
+  flux <- original.radiation()
+  dataframe <- data.frame(c(1))    
+  with_mock(
+    `movement::predict.movementmodel` = function(x,...) {
+      return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
+    },
+    expected_list <- list(df_locations=data.frame(location=1,population=1,coordinates=1), movement_matrix = 2),
+    actualPredictMovements  <- predict(flux,dataframe), 
+    expect_equal(actualPredictMovements, expected_list)
+  )  
+})
+
