@@ -4,20 +4,20 @@
 \alias{movement}
 \title{Create an optimised movement model}
 \usage{
-movement(locationdataframe, movement_matrix, flux_model, ...)
+movement(formula, flux_model = gravity(), ...)
 }
 \arguments{
+\item{flux_model}{The name of the movement model to use. Currently supported
+models are \code{original radiation}, \code{radiation with selection},
+\code{uniform selection}, \code{intervening opportunities},
+\code{gravity}}
+
 \item{locationdataframe}{A \code{locationdataframe} object, i.e. a data.frame
 containing location data with the column name \code{locations}, \code{population},
 \code{long} and \code{lat}.}
 
 \item{movement_matrix}{A square matrix containing the observed population
 movements between \code{locations}}
-
-\item{flux_model}{The name of the movement model to use. Currently supported
-models are \code{original radiation}, \code{radiation with selection},
-\code{uniform selection}, \code{intervening opportunities},
-\code{gravity}}
 
 \item{\dots}{Extra parameters to be passed to the prediction code.}
 }

@@ -52,7 +52,23 @@
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
+#movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
+movement <- function(formula, flux_model = gravity(), ...) {
+  
+  #extract terms from formula using 'get_all_vars()' method
+  #@Nick: problem with this approach is that it looks that i loose my column names of the given locationdataframe
+  # obviously I can reassign the column names using 'colnames(locationdataframe)  <- c(...)'
+  # but then I must assume that the given locationdataframe has the correct column order; otherwise the code could crash if
+  # a user is given a location data.frame in the order: "population", "lat", "long", "locations"
+  locationdataframe  <- get_all_vars(formula[-2])
+  colnames(locationdataframe)  <- c("locations", "population", "long", "lat") # reset the column names as required
+  movement_matrix  <- as.matrix(get_all_vars(formula[-3]))
+  
+  ## TODO: add some checks here that the input is sane: 
+  # perhaps have a separate function checkInput <- function(matrix, loc, flux_model) which run the checks and stop if required!
+  # possible checks would be
+  # 1) matrix is square
+  # 2) locationdataframe has 4 columns with correct column names ...  
   
   # error handling for flux_model input
   if(!is(flux_model, "flux")){
@@ -67,14 +83,14 @@ movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
   # create the prediction model which is a movementmodel object
   predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
-  # assemble a locationdataframe original data.frame for predict.movementmodel to use 
-  locationdataframe_origin  <- data.frame(origin=locationdataframe$locations, pop_origin=locationdataframe$population, long_origin=locationdataframe$long,lat_origin=locationdataframe$lat)
+  # assemble a populationdata original data.frame for predict.movementmodel to use 
+  populationdata  <- data.frame(origin=locationdataframe$locations, pop_origin=locationdataframe$population, long_origin=locationdataframe$long,lat_origin=locationdataframe$lat)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, locationdataframe_origin, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, populationdata, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
     
   # populate the training results (so we can see the end result); this is also a movementmodel object
-  training_results <- predict.movementmodel(predictionModel, locationdataframe_origin, progress=FALSE)
+  training_results <- predict.movementmodel(predictionModel, populationdata, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   
   cat("Training complete.\n")
