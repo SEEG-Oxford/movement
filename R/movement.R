@@ -61,8 +61,6 @@ movement <- function(formula, flux_model = gravity(), ...) {
   movementmatrix  <- args$movementmatrix
   locationdataframe  <- args$locationdataframe
   
-  print(str(locationdataframe))
-  
   # error handling for flux_model input
   if(!is(flux_model, "flux")){
     stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
