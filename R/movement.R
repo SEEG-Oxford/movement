@@ -59,6 +59,10 @@ movement <- function(formula, flux_model = gravity(), ...) {
   movementmatrix  <- args$movementmatrix
   locationdataframe  <- args$locationdataframe
   
+  # error handling for flux_model input
+  if(!is(flux_model, "flux")){
+    stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
+  }
   
   ## TODO: add some checks here that the input is sane: 
   # perhaps have a separate function checkInput <- function(matrix, loc, flux_model) which run the checks and stop if required!
@@ -114,10 +118,12 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
       bad_args <- FALSE
     } else {
       bad_args <- TRUE
+      cat("objects are not of correct class")
     }
     
   } else {
     bad_args <- TRUE
+    cat("formula has NOT 3 length")
   }
   
   if (bad_args) {
@@ -2085,8 +2091,12 @@ as.movementmatrix <- function(dataframe) {
 }
 
 # helper method to check if a given matrix is of expected class
+#' @export
 is.movementmatrix <- function(x) {
-  inherits(x, 'movementmatrix')
+  res  <- inherits(x, 'movementmatrix')
+  print("is.movementmatrix")
+  print(res)
+  return(res)
 }
 
 
@@ -2143,8 +2153,12 @@ as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraste
 }
 
 # helper method to check if a given matrix is of expected class
+#' @export
 is.locationdataframe <- function(x) {
-  inherits(x, 'locationdataframe')
+  res  <- inherits(x, 'locationdataframe')
+  print("is.locationdataframe")
+  print(res)
+  return(res)
 }
 
 #' Standardise a text string to upper case ASCII with no spaces
