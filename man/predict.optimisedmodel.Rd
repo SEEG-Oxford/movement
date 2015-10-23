@@ -22,12 +22,8 @@ containing the predicted population movements.
 \code{optimisedmodel}:
 Use a trained \code{optimisedmodel} object to predict population movements
 given either a RasterLayer containing a single population layer, or a
-data.frame containing population and location data formatted as:
-#   location pop        lat        lon
-# 1        a 100 0.07826932 0.13612404
-# 2        b  88 0.12114115 0.58984725
-# 3        c 100 0.07126503 0.19544754
-# 4        d 113 0.97817937 0.22771625
-# 5        e 107 0.87233335 0.06695538
+data.frame containing population and location data with the columns
+\code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
+and \code{lat_origin}(numeric).
 }
 
