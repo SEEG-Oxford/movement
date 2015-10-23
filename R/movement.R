@@ -52,17 +52,13 @@
 #' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
 #' showprediction(predictedMovements)
-#movement <- function(locationdataframe, movement_matrix, flux_model, ...) {
 movement <- function(formula, flux_model = gravity(), ...) {
   
-  #extract terms from formula using 'get_all_vars()' method
-  #@Nick: problem with this approach is that it looks that i loose my column names of the given locationdataframe
-  # obviously I can reassign the column names using 'colnames(locationdataframe)  <- c(...)'
-  # but then I must assume that the given locationdataframe has the correct column order; otherwise the code could crash if
-  # a user is given a location data.frame in the order: "population", "lat", "long", "locations"
-  locationdataframe  <- get_all_vars(formula[-2])
-  colnames(locationdataframe)  <- c("locations", "population", "long", "lat") # reset the column names as required
-  movement_matrix  <- as.matrix(get_all_vars(formula[-3]))
+  # receive the movementmatrix and the locationdataframe from the formula
+  args  <- extractArgumentsFromFormula(formula)
+  movementmatrix  <- args$movementmatrix
+  locationdataframe  <- args$locationdataframe
+  
   
   ## TODO: add some checks here that the input is sane: 
   # perhaps have a separate function checkInput <- function(matrix, loc, flux_model) which run the checks and stop if required!
@@ -70,14 +66,9 @@ movement <- function(formula, flux_model = gravity(), ...) {
   # 1) matrix is square
   # 2) locationdataframe has 4 columns with correct column names ...  
   
-  # error handling for flux_model input
-  if(!is(flux_model, "flux")){
-    stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
-  }
-    
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
-  nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
+  nobs <- nrow(movementmatrix) * ncol(movementmatrix) - nrow(movementmatrix) # all values in the movementmatrix except the diagonal
   nulldf <- nobs # no predictors for null degrees of freedom
   
   # create the prediction model which is a movementmodel object
@@ -87,14 +78,14 @@ movement <- function(formula, flux_model = gravity(), ...) {
   populationdata  <- data.frame(origin=locationdataframe$locations, pop_origin=locationdataframe$population, long_origin=locationdataframe$long,lat_origin=locationdataframe$lat)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, populationdata, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, populationdata, movementmatrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
     
   # populate the training results (so we can see the end result); this is also a movementmodel object
   training_results <- predict.movementmodel(predictionModel, populationdata, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   
   cat("Training complete.\n")
-  dimnames(training_results$prediction) <- dimnames(movement_matrix)
+  dimnames(training_results$prediction) <- dimnames(movementmatrix)
   me <- list(optimisationresults = optimresults,
              trainingresults = training_results,
              coefficients = optimresults$par,
@@ -106,6 +97,37 @@ movement <- function(formula, flux_model = gravity(), ...) {
   class(me) <- "optimisedmodel"
   return (me)
 }
+
+# read in the formula and assign to objects, with checking that the given objects are of the expected classes
+#' @export
+extractArgumentsFromFormula <- function (formula, other = NULL) {
+  
+  if (length(formula) == 3) {
+    
+    # extracte the objects from the formula
+    movementmatrix <- get(as.character(formula[[2]]))
+    locationdataframe <- get(as.character(formula[[3]]))
+    
+    # run checks to ensure the extracted objects are of the required class
+    if (is.movementmatrix(movementmatrix) &
+          is.locationdataframe(locationdataframe)) {
+      bad_args <- FALSE
+    } else {
+      bad_args <- TRUE
+    }
+    
+  } else {
+    bad_args <- TRUE
+  }
+  
+  if (bad_args) {
+    stop ('Error: formula must have one response (a movementmatrix object) and one predictor (a locationdataframe object)')
+  }
+
+  args  <- list(movementmatrix = movementmatrix, locationdataframe = locationdataframe)
+  return (args)  
+}
+
 
 #' Predict from an optimisedmodel object
 #' 
@@ -2058,8 +2080,15 @@ as.movementmatrix <- function(dataframe) {
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
   
+  class(mat) <- c('matrix', 'movementmatrix')
   return (mat)
 }
+
+# helper method to check if a given matrix is of expected class
+is.movementmatrix <- function(x) {
+  inherits(x, 'movementmatrix')
+}
+
 
 #' @title Conversion to locationdataframe
 #' 
@@ -2089,11 +2118,12 @@ as.locationdataframe.data.frame <- function(input, ...) {
   lat <- as.numeric(input["lat_origin"]$lat_origin)
   long <- as.numeric(input["long_origin"]$long_origin)
   locations <- as.numeric(input["origin"]$origin)
-  
-  return (data.frame(location = locations,
+  ans  <- data.frame(location = locations,
                      pop = pop,
                      lat = lat,
-                     lon = long))
+                     lon = long)
+  class(ans)  <- c('locationdataframe', 'data.frame')
+  return (ans)
 }
 
 # use region data downloaded from http://www.gadm.org/country along with a world population raster
@@ -2108,7 +2138,13 @@ as.locationdataframe.data.frame <- function(input, ...) {
 as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraster, ...) {
   result <- data.frame(simplifytext(input$NAME_2),input$ID_2,raster::extract(populationraster,input, fun=sum),sp::coordinates(input))
   colnames(result) <- c("name", "location", "pop", "lon", "lat")
+  class(result)  <- c('locationdataframe', 'data.frame')
   return (result)
+}
+
+# helper method to check if a given matrix is of expected class
+is.locationdataframe <- function(x) {
+  inherits(x, 'locationdataframe')
 }
 
 #' Standardise a text string to upper case ASCII with no spaces

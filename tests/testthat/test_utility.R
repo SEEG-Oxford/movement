@@ -14,6 +14,12 @@ test_that("as.locationdataframe removes duplicate origins", {
 	expect_equal(nrow(as.locationdataframe(testdata)), 4)
 })
 
+test_that("as.locationdataframe creates correct class types", {
+  testdata <- data.frame(origin=c(1,1,2,3,4), pop_origin=c(10,10,20,30,40), lat_origin=c(-1,-1,0,1,2), long_origin=c(-5,-5,-4,-3,-2))
+  expect_is(as.locationdataframe(testdata), 'data.frame')
+  expect_is(as.locationdataframe(testdata), 'locationdataframe')
+})
+
 test_that("as.locationdataframe creates data.frame with 4 columns", {
 	testdata <- data.frame(origin=c(1,1,2,3,4), pop_origin=c(10,10,20,30,40), lat_origin=c(-1,-1,0,1,2), long_origin=c(-5,-5,-4,-3,-2))
 	expect_equal(ncol(as.locationdataframe(testdata)), 4)
@@ -52,6 +58,7 @@ test_that("as.movementmatrix returns a matrix of the correct dimensions", {
 test_that("as.movementmatrix returns the correct matrix", {
 	testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
 	expectedmatrix <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+	class(expectedmatrix)  <- c('matrix', 'movementmatrix')
 	expect_equal(as.movementmatrix(testdata), expectedmatrix)
 })
 
