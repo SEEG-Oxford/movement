@@ -23,12 +23,10 @@
 #' \code{gravity}
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
-#' and the optimisation results. This can then be used by 
-#' \code{\link{predict.movementmodel}} to generate predictions on new data.
+#' and the optimisation results. 
 #'
-#' @seealso \code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
-#' \code{\link{is.locationdataframe}}, \code{\link{as.movementmatrix}}, 
-#' \code{\link{is.movementmatrix}}
+#' @seealso \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
+#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}
 #' @note The most likely format of the location data will be as a single
 #' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
 #' \code{long}. This can be extracted from a larger dataframe with
@@ -39,21 +37,22 @@
 #' can be used.
 #' @export
 #' @examples
+#' # TODO: add new exmple using the movement() function
 #' # load kenya raster
 #' data(kenya)
 #' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' predictionModel <- movementmodel(dataset=kenya10,
-#'                                  min_network_pop = 50000,
-#'                                  flux_model = original.radiation(),
-#'                                  symmetric = TRUE)
+#' #predictionModel <- movementmodel(dataset=kenya10,
+#'  #                                min_network_pop = 50000,
+#'  #                                flux_model = original.radiation(),
+#'  #                                symmetric = TRUE)
 #' # predict the population movement from the model
-#' predictedMovements = predict(predictionModel)
+#' #predictedMovements = predict(predictionModel)
 #' # visualise the distance matrix
-#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
+#' #sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 #' # visualise the predicted movements overlaid onto the original raster
-#' showprediction(predictedMovements)
+#' #showprediction(predictedMovements)
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movementmatrix and the locationdataframe from the formula
@@ -1504,7 +1503,6 @@ movement.predict <- function(distance, population,
 #' between locations.
 #' @param \dots Extra parameters to pass to plot
 #'
-#' @seealso \code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 #' @export
 show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   # visualise the distance matrix
@@ -1549,23 +1547,6 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' @param object A configured prediction model
 #' @param \dots Extra parameters to pass to plot
 #'
-#' @examples
-#' # load kenya raster
-#' data(kenya)
-#' # aggregate to 10km to speed things up
-#' kenya10 <- raster::aggregate(kenya, 10, sum)
-#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' predictionModel <- movementmodel(dataset=kenya10,
-#'                                  min_network_pop = 50000,
-#'                                  flux_model = original.radiation(),
-#'                                  symmetric = TRUE)
-#' # predict the population movement from the model
-#' predictedMovements = predict(predictionModel)
-#' # visualise the distance matrix
-#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
-#' # visualise the predicted movements overlaid onto the original raster
-#' showprediction(predictedMovements)
-#'
 #' @seealso \code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 #' @export
 showprediction <- function(object, ...) {
@@ -1581,10 +1562,9 @@ showprediction.default <- function(object, ...) {
   return (object)
 }
 
-#' @rdname showprediction
-#' 
-#' @export
-#' @method showprediction movementmodel
+# @rdname showprediction
+# 
+# @method showprediction movementmodel
 showprediction.movementmodel <- function(object, ...) {
   network <- object$net
   move <- object$prediction
@@ -1721,49 +1701,27 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   
 }
 
-#' Create a movement model to predict movements across a landscape.
-#'
-#' This sets up a movement model object which can then be used to predict
-#' population movements. It requires a \code{raster} dataset and a number of
-#' optional parameters to set up the basic configuration of the prediction
-#' model.
-#' The model can be calculated either for both directions (by setting
-#' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
-#' the summed movement between the two (\code{symmetric = TRUE}, giving a
-#' symmetric matrix)).
-#'
-#' @param dataset A raster dataset of population data
-#' @param min_network_pop The minimum population of a site in order for it to be
-#' processed
-#' @param flux_model A flux object used to calculated
-#' predicted flux between locations. Currently supported prediction models are
-#' \code{gravity}, \code{original radiation}, \code{intervening opportunities},
-#' \code{radiation with selection} and \code{uniform selection}
-#' @param symmetric Whether to calculate symmetric or asymmetric (summed across
-#' both directions) movement
-#' @return A movement model object which can be used to run flux predictions.
-#'
-#' @examples
-#' # load kenya raster
-#' data(kenya)
-#' # aggregate to 10km to speed things up
-#' kenya10 <- raster::aggregate(kenya, 10, sum)
-#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' predictionModel <- movementmodel(dataset=kenya10,
-#'                                  min_network_pop = 50000,
-#'                                  flux_model = original.radiation(),
-#'                                  symmetric = TRUE)
-#' # predict the population movement from the model
-#' predictedMovements = predict(predictionModel)
-#' # visualise the distance matrix
-#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
-#' # visualise the predicted movements overlaid onto the original raster
-#' showprediction(predictedMovements)
-#'
-#' @seealso \code{\link{predict.movementmodel}}, \code{\link{showprediction}}, \code{\link{original.radiation}}
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, 
-#' \code{\link{gravity}}, \code{\link{gravity.with.distance}}
-#' @export
+# Create a movement model to predict movements across a landscape.
+#
+# This sets up a movement model object which can then be used to predict
+# population movements. It requires a \code{raster} dataset and a number of
+# optional parameters to set up the basic configuration of the prediction
+# model.
+# The model can be calculated either for both directions (by setting
+# \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
+# the summed movement between the two (\code{symmetric = TRUE}, giving a
+# symmetric matrix)).
+#
+# @param dataset A raster dataset of population data
+# @param min_network_pop The minimum population of a site in order for it to be
+# processed
+# @param flux_model A flux object used to calculated
+# predicted flux between locations. Currently supported prediction models are
+# \code{gravity}, \code{original radiation}, \code{intervening opportunities},
+# \code{radiation with selection} and \code{uniform selection}
+# @param symmetric Whether to calculate symmetric or asymmetric (summed across
+# both directions) movement
+# @return A movement model object which can be used to run flux predictions.
 movementmodel <- function(dataset, min_network_pop = 50000, flux_model = original.radiation(), symmetric = TRUE) {
   me <- list(
     dataset = dataset,
@@ -1775,41 +1733,22 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux_model = origina
   return (me)
 }
 
-
-#' Predictions from movementmodel objects
-#' 
-#' Given a movement model, use the configured distances and
-#' flux function to predict movement between all sites.
-#' Any extra arguments of the flux functions can specified using the
-#' \code{dots} argument.
-#' 
-#' @param object A configured prediction model of class \code{movementmodel}
-#' @param newdata An optional data.frame or RasterLayer containing population data
-#' @param \dots Extra arguments to pass to the flux function
-#' @return A \code{movementmodel} containing a (dense) matrix giving predicted
-#' movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
-#' containing the predicted population movements.
-#' 
-#' @name predict.movementmodel 
-#' @method predict movementmodel
-#' @export
-#' 
-#' @examples
-#' # load kenya raster
-#' data(kenya)
-#' # aggregate to 10km to speed things up
-#' kenya10 <- raster::aggregate(kenya, 10, sum)
-#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' predictionModel <- movementmodel(dataset=kenya10,
-#'                                  min_network_pop = 50000,
-#'                                  flux_model = original.radiation(),
-#'                                  symmetric = TRUE)
-#' # predict the population movement from the model
-#' predictedMovements = predict(predictionModel)
-#' # visualise the distance matrix
-#' sp::plot(raster::raster(predictedMovements$net$distance_matrix))
-#' # visualise the predicted movements overlaid onto the original raster
-#' showprediction(predictedMovements)
+# Predictions from movementmodel objects
+# 
+# Given a movement model, use the configured distances and
+# flux function to predict movement between all sites.
+# Any extra arguments of the flux functions can specified using the
+# \code{dots} argument.
+# 
+# @param object A configured prediction model of class \code{movementmodel}
+# @param newdata An optional data.frame or RasterLayer containing population data
+# @param \dots Extra arguments to pass to the flux function
+# @return A \code{movementmodel} containing a (dense) matrix giving predicted
+# movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
+# containing the predicted population movements.
+# 
+# @name predict.movementmodel 
+# @method predict movementmodel
 predict.movementmodel <- function(object, newdata = NULL, ...) {
   if(is.null(newdata)) {
     net <- get.network(object$dataset, min = object$min_network_pop)
