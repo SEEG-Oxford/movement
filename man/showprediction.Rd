@@ -3,14 +3,11 @@
 \name{showprediction}
 \alias{showprediction}
 \alias{showprediction.default}
-\alias{showprediction.movementmodel}
 \title{Plot movement predictions}
 \usage{
 showprediction(object, ...)
 
 \method{showprediction}{default}(object, ...)
-
-\method{showprediction}{movementmodel}(object, ...)
 }
 \arguments{
 \item{object}{A configured prediction model}
