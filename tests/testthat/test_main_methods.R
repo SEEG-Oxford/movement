@@ -5,7 +5,7 @@ context("Main Interface Methods")
 test_that("predict.optimisedmodel returns list of correct data when given a RasterLayer", {
 	predictionModel <- list(trainingresults=NULL)
 	dataframe <- raster::raster(nrows=108, ncols=21, xmn=0, xmx=10)
-	with_mock(`movement::predict.movementmodel` = function(x) {
+	with_mock(`movement:::predict.movementmodel` = function(x) {
               return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
             },
             expect_equal(predict.optimisedmodel(predictionModel,dataframe),list(df_locations=data.frame(location=1,pop=1,coordinates=1),movement_matrix=2))
@@ -17,7 +17,7 @@ test_that("predict.optimisedmodel returns list of correct data when given a data
   class(predictionModel) <- 'optimisedmodel'
   dataframe <- data.frame(c(1))    
   with_mock(# note: need to specify explicit the environment of the function which will be replaced by a mock implementation
-            `movement::predict.movementmodel` = function(x,...) {
+            `movement:::predict.movementmodel` = function(x,...) {
               return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
             },
             expected_list <- list(df_locations=data.frame(location=1,pop=1,coordinates=1), movement_matrix = 2),
@@ -64,7 +64,7 @@ test_that("movement sets correct parameters and bounds for original radiation mo
 	with_mock(attemptoptimisation = function(predictionModel, locationdataframe_origin, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=locationdataframe_origin, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},   
-		`movement::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {      
+		`movement:::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {      
 			return (list(prediction=NULL))
 		},		
 		analysepredictionusingdpois = function(x, y) return (1),
@@ -79,7 +79,7 @@ test_that("movement sets correct parameters and bounds for uniform selection mod
 	with_mock(attemptoptimisation = function(predictionModel, locationdataframe_origin, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=locationdataframe_origin, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
-		`movement::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
+		`movement:::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
@@ -94,7 +94,7 @@ test_that("movement sets correct parameters and bounds for radiation with select
 	with_mock(attemptoptimisation = function(predictionModel, locationdataframe_origin, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=locationdataframe_origin, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
-		`movement::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
+		`movement:::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
@@ -109,7 +109,7 @@ test_that("movement sets correct parameters and bounds for intervening opportuni
 	with_mock(attemptoptimisation = function(predictionModel, locationdataframe_origin, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=locationdataframe_origin, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
-		`movement::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
+		`movement:::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
@@ -124,7 +124,7 @@ test_that("movement sets correct parameters and bounds for gravity model", {
 	with_mock(attemptoptimisation = function(predictionModel, locationdataframe_origin, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=locationdataframe_origin, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
-		`movement::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
+		`movement:::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
@@ -139,7 +139,7 @@ test_that("movement sets correct parameters and bounds for gravity with distance
   with_mock(attemptoptimisation = function(predictionModel, locationdataframe_origin, movement_matrix, progress, hessian, ...) {
     return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=locationdataframe_origin, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
   },
-  `movement::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
+  `movement:::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
     return (list(modelparams=NULL,prediction=NULL))
   },
   analysepredictionusingdpois = function(x, y) return (1),
@@ -154,7 +154,7 @@ test_that("movement creates population_data correctly", {
 	with_mock(attemptoptimisation = function(predictionModel, locationdataframe_origin, movement_matrix, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=locationdataframe_origin, movement_matrix=movement_matrix, progress=progress, hessian=hessian)))
 		},
-		`movement::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
+		`movement:::predict.movementmodel` = function(predictionModel, locationdataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		analysepredictionusingdpois = function(x, y) return (1),
@@ -172,7 +172,7 @@ test_that("predict.flux throws an error if given the wrong locationdataframe par
 test_that("predict.flux returns list of correct data when given a RasterLayer", {
   flux <- original.radiation()
   raster <- raster::raster(nrows=108, ncols=21, xmn=0, xmx=10)
-  with_mock(`movement::predict.movementmodel` = function(x) {
+  with_mock(`movement:::predict.movementmodel` = function(x) {
     return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
   },
   expect_equal(predict(flux,raster),list(df_locations=data.frame(location=1,population=1,coordinates=1),movement_matrix=2))
@@ -183,7 +183,7 @@ test_that("predict.flux returns list of correct data when given a data.frame", {
   flux <- original.radiation()
   dataframe <- data.frame(c(1))    
   with_mock(
-    `movement::predict.movementmodel` = function(x,...) {
+    `movement:::predict.movementmodel` = function(x,...) {
       return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
     },
     expected_list <- list(df_locations=data.frame(location=1,population=1,coordinates=1), movement_matrix = 2),
