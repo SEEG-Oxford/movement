@@ -21,8 +21,7 @@ models are \code{original radiation}, \code{radiation with selection},
 }
 \value{
 An \code{optimisedmodel} object containing the training results,
-and the optimisation results. This can then be used by
-\code{\link{predict.movementmodel}} to generate predictions on new data.
+and the optimisation results.
 }
 \description{
 Uses the \code{\link{optim}} method to create an optimised model of
@@ -57,8 +56,7 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 #showprediction(predictedMovements)
 }
 \seealso{
-\code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
-\code{\link{is.locationdataframe}}, \code{\link{as.movementmatrix}},
-\code{\link{is.movementmatrix}}
+\code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
+\code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}
 }
 

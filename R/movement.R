@@ -23,12 +23,10 @@
 #' \code{gravity}
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
-#' and the optimisation results. This can then be used by 
-#' \code{\link{predict.movementmodel}} to generate predictions on new data.
+#' and the optimisation results. 
 #'
-#' @seealso \code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
-#' \code{\link{is.locationdataframe}}, \code{\link{as.movementmatrix}}, 
-#' \code{\link{is.movementmatrix}}
+#' @seealso \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
+#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}
 #' @note The most likely format of the location data will be as a single
 #' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
 #' \code{long}. This can be extracted from a larger dataframe with
@@ -1505,7 +1503,6 @@ movement.predict <- function(distance, population,
 #' between locations.
 #' @param \dots Extra parameters to pass to plot
 #'
-#' @seealso \code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 #' @export
 show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   # visualise the distance matrix
