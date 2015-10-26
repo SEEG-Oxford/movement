@@ -4,7 +4,7 @@
 \alias{summary.flux}
 \title{Print summary of a flux object}
 \usage{
-\method{summary}{flux}(object, ...)
+\method{summary}{flux}(object)
 }
 \arguments{
 \item{object}{a \code{flux} object}

@@ -164,7 +164,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
-predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
+predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE) {
   
   if(is(locationdataframe, "RasterLayer")) {
     # create the prediction model (= movementmodel object)
@@ -511,7 +511,7 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
 #' print(flux)
 #' @export
-print.flux  <- function(object, ...){
+print.flux  <- function(object){
   cat(paste('flux object for a ', object$name, 'model with parameters\n\n'))
   print.default(format(object$params),
                 print.gap = 2, quote = FALSE)
@@ -530,7 +530,7 @@ print.flux  <- function(object, ...){
 #' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
 #' summary(flux)
 #' @export
-summary.flux  <- function(object, ...){
+summary.flux  <- function(object){
   print(object)
 }
 
@@ -1870,7 +1870,7 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 #' 
 #' @description Convert objects to \code{locationdataframe} objects
 #' 
-#' @param input object to convert to a \code{locationdataframe} object.
+#' @param dataframe object to convert to a \code{locationdataframe} object.
 #' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
 #' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
 #' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
@@ -1907,6 +1907,7 @@ as.movementmatrix <- function(dataframe) {
 #' @description
 #' Helper function checking that the given object inherits from \code{movementmatrix} class. 
 #' 
+#' @param x The object to be checked.
 #' @return True if the given object is a \code{movementmatrix} object; false otherwise
 #' @export
 is.movementmatrix <- function(x) {
@@ -1971,6 +1972,8 @@ as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraste
 #'
 #' @description
 #' Helper function checking that the given object inherits from \code{locationdataframe} class. 
+#' 
+#' @param x The object to be checked.
 #' 
 #' @return True if the given object is a \code{locationdataframe} object; false otherwise
 #' @export

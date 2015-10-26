@@ -5,7 +5,7 @@
 \title{Predict from theoretical flux object}
 \usage{
 \method{predict}{flux}(object, locationdataframe, min_network_pop = 50000,
-  symmetric = FALSE, ...)
+  symmetric = FALSE)
 }
 \arguments{
 \item{object}{A theoretical model of type \code{flux} object}
