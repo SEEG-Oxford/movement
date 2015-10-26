@@ -156,13 +156,9 @@ predict.flux <- function(object, locationdataframe, min_network_pop = 50000, sym
 #' \code{optimisedmodel}:
 #' Use a trained \code{optimisedmodel} object to predict population movements
 #' given either a RasterLayer containing a single population layer, or a
-#' data.frame containing population and location data formatted as:
-#' #   location pop        lat        lon
-#' # 1        a 100 0.07826932 0.13612404
-#' # 2        b  88 0.12114115 0.58984725
-#' # 3        c 100 0.07126503 0.19544754
-#' # 4        d 113 0.97817937 0.22771625
-#' # 5        e 107 0.87233335 0.06695538
+#' data.frame containing population and location data with the columns 
+#' \code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
+#' and \code{lat_origin}(numeric).
 #' 
 #' @param object A configured prediction model of class \code{optimisedmodel}, ??
 #' @param newdata An optional data.frame or RasterLayer containing population data
@@ -2068,21 +2064,16 @@ createpopulationfromcsv <- function(filename) {
   return (data)
 }
 
-#' Convert a data.frame into a movement matrix
+#' @title Convert a data.frame into a movement matrix
 #'
-#' Takes a dataframe listing movements between different locations and converts
+#' @description  Takes a dataframe listing movements between different locations and converts
 #' it into a square matrix using the same location ids.
 #' The dataframe does not need to include the a->a transitions as these are
 #' automatically filled with zero if missing. This results in a zero diagonal
 #' through the matrix.
-#' @param dataframe A data.frame of the format
-#' #   origin destination movement
-#' # 1      a           b       10
-#' # 2      a           c        8
-#' # 3      a           d       10
-#' # 4      a           e       11
-#' # 5      a           f        8
-#' (truncated)
+#' @param dataframe A data.frame with the columns \code{origin} (character),
+#' \code{destination} (character) and \code{movement} (numeric). 
+#'
 #' @return A square matrix
 #' @export
 as.movementmatrix <- function(dataframe) {
