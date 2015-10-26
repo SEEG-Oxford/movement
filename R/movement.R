@@ -134,19 +134,73 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
   return (args)  
 }
 
+#' @title Predict from theoretical flux object
+#' 
+#' @description Use a \code{flux} object to predict population movements
+#' given either a RasterLayer containing a single population layer, or a
+#' data.frame containing population and location data with the columns
+#' \code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
+#' and \code{lat_origin} (numeric).
+#' 
+#' The model can be calculated either for both directions (by setting the optional parameter
+#' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
+#' the summed movement between the two (\code{symmetric = TRUE}, giving a
+#' symmetric matrix)).
+#'
+#' @param object A theoretical model of type \code{flux} object
+#' @param locationdataframe A data.frame or RasterLayer containing population data
+#' @param min_network_pop Optional parameter for the minimum population of a site 
+#' in order for it to be processed
+#' @param symmetric Optional parameter to define whether to calculate symmetric or 
+#' asymmetric (summed across both directions) movement
+#' 
+#' @return A list containing a location dataframe from the input with columns 
+#' \code{location}, \code{population} and \code{coordinates} and a matrix
+#' containing the predicted population movements.
+#' 
+#' @name predict.flux
+#' @method predict flux
+#' @examples
+#' # load kenya raster
+#' data(kenya)
+#' # aggregate to 10km to speed things up
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' # generate a flux object
+#' flux <- radiation.with.selection()
+#' # run the prediction for the theoretical model
+#' predictedMovement  <- predict(flux, kenya10)
+#' @export
+predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE) {
+  
+  if(is(locationdataframe, "RasterLayer")) {
+    # create the prediction model (= movementmodel object)
+    predictionModel <- movementmodel(dataset = locationdataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
+    prediction <- predict.movementmodel(predictionModel)
+    df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else if (is(locationdataframe, "data.frame")) {
+    # create the prediction model (= movementmodel object)
+    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
+    prediction <- predict.movementmodel(predictionModel, locationdataframe)
+    df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    return (list(
+      df_locations = df,
+      movement_matrix = prediction$prediction))
+  } else {
+    stop('Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame')
+  }
+}
 
 #' Predict from an optimisedmodel object
 #' 
 #' \code{optimisedmodel}:
 #' Use a trained \code{optimisedmodel} object to predict population movements
 #' given either a RasterLayer containing a single population layer, or a
-#' data.frame containing population and location data formatted as:
-#' #   location pop        lat        lon
-#' # 1        a 100 0.07826932 0.13612404
-#' # 2        b  88 0.12114115 0.58984725
-#' # 3        c 100 0.07126503 0.19544754
-#' # 4        d 113 0.97817937 0.22771625
-#' # 5        e 107 0.87233335 0.06695538
+#' data.frame containing population and location data with the columns 
+#' \code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
+#' and \code{lat_origin}(numeric).
 #' 
 #' @param object A configured prediction model of class \code{optimisedmodel}, ??
 #' @param newdata An optional data.frame or RasterLayer containing population data
@@ -2052,22 +2106,20 @@ createpopulationfromcsv <- function(filename) {
   return (data)
 }
 
-#' Convert a data.frame into a movement matrix
-#'
-#' Takes a dataframe listing movements between different locations and converts
-#' it into a square matrix using the same location ids.
-#' The dataframe does not need to include the a->a transitions as these are
-#' automatically filled with zero if missing. This results in a zero diagonal
-#' through the matrix.
-#' @param dataframe A data.frame of the format
-#' #   origin destination movement
-#' # 1      a           b       10
-#' # 2      a           c        8
-#' # 3      a           d       10
-#' # 4      a           e       11
-#' # 5      a           f        8
-#' (truncated)
-#' @return A square matrix
+#' @title Conversion to locationdataframe
+#' 
+#' @description Convert objects to \code{locationdataframe} objects
+#' 
+#' @param input object to convert to a \code{locationdataframe} object.
+#' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
+#' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
+#' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
+#' 
+#' @param \dots further arguments passed to or from other methods.
+#' 
+#' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
+#' \code{lat} (numeric) and \code{lon} (numeric).
+#' @name as.locationdataframe
 #' @export
 as.movementmatrix <- function(dataframe) {
   nrows <- length(unique(dataframe[1])[,])

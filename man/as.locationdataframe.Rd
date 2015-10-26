@@ -4,8 +4,11 @@
 \alias{as.locationdataframe}
 \alias{as.locationdataframe.SpatialPolygonsDataFrame}
 \alias{as.locationdataframe.data.frame}
+\alias{as.movementmatrix}
 \title{Conversion to locationdataframe}
 \usage{
+as.movementmatrix(dataframe)
+
 as.locationdataframe(input, ...)
 
 \method{as.locationdataframe}{data.frame}(input, ...)
@@ -23,12 +26,24 @@ Either a data.frame with columns \code{origin} (character), \code{destination} (
 each cell giving the associated population density.}
 
 \item{\dots}{further arguments passed to or from other methods.}
+
+\item{input}{object to convert to a \code{locationdataframe} object.
+Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
+\code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
+\code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object}
+
+\item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
+A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric),
+\code{lat} (numeric) and \code{lon} (numeric).
+
 A data.frame containing location data with columns \code{location} (character), \code{population} (numeric),
 \code{x} (numeric) and \code{y} (numeric).
 }
 \description{
+Convert objects to \code{locationdataframe} objects
+
 Convert objects to \code{locationdataframe} objects
 }
 
