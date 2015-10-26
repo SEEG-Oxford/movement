@@ -40,6 +40,8 @@ data <- data.frame(location = locations, population = population, x = coords[,1]
 class(data) <- c('locationdataframe', 'data.frame')
 mm <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
 class(mm) <- c('movementmatrix', 'matrix') 
+assign("mm", mm, envir = .GlobalEnv)
+assign("data", data, envir = .GlobalEnv)
 
 test_that("movement function throws an error if given the wrong flux type", {
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
