@@ -28,7 +28,7 @@ gravity.with.distance(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03,
 \item{gamma2}{Model parameter with default value and the limits gamma = [-Inf, Inf].}
 }
 \value{
-A flux model object with the \code{\link{gravityWithDistanceFlux}} function and a set of starting
+A flux model object with the \code{gravity with distance flux} function and a set of starting
 parameters.
 }
 \description{
@@ -55,8 +55,7 @@ Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the sprea
 312, 447-51
 }
 \seealso{
-\code{\link{movement}}, \code{\link{gravityWithDistanceFlux}}, \code{\link{original.radiation}},
-\code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
-\code{\link{gravity}}
+\code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}},
+\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
 }
 

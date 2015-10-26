@@ -301,15 +301,14 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 #' @param theta Model parameter \code{theta} with default value and the limits theta = [0, Inf].  
-#' @return A flux model object with the \code{\link{originalRadiationFlux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{original radiation flux} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
 #' migration patterns. \emph{Nature}, 484, 96-100.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{originalRadiationFlux}}, \code{\link{radiation.with.selection}},
-#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
-#' \code{\link{gravity.with.distance}}
+#' @seealso \code{\link{movement}}, \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, 
+#' \code{\link{intervening.opportunities}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}}
 #' @export
 original.radiation  <- function(theta=0.9){  
   params  <- c(theta = theta)
@@ -335,7 +334,7 @@ original.radiation  <- function(theta=0.9){
 #' using WorldPop. District level administrative boundaries were downloaded from GADM.
 #' @param theta Model parameter with default value and the limits theta = [0, Inf].
 #' @param lambda Model parameter with default value and the limits lambda = [0,1].
-#' @return A flux model object with the \code{\link{radiationWithSelectionFlux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{radiation with selection flux} function and a set of starting parameters.
 #' @references
 #' Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal model for mobility and 
 #' migration patterns. \emph{Nature}, 484, 96-100.
@@ -344,9 +343,8 @@ original.radiation  <- function(theta=0.9){
 #' On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. Biol.}, 10, e1003716.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{radiationWithSelectionFlux}}, \code{\link{original.radiation}},
-#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
-#' \code{\link{gravity.with.distance}} 
+#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{uniform.selection}}, 
+#' \code{\link{intervening.opportunities}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}} 
 #' @export
 radiation.with.selection  <- function(theta=0.1,lambda=0.2){  
   params = c(theta=theta,lambda=lambda)
@@ -365,14 +363,13 @@ radiation.with.selection  <- function(theta=0.1,lambda=0.2){
 #' where \eqn{P} is the population at the origin and \eqn{Q} at the destination, \eqn{R} denotes the total 
 #' population in a radius \eqn{\gamma} around population centres \eqn{P_i} and \eqn{Q_j}.
 #' @param theta Model parameter with default value and the limits theta = [0, Inf].
-#' @return A flux model object with the \code{\link{uniformSelectionFlux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{uniform selection flux} function and a set of starting parameters.
 #' @references
 #' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{uniformSelectionFlux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
-#' \code{\link{gravity.with.distance}}
+#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
+#' \code{\link{intervening.opportunities}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}}
 #' @export
 uniform.selection  <- function(theta=0.9){ 
   params = c(theta=theta)
@@ -403,7 +400,8 @@ uniform.selection  <- function(theta=0.9){
 #' 
 #' @param theta Model parameter with default value and the limits theta = [0, Inf].
 #' @param L Model parameter with default value and the limits L = [0, Inf].
-#' @return A flux model object with the \code{\link{interveningOpportunitiesFlux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{intervening opportunities flux} function and a set of starting 
+#' parameters.
 #' @references
 #' Simini, F., Gonzalez, M. C., Maritan, A. & Barabasi (2012), A.-L. A universal model for mobility and migration 
 #' patterns. \emph{Nature}, 484, 96-100.
@@ -411,9 +409,8 @@ uniform.selection  <- function(theta=0.9){
 #' Sociol. Rev.} 5, 845-867.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{interveningOpportunitiesFlux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{gravity}}, 
-#' \code{\link{gravity.with.distance}} 
+#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
+#' \code{\link{uniform.selection}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}} 
 #' @export
 intervening.opportunities  <- function(theta=0.001, L=0.00001){    
   params = c(theta=theta, L=L)
@@ -438,7 +435,7 @@ intervening.opportunities  <- function(theta=0.001, L=0.00001){
 #' @param alpha Model parameter with default value and the limits alpha = [-Inf, Inf].
 #' @param beta Model parameter with default value and the limits alpha = [-Inf, Inf].
 #' @param gamma Model parameter with default value and the limits gamma = [-Inf, Inf].
-#' @return A flux model object with the \code{\link{gravityFlux}} function and a set of starting parameters.
+#' @return A flux model object with the \code{gravity flux} function and a set of starting parameters.
 #' @references
 #' Zipf, G.K. (1946). The P1 P2 / D hypothesis: on the intercity movement of persons. \emph{Am. Sociol. Rev.}, 
 #' 11, 677-686.
@@ -446,9 +443,8 @@ intervening.opportunities  <- function(theta=0.001, L=0.00001){
 #' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484-9. 
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{gravityFlux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
-#' \code{\link{gravity.with.distance}}
+#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity.with.distance}}
 #' @export
 gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){  
   params = c(theta=theta, alpha=alpha, beta=beta, gamma=gamma)
@@ -483,16 +479,15 @@ gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){
 #' @param alpha2 Model parameter with default value and the limits alpha = [-Inf, Inf].
 #' @param beta2 Model parameter with default value and the limits beta = [-Inf, Inf].
 #' @param gamma2 Model parameter with default value and the limits gamma = [-Inf, Inf].
-#' @return A flux model object with the \code{\link{gravityWithDistanceFlux}} function and a set of starting 
+#' @return A flux model object with the \code{gravity with distance flux} function and a set of starting 
 #' parameters.
 #' @references
 #' Viboud, C. et al. (2006). Synchrony, waves, and spatial hierarchies in the spread of influenza. \emph{Science}, 
 #' 312, 447-51
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{gravityWithDistanceFlux}}, \code{\link{original.radiation}},
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
-#' \code{\link{gravity}}
+#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
 #' @export
 gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
   params = c(theta1=theta1, alpha1=alpha1, beta1=beta1, gamma1=gamma1, delta=delta, theta2=theta2, alpha2=alpha2, beta2=beta2, gamma2=gamma2)
@@ -1324,63 +1319,59 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
-#' Use a movement model to predict movements across a landscape.
-#'
-#' Given a (dense) distance matrix \code{distance} giving the euclidean
-#' distances between all pairs of sites, a vector of population sizes at these
-#' sites \code{population}, use a flux function \code{flux} to predict movement
-#' between all sites.
-#' The model can be calculated either for both directions (by setting
-#' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
-#' the summed movement between the two (\code{symmetric = TRUE}, giving a
-#' symmetric matrix)). Progress and start and end times can be displayed by
-#' setting \code{progress = TRUE} and arguments of the flux functions can
-#' specified using the \code{dots} argument.
-#'
-#' @param distance A distance matrix giving the euclidean distance between
-#' pairs of sites
-#' @param population A vector giving the population at all sites
-#' @param flux A flux function (currently either \code{original radiation flux},
-#' \code{radiation with selection flux}, \code{uniform selection flux},
-#' \code{intervening opportunities flux}, \code{gravity flux}
-#' or \code{gravity with distance flux}) used to predict movements
-#' @param symmetric Whether to calculate symmetric or asymmetric (summed
-#' across both directions) movement
-#' @param progress Whether to display a progress bar and start and end times
-#' - can be useful for big model runs
-#' @param \dots Arguments to pass to the flux function
-#' @return A (dense) matrix giving predicted movements between all sites
-#'
-#' @examples
-#' # generate random coordinates and populations
-#' n <- 30
-#' coords <- matrix(runif(n * 2), ncol = 2)
-#' pop <- round(runif(n) * 1000)
-#' # calculate the distance between pairs of sites
-#' d <- as.matrix(dist(coords))
-#' # predict total movement between them using the radiation model
-#' move <- movement.predict(d, pop, flux = originalRadiationFlux, symmetric = TRUE,
-#'     theta = 0.1)
-#' # plot the points
-#' plot(coords, pch = 16, cex = pop / 500,
-#'      col = 'grey40', axes = FALSE,
-#'      xlab = '', ylab = '')
-#' # and add arrows showing movement
-#' for(i in 2:n) {
-#'   for(j in  (i - 1):n) {
-#'     arrows(coords[i, 1],
-#'            coords[i, 2],
-#'            coords[j, 1],
-#'            coords[j, 2],
-#'            lwd = 2,
-#'            length = 0,
-#'            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
-#'   }
-#' }
-#' @seealso \code{\link{originalRadiationFlux}}, \code{\link{radiationWithSelectionFlux}}, 
-#' \code{\link{uniformSelectionFlux}}, \code{\link{interveningOpportunitiesFlux}}, 
-#' \code{\link{gravityFlux}} and \code{\link{gravityWithDistanceFlux}}
-#' @export
+# Use a movement model to predict movements across a landscape.
+#
+# Given a (dense) distance matrix \code{distance} giving the euclidean
+# distances between all pairs of sites, a vector of population sizes at these
+# sites \code{population}, use a flux function \code{flux} to predict movement
+# between all sites.
+# The model can be calculated either for both directions (by setting
+# \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
+# the summed movement between the two (\code{symmetric = TRUE}, giving a
+# symmetric matrix)). Progress and start and end times can be displayed by
+# setting \code{progress = TRUE} and arguments of the flux functions can
+# specified using the \code{dots} argument.
+#
+# @param distance A distance matrix giving the euclidean distance between
+# pairs of sites
+# @param population A vector giving the population at all sites
+# @param flux A flux function (currently either \code{original radiation flux},
+# \code{radiation with selection flux}, \code{uniform selection flux},
+# \code{intervening opportunities flux}, \code{gravity flux}
+# or \code{gravity with distance flux}) used to predict movements
+# @param symmetric Whether to calculate symmetric or asymmetric (summed
+# across both directions) movement
+# @param progress Whether to display a progress bar and start and end times
+# - can be useful for big model runs
+# @param \dots Arguments to pass to the flux function
+# @return A (dense) matrix giving predicted movements between all sites
+#
+# @examples
+# # generate random coordinates and populations
+# n <- 30
+# coords <- matrix(runif(n * 2), ncol = 2)
+# pop <- round(runif(n) * 1000)
+# # calculate the distance between pairs of sites
+# d <- as.matrix(dist(coords))
+# # predict total movement between them using the radiation model
+# move <- movement.predict(d, pop, flux = originalRadiationFlux, symmetric = TRUE,
+#     theta = 0.1)
+# # plot the points
+# plot(coords, pch = 16, cex = pop / 500,
+#      col = 'grey40', axes = FALSE,
+#      xlab = '', ylab = '')
+# # and add arrows showing movement
+# for(i in 2:n) {
+#   for(j in  (i - 1):n) {
+#     arrows(coords[i, 1],
+#            coords[i, 2],
+#            coords[j, 1],
+#            coords[j, 2],
+#            lwd = 2,
+#            length = 0,
+#            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
+#   }
+# }
 movement.predict <- function(distance, population,
                              flux = originalRadiationFlux,
                              symmetric = FALSE,
@@ -1588,8 +1579,7 @@ showprediction.movementmodel <- function(object, ...) {
 #'      cex = size,
 #'      col = rgb(0, 0, 1, 0.6))
 #'
-#' @seealso \code{\link{raster}}, \code{\link{dist}},
-#' \code{\link{movement.predict}}
+#' @seealso \code{\link{raster}}, \code{\link{dist}}
 #' @export
 get.network <- function(raster, min = 1, matrix = TRUE) {
   # extract necessary components for movement modelling
@@ -1647,8 +1637,7 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 #'  \item{coordinate }{A two-column matrix giving the coordinates of the cells
 #' of interest in the units of \code{raster}}
 #'
-#' @seealso \code{\link{raster}}, \code{\link{dist}},
-#' \code{\link{movement.predict}}
+#' @seealso \code{\link{raster}}, \code{\link{dist}}
 #' @export
 get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   dataframe <- dataframe[!duplicated(dataframe$origin),]
@@ -1728,7 +1717,7 @@ predict.movementmodel <- function(object, newdata = NULL, ...) {
   }
   object$net = net
   
-  object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
+  object$prediction = ict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
                                                 symmetric = object$symmetric, theta = object$flux_model$params, ...)    
    
   return (object)
@@ -1764,7 +1753,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # @param predictionModel The prediction model of movementmodel object type being optimised 
 # @param observedmatrix A matrix containing the observed population movements
 # @param populationdata A dataframe containing population coordinate data
-# @param \dots Parameters passed to \code{\link{movement.predict}}
+# @param \dots Parameters passed to \code{\link{ict}}
 # @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
   predictionModel$flux_model$params = par
@@ -1787,7 +1776,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # and column numbers correspond to the indexes of a sorted list of the origins
 # and destinations used in populationdata. Values are the actual population
 # movements.
-# @param \dots Parameters passed to \code{\link{movement.predict}}
+# @param \dots Parameters passed to \code{movement.predict}
 # @return See \code{\link{optim}}
 #
 # @seealso \code{\link{createobservedmatrixfromcsv}},

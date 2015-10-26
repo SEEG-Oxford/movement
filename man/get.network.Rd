@@ -53,7 +53,6 @@ points(net$coordinates, pch = 16,
      col = rgb(0, 0, 1, 0.6))
 }
 \seealso{
-\code{\link{raster}}, \code{\link{dist}},
-\code{\link{movement.predict}}
+\code{\link{raster}}, \code{\link{dist}}
 }
 
