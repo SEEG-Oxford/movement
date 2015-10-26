@@ -13,9 +13,9 @@ The \code{locationdataframe} object contains location data and the \code{movemen
 object contains the observed population movements.}
 
 \item{flux_model}{The name of the movement model to use. Currently supported
-models are \code{original radiation}, \code{radiation with selection},
-\code{uniform selection}, \code{intervening opportunities},
-\code{gravity}}
+models are \code{\link{original.radiation}}, \code{\link{radiation.with.selection}},
+\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
+\code{\link{gravity}} and \code{\link{gravity.with.distance}}}
 
 \item{\dots}{Extra parameters to be passed to the prediction code.}
 }

@@ -18,15 +18,17 @@
 #' The \code{locationdataframe} object contains location data and the \code{movementmatrix}
 #' object contains the observed population movements. 
 #' @param flux_model The name of the movement model to use. Currently supported
-#' models are \code{original radiation}, \code{radiation with selection},
-#' \code{uniform selection}, \code{intervening opportunities},
-#' \code{gravity}
+#' models are \code{\link{original.radiation}}, \code{\link{radiation.with.selection}},
+#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
+#' \code{\link{gravity}} and \code{\link{gravity.with.distance}}
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. 
 #'
 #' @seealso \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
-#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}
+#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{original.radiation}}, 
+#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, 
+#' \code{\link{intervening.opportunities}}, \code{\link{gravity}} and \code{\link{gravity.with.distance}}
 #' @note The most likely format of the location data will be as a single
 #' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
 #' \code{long}. This can be extracted from a larger dataframe with
@@ -1779,8 +1781,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # @param \dots Parameters passed to \code{movement.predict}
 # @return See \code{\link{optim}}
 #
-# @seealso \code{\link{createobservedmatrixfromcsv}},
-# \code{\link{createpopulationfromcsv}},
+# @seealso \code{\link{createobservedmatrixfromcsv}}
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 
   
@@ -1862,19 +1863,6 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
   sparseMatrix[is.na(sparseMatrix)] <- 0
   
   return (sparseMatrix)
-}
-
-#' Create a data frame of populations at particular coordinates
-#'
-#' Reads a correctly formatted csv file and creates a dataframe
-#'
-#' @param filename File path of the csv file to process
-#' @return A dataframe containing csv data.
-#' @export
-createpopulationfromcsv <- function(filename) {
-  data <- read.csv(file=filename,header=TRUE,sep=",")
-  
-  return (data)
 }
 
 #' @title Conversion to locationdataframe
