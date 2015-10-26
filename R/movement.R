@@ -1764,17 +1764,14 @@ predict.movementmodel <- function(object, newdata = NULL, ...) {
   return (object)
 }
 
-#' Calculate the log likelihood of the prediction given the observed data.
-#'
-#' Processes an observed and predicted matrix, strips out the diagonals (which
-#' should be zero) and calculates the log likelihood.
-#'
-#' @param prediction A square matrix containing the predicted movements between location IDs
-#' @param observed A square matrix containing the observed movements between location IDs
-#' @return The log likelihood
-#'
-#' @seealso \code{\link{movementmodel}}, \code{\link{attemptoptimisation}}
-#' @export
+# Calculate the log likelihood of the prediction given the observed data.
+#
+# Processes an observed and predicted matrix, strips out the diagonals (which
+# should be zero) and calculates the log likelihood.
+#
+# @param prediction A square matrix containing the predicted movements between location IDs
+# @param observed A square matrix containing the observed movements between location IDs
+# @return The log likelihood
 analysepredictionusingdpois <- function(prediction, observed) {	
   observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
   predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
@@ -1788,18 +1785,17 @@ analysepredictionusingdpois <- function(prediction, observed) {
   return (retval)
 }
 
-#' Internal helper function for optimisation
-#'
-#' Calls the model prediction code and then calculates a log likelihood metric
-#' used as the \code{\link{optim}} minimisation value
-#'
-#' @param par theta values for the flux function
-#' @param predictionModel The prediction model of movementmodel object type being optimised 
-#' @param observedmatrix A matrix containing the observed population movements
-#' @param populationdata A dataframe containing population coordinate data
-#' @param \dots Parameters passed to \code{\link{movement.predict}}
-#' @return The log likelihood of the prediction given the observed data.
-#' @export
+# Internal helper function for optimisation
+#
+# Calls the model prediction code and then calculates a log likelihood metric
+# used as the \code{\link{optim}} minimisation value
+#
+# @param par theta values for the flux function
+# @param predictionModel The prediction model of movementmodel object type being optimised 
+# @param observedmatrix A matrix containing the observed population movements
+# @param populationdata A dataframe containing population coordinate data
+# @param \dots Parameters passed to \code{\link{movement.predict}}
+# @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
   predictionModel$flux_model$params = par
   predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
@@ -1807,47 +1803,25 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
   return (loglikelihood)
 }
 
-#' Attempt to optimise the parameters of a given movement model based on log
-#' likelihoods against observed data.
-#'
-#' Runs the optim function using the BFGS optimisation method to try and
-#' optimise the parameters of the given prediction model.
-#'
-#' @param predictionModel A configured prediction model
-#' @param populationdata A dataframe containing population data linked to the
-#' IDs in the predictionModel raster. Requires 4 columns named \code{origin},
-#' \code{pop_origin}, \code{long_origin}, \code{lat_origin}
-#' @param observedmatrix A matrix containing observed population movements. Row
-#' and column numbers correspond to the indexes of a sorted list of the origins
-#' and destinations used in populationdata. Values are the actual population
-#' movements.
-#' @param \dots Parameters passed to \code{\link{movement.predict}}
-#' @return See \code{\link{optim}}
-#'
-#' @examples
-#' ## convert france shapefile into raster, keeping layer ID_3
-#' #france <- rasterizeShapeFile('france.shp', c('ID_3'))
-#' ## create the prediction model for the dataset using the radiation with
-#' ## selection model
-#' #predictionModel <- movementmodel(dataset=kenya10,
-#' #                                min_network_pop = 50000,
-#' #                                flux_model = original.radiation(),
-#' #                                symmetric = TRUE)
-#' #predictionmodel= 'radiation with selection', symmetric = TRUE, modelparams
-#' #= c(0.999, 0.998))
-#' ## load the observed movement data into a matrix
-#' #observedmatrix <- createobservedmatrixfromcsv("movementmatrix.csv",
-#' #"origin", "destination", "movement")
-#' ## load the population data into a dataframe
-#' #populationdata <- createpopulationfromcsv("movementmatrix.csv")
-#' ## attempt to optimise the model
-#' #attemptoptimisation(predictionModel, populationdata, observedmatrix)
-#'
-#' @seealso \code{\link{movementmodel}},
-#' \code{\link{createobservedmatrixfromcsv}},
-#' \code{\link{createpopulationfromcsv}},
-#' \code{\link{analysepredictionusingdpois}}
-#' @export
+# Attempt to optimise the parameters of a given movement model based on log
+# likelihoods against observed data.
+#
+# Runs the optim function using the BFGS optimisation method to try and
+# optimise the parameters of the given prediction model.
+#
+# @param predictionModel A configured prediction model
+# @param populationdata A dataframe containing population data linked to the
+# IDs in the predictionModel raster. Requires 4 columns named \code{origin},
+# \code{pop_origin}, \code{long_origin}, \code{lat_origin}
+# @param observedmatrix A matrix containing observed population movements. Row
+# and column numbers correspond to the indexes of a sorted list of the origins
+# and destinations used in populationdata. Values are the actual population
+# movements.
+# @param \dots Parameters passed to \code{\link{movement.predict}}
+# @return See \code{\link{optim}}
+#
+# @seealso \code{\link{createobservedmatrixfromcsv}},
+# \code{\link{createpopulationfromcsv}},
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 
   
