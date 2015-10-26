@@ -13,10 +13,10 @@ pairs of sites}
 
 \item{population}{A vector giving the population at all sites}
 
-\item{flux}{A flux function (currently either \code{\link{originalRadiationFlux}},
-\code{\link{radiationWithSelectionFlux}}, \code{\link{uniformSelectionFlux}},
-\code{\link{interveningOpportunitiesFlux}}, \code{\link{gravityFlux}}
-or \code{\link{gravityWithDistanceFlux}}) used to predict movements}
+\item{flux}{A flux function (currently either \code{original radiation flux},
+\code{radiation with selection flux}, \code{uniform selection flux},
+\code{intervening opportunities flux}, \code{gravity flux}
+or \code{gravity with distance flux}) used to predict movements}
 
 \item{symmetric}{Whether to calculate symmetric or asymmetric (summed
 across both directions) movement}
