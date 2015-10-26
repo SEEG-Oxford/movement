@@ -147,7 +147,8 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' in order for it to be processed
 #' @param symmetric Optional parameter to define whether to calculate symmetric or 
 #' asymmetric (summed across both directions) movement
-#' 
+#' @param \dots further arguments to be passed to or from other methods. 
+#' They are ignored in this function. 
 #' @return A list containing a location dataframe from the input with columns 
 #' \code{location}, \code{population} and \code{coordinates} and a matrix
 #' containing the predicted population movements.
@@ -164,7 +165,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
-predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE) {
+predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
   
   if(is(locationdataframe, "RasterLayer")) {
     # create the prediction model (= movementmodel object)
@@ -186,7 +187,6 @@ predict.flux <- function(object, locationdataframe, min_network_pop = 50000, sym
     stop('Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame')
   }
 }
-
 
 #' Predict from an optimisedmodel object
 #' 
@@ -503,7 +503,9 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 
 #' @title Print details of a flux object 
 #' @description Print details of a given flux object
-#' @param object a \code{flux} object 
+#' @param x a \code{flux} object
+#' @param \dots further arguments to be passed to or from other methods. 
+#' They are ignored in this function. 
 #' @name print.flux
 #' @method print flux
 #' 
@@ -511,18 +513,20 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
 #' print(flux)
 #' @export
-print.flux  <- function(object){
-  cat(paste('flux object for a ', object$name, 'model with parameters\n\n'))
-  print.default(format(object$params),
+print.flux  <- function(x, ...){
+  cat(paste('flux object for a ', x$name, 'model with parameters\n\n'))
+  print.default(format(x$params),
                 print.gap = 2, quote = FALSE)
   cat('\n')
   cat('See ?')
-  cat(paste(object$name, 'for the model formulation and explanation of parameters\n'))
+  cat(paste(x$name, 'for the model formulation and explanation of parameters\n'))
 }
 
 #' @title Print summary of a flux object 
 #' @description Print summary of a given flux object
 #' @param object a \code{flux} object
+#' @param \dots further arguments to be passed to or from other methods. 
+#' They are ignored in this function. 
 #' @name summary.flux
 #' @method summary flux
 #'
@@ -530,7 +534,7 @@ print.flux  <- function(object){
 #' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
 #' summary(flux)
 #' @export
-summary.flux  <- function(object){
+summary.flux  <- function(object, ...){
   print(object)
 }
 
@@ -1511,7 +1515,6 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' @param object A configured prediction model
 #' @param \dots Extra parameters to pass to plot
 #'
-#' @seealso \code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 #' @export
 showprediction <- function(object, ...) {
   UseMethod("showprediction", object)
@@ -1611,8 +1614,7 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
   return (list(population = pop,
                distance_matrix = dis,
                coordinates = coords,
-               locations = keep))
-  
+               locations = keep))  
 }
 
 #' Extract the necessary components for movement modelling form a population
@@ -1659,8 +1661,7 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   return (list(population = pop,
                distance_matrix = dis,
                coordinates = coords,
-               locations = locations))
-  
+               locations = locations))  
 }
 
 # Create a movement model to predict movements across a landscape.

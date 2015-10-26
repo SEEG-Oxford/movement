@@ -5,7 +5,7 @@
 \title{Predict from theoretical flux object}
 \usage{
 \method{predict}{flux}(object, locationdataframe, min_network_pop = 50000,
-  symmetric = FALSE)
+  symmetric = FALSE, ...)
 }
 \arguments{
 \item{object}{A theoretical model of type \code{flux} object}
@@ -17,6 +17,9 @@ in order for it to be processed}
 
 \item{symmetric}{Optional parameter to define whether to calculate symmetric or
 asymmetric (summed across both directions) movement}
+
+\item{\dots}{further arguments to be passed to or from other methods.
+They are ignored in this function.}
 }
 \value{
 A list containing a location dataframe from the input with columns

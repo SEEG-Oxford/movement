@@ -17,7 +17,7 @@ Nick Golding, Andrew Schofield, Moritz Kraemer and Alex T. Perkins
 Maintainer: Nick Golding <nick.golding.research at gmail.com>
 }
 \seealso{
-\code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.optimisedModel}}
+\code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.optimisedmodel}}
 \code{\link{showprediction}}, \code{\link{get.network}}, \code{\link{kenya}},
 }
 

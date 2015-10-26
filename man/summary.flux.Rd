@@ -4,10 +4,13 @@
 \alias{summary.flux}
 \title{Print summary of a flux object}
 \usage{
-\method{summary}{flux}(object)
+\method{summary}{flux}(object, ...)
 }
 \arguments{
 \item{object}{a \code{flux} object}
+
+\item{\dots}{further arguments to be passed to or from other methods.
+They are ignored in this function.}
 }
 \description{
 Print summary of a given flux object
