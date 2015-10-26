@@ -1,6 +1,7 @@
 library(movement)
-context("Internal prediction and optimisation methods")
 
+
+context("Internal prediction and optimisation methods")
 	
 test_that("get.network.fromdataframe returns population list", {
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
@@ -85,7 +86,8 @@ test_that("analysepredictionusingdpois using simplest possible matrices returns 
 
 test_that("predict.movementmodel uses the correct version of get.network", {
 	predictionModel = list(flux_model = gravity(), symmetric = FALSE)
-	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network"),
+	with_mock(
+    get.network = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network"),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network.fromdataframe"),
 		movement.predict = function(distance, population, flux, symmetric, theta, ...) NULL,
 		expect_equal(predict.movementmodel(predictionModel)$net$name, "get.network"),
@@ -107,14 +109,14 @@ test_that("predict.movementmodel calls movement.predict with the correct flux me
 })
 
 test_that("fittingwrapper calls predictedresults with correct parameters", {
-	with_mock(`movement::predict.movementmodel` = function(x, y, ...) { return (paste(x,y,..., sep=",", collapse=","))},
+	with_mock(`movement:::predict.movementmodel` = function(x, y, ...) { return (paste(x,y,..., sep=",", collapse=","))},
             analysepredictionusingdpois = function(x, y) return (x),
             expect_equal(fittingwrapper(c(1,1), list(params = c(1,1)), c(1,2), c(3,4)), "c(1, 1),3,list(params = c(1, 1)),4")
 	)
 })
 
 test_that("fittingwrapper calls analysepredictionusingdpois with correct parameters", {
-	with_mock(`movement::predict.movementmodel` = function(x, y, ...) return ("predictedResults"),
+	with_mock(`movement:::predict.movementmodel` = function(x, y, ...) return ("predictedResults"),
             analysepredictionusingdpois = function(x, y) return (paste(x,y,sep=",",collapse=",")),
             expect_equal(fittingwrapper(c(1,1), list(params = c(1,1)), c(1,2), c(3,4)), "predictedResults,1,predictedResults,2")
 	)
