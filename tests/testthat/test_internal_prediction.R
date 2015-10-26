@@ -89,7 +89,7 @@ test_that("predict.movementmodel uses the correct version of get.network", {
 	with_mock(
     get.network = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network"),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network.fromdataframe"),
-		movement.predict = function(distance, population, flux, symmetric, theta, ...) NULL,
+		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) NULL,
 		expect_equal(predict.movementmodel(predictionModel)$net$name, "get.network"),
 		expect_equal(predict.movementmodel(predictionModel, data.frame(c(1,1)))$net$name, "get.network.fromdataframe")
 	)
@@ -100,9 +100,9 @@ test_that("predict.movementmodel calls movement.predict with the correct flux me
 	radiationPredictionModel = list(flux_model = radiation.with.selection(), symmetric = FALSE)
 	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL),
-		gravityFlux = function() return ("gravity"),
-		radiationWithSelectionFlux = function() return("radiation with selection"),
-		movement.predict = function(distance, population, flux, symmetric, theta, ...) return (flux()),
+		`movement:::gravityFlux` = function() return ("gravity"),
+		`movement:::radiationWithSelectionFlux` = function() return("radiation with selection"),
+		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) return (flux()),
 		expect_equal(predict.movementmodel(gravityPredictionModel)$prediction, "gravity"),
 		expect_equal(predict.movementmodel(radiationPredictionModel)$prediction, "radiation with selection")
 	)
