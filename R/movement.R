@@ -108,12 +108,6 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
     locationdataframe <- get(as.character(formula[[3]]))
     
     # run checks to ensure the extracted objects are of the required class
-    if(!is.movementmatrix(movementmatrix)){
-      cat("movementmatrix is not of expected class!")
-    }
-    if(!is.locationdataframe(locationdataframe)){
-      cat("locationdataframe is not of expected class!")
-    }
     if (is.movementmatrix(movementmatrix) &
           is.locationdataframe(locationdataframe)) {
       bad_args <- FALSE
