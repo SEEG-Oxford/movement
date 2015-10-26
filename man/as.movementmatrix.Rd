@@ -2,22 +2,23 @@
 % Please edit documentation in R/movement.R
 \name{as.movementmatrix}
 \alias{as.movementmatrix}
-\title{Convert a data.frame into a movement matrix}
+\title{Conversion to locationdataframe}
 \usage{
 as.movementmatrix(dataframe)
 }
 \arguments{
-\item{dataframe}{A data.frame with the columns \code{origin} (character),
-\code{destination} (character) and \code{movement} (numeric).}
+\item{input}{object to convert to a \code{locationdataframe} object.
+Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
+\code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
+\code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object}
+
+\item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-A square matrix
+A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric),
+\code{lat} (numeric) and \code{lon} (numeric).
 }
 \description{
-Takes a dataframe listing movements between different locations and converts
-it into a square matrix using the same location ids.
-The dataframe does not need to include the a->a transitions as these are
-automatically filled with zero if missing. This results in a zero diagonal
-through the matrix.
+Convert objects to \code{locationdataframe} objects
 }
 
