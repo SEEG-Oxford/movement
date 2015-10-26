@@ -19,23 +19,6 @@ Given a movement model, plot the underlying
 raster, the configured location points and the predicted movements
 between locations.
 }
-\examples{
-# load kenya raster
-data(kenya)
-# aggregate to 10km to speed things up
-kenya10 <- raster::aggregate(kenya, 10, sum)
-# create the prediction model for the aggregate dataset using the fixed parameter radiation model
-predictionModel <- movementmodel(dataset=kenya10,
-                                 min_network_pop = 50000,
-                                 flux_model = original.radiation(),
-                                 symmetric = TRUE)
-# predict the population movement from the model
-predictedMovements = predict(predictionModel)
-# visualise the distance matrix
-sp::plot(raster::raster(predictedMovements$net$distance_matrix))
-# visualise the predicted movements overlaid onto the original raster
-showprediction(predictedMovements)
-}
 \seealso{
 \code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
 }

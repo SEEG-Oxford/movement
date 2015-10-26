@@ -39,21 +39,22 @@ the helper functions \code{\link{is.locationdataframe}} and \code{\link{is.movem
 can be used.
 }
 \examples{
+# TODO: add new exmple using the movement() function
 # load kenya raster
 data(kenya)
 # aggregate to 10km to speed things up
 kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-predictionModel <- movementmodel(dataset=kenya10,
-                                 min_network_pop = 50000,
-                                 flux_model = original.radiation(),
-                                 symmetric = TRUE)
+#predictionModel <- movementmodel(dataset=kenya10,
+ #                                min_network_pop = 50000,
+ #                                flux_model = original.radiation(),
+ #                                symmetric = TRUE)
 # predict the population movement from the model
-predictedMovements = predict(predictionModel)
+#predictedMovements = predict(predictionModel)
 # visualise the distance matrix
-sp::plot(raster::raster(predictedMovements$net$distance_matrix))
+#sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 # visualise the predicted movements overlaid onto the original raster
-showprediction(predictedMovements)
+#showprediction(predictedMovements)
 }
 \seealso{
 \code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
