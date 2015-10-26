@@ -4,7 +4,7 @@
 \alias{print.flux}
 \title{Print details of a flux object}
 \usage{
-\method{print}{flux}(object)
+\method{print}{flux}(object, ...)
 }
 \arguments{
 \item{object}{a \code{flux} object}

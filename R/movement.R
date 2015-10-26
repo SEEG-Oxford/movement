@@ -99,7 +99,6 @@ movement <- function(formula, flux_model = gravity(), ...) {
 }
 
 # read in the formula and assign to objects, with checking that the given objects are of the expected classes
-#' @export
 extractArgumentsFromFormula <- function (formula, other = NULL) {
   
   if (length(formula) == 3) {
@@ -170,7 +169,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
-predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE) {
+predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
   
   if(is(locationdataframe, "RasterLayer")) {
     # create the prediction model (= movementmodel object)
@@ -521,13 +520,13 @@ gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=
 #' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
 #' print(flux)
 #' @export
-print.flux  <- function(object){
-  cat(paste('flux object for a ', flux$name, 'model with parameters\n\n'))
-  print.default(format(flux$params),
+print.flux  <- function(object, ...){
+  cat(paste('flux object for a ', object$name, 'model with parameters\n\n'))
+  print.default(format(object$params),
                 print.gap = 2, quote = FALSE)
   cat('\n')
   cat('See ?')
-  cat(paste(flux$name, 'for the model formulation and explanation of parameters\n'))
+  cat(paste(object$name, 'for the model formulation and explanation of parameters\n'))
 }
 
 #' @title Print summary of a flux object 
@@ -540,8 +539,8 @@ print.flux  <- function(object){
 #' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
 #' summary(flux)
 #' @export
-summary.flux  <- function(object){
-  print(flux)
+summary.flux  <- function(object, ...){
+  print(object)
 }
 
 #' Use the original radiation model of Simini et al. (2013) to predict movement between
@@ -1162,100 +1161,6 @@ interveningOpportunitiesFlux <- function(i, j, distance, population,
   if (symmetric) return (T_ij + T_ji)
   else return (c(T_ij, T_ji))
 }
-
-#' Use the Viboud et al. 2006 (relatively simple) gravitation model to predict
-#' movement between two sites.
-#'
-#' Given indices \code{i} and \code{j}, a vector of population sizes
-#' \code{population}, a (dense) distance matrix \code{distance} giving the
-#' euclidean distances between all pairs of sites, and a set of parameters
-#' \code{theta}, to predict movements between sites \code{i} and \code{j}.
-#' The flux can be calculated either for both directions (by setting
-#'  \code{symmetric = FALSE}, returning movements for each direction) or for
-#'  the summed movement between the two (\code{symmetric = TRUE}).
-#' The model can be sped up somewhat by setting \code{minpop} and
-#' \code{maxrange}. If either of the two sites has a population lower than
-#' \code{minpop} (minimum population size), or if the distance between the two
-#' sites is greater than \code{maxrange} (the maximum range) it is assumed that
-#' no travel occurs between these points.
-#' Note that this function only works for individual sites, use
-#' \code{\link{movement.predict}} to calculate movements for multiple
-#' populations.
-#'
-#' @param i Index for \code{population} and \code{distance} giving the first
-#' site
-#' @param j Index for \code{population} and \code{distance} giving the second
-#' site
-#' @param distance A distance matrix giving the euclidean distance between
-#' pairs of sites
-#' @param population A vector giving the population at all sites
-#' @param theta A vector of parameters in the order: scalar, exponent on donor
-#' pop, exponent on recipient pop, exponent on distance
-#' @param symmetric Whether to return a single value giving the total predicted
-#' movements from i to j and j to i (if \code{TRUE}) or vector of length 2
-#' giving movements from i to j (first element) and from j to i (second element)
-#' @param minpop The minimum population size to consider (by default 1, consider
-#' all sites)
-#' @param maxrange The maximum distance between sites to consider (by default
-#' \code{Inf}, consider all sites)
-#' @return A vector (of length either 1 or 2) giving the predicted number of
-#' people moving between the two sites.
-#'
-#' @examples
-#' # generate random coordinates and populations
-#' n <- 30
-#' coords <- matrix(runif(n * 2), ncol = 2)
-#' pop <- round(runif(n) * 1000)
-#' # calculate the distance between pairs of sites
-#' d <- as.matrix(dist(coords))
-#' # predict movement between sites 3 and 4 using the radiation model
-#' T_ij <- gravityFlux(3, 4, d, pop, theta=c(1e-4,0.6,0.3,3))
-#' T_ij
-#'
-#' @seealso \code{\link{movement.predict}}
-#'
-#' @references
-#' Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
-#' of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
-#' @export
-gravityFlux <- function(i, j, distance, population,
-                        theta = c(1, 0.6, 0.3, 3),
-                        symmetric = FALSE,
-                        minpop = 1, maxrange = Inf) {
-  # given the indices $i$ and $j$, vector of population sizes
-  # 'population', (dense) distance matrix 'distance', vector of parameters
-  # 'theta' in the order [scalar, exponent on donor pop, exponent on recipient
-  # pop, exponent on distance], calculate $T_{ij}$, the number of people
-  # travelling between $i$ and $j$. If the pairwise distance is greater than
-  # 'max' it is assumed that no travel occurs between these points. This can
-  # speed up the model.
-  
-  # get the population sizes $m_i$ and $n_j$
-  m_i <- population[i]
-  n_j <- population[j]
-  
-  # if the population at the centre is below the minimum,
-  # return 0 (saves some calculation time)
-  m_i[m_i < minpop] <- 0
-  
-  # look up $r_{ij}$ - the euclidean distance between $i$ and $j$
-  r_ij <- distance[i, j]
-  
-  # if it's beyond the maximum range return 0 - this way to vectorize with ease...
-  r_ij[r_ij > maxrange] <- 0
-  
-  # calculate the number of commuters T_{ij} moving between sites
-  # $i$ and $j$ using equation 1 in Viboud et al. (2006)
-  T_ij <- theta[1] * (m_i ^ theta[2]) * (n_j ^ theta[3]) / (r_ij ^ theta[4])
-  
-  # and the opposite direction
-  T_ji <- theta[1] * (n_j ^ theta[2]) * (m_i ^ theta[3]) / (r_ij ^ theta[4])
-  
-  # return this
-  if (symmetric) return (T_ij + T_ji)
-  else return (c(T_ij, T_ji))
-}
-
 
 #' Use the Viboud et al. 2006 (relatively simple) gravitation model to predict
 #' movement between two sites.
@@ -2119,7 +2024,7 @@ createpopulationfromcsv <- function(filename) {
 #' 
 #' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
 #' \code{lat} (numeric) and \code{lon} (numeric).
-#' @name as.locationdataframe
+#' @name as.movementmatrix
 #' @export
 as.movementmatrix <- function(dataframe) {
   nrows <- length(unique(dataframe[1])[,])
