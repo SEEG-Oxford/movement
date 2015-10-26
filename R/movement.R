@@ -187,6 +187,7 @@ predict.flux <- function(object, locationdataframe, min_network_pop = 50000, sym
   }
 }
 
+
 #' Predict from an optimisedmodel object
 #' 
 #' \code{optimisedmodel}:
@@ -1719,7 +1720,7 @@ predict.movementmodel <- function(object, newdata = NULL, ...) {
   }
   object$net = net
   
-  object$prediction = ict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
+  object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
                                                 symmetric = object$symmetric, theta = object$flux_model$params, ...)    
    
   return (object)

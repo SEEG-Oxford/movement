@@ -57,6 +57,8 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 }
 \seealso{
 \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
-\code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}
+\code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{original.radiation}},
+\code{\link{radiation.with.selection}}, \code{\link{uniform.selection}},
+\code{\link{intervening.opportunities}}, \code{\link{gravity}} and \code{\link{gravity.with.distance}}
 }
 
