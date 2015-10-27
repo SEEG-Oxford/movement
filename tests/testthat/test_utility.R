@@ -117,50 +117,50 @@ test_that("rasterizeShapeFile returns a raster", {
 	expect_true(is(actual,"RasterLayer"))
 })
 
-test_that("logtransform correctly transforms into original variable",{
+test_that("logTransform correctly transforms into original variable",{
   x1  <- 12.23
-  trans1  <- logtransform(x1, FALSE)
-  inverse1  <- logtransform(trans1, TRUE)
+  trans1  <- logTransform(x1, FALSE)
+  inverse1  <- logTransform(trans1, TRUE)
   expect_equal(x1, inverse1)  
 })
 
-test_that("logtransform correctly transforms constraint variables to unconstraint variables",{
+test_that("logTransform correctly transforms constraint variables to unconstraint variables",{
   x  <- 0.1 # positive constraint
-  trans  <- logtransform(x)
+  trans  <- logTransform(x)
   expect_true(trans < 0)
 })
 
-test_that("unity correctly transforms into original variable",{
+test_that("unityTransform correctly transforms into original variable",{
   x1  <- 0.4
-  trans1  <- unity(x1, FALSE)
-  inverse1  <- unity(trans1, TRUE)
+  trans1  <- unityTransform(x1, FALSE)
+  inverse1  <- unityTransform(trans1, TRUE)
   expect_equal(x1, inverse1)  
 })
 
-test_that("unity correctly transforms constraint variables to unconstraint variables",{
+test_that("unityTransform correctly transforms constraint variables to unconstraint variables",{
   x1  <- 0.9
-  trans1  <- unity(x1, FALSE)
+  trans1  <- unityTransform(x1, FALSE)
   expect_true(trans1 > 1)  
   
   x2  <- 0.1
-  trans2  <- unity(x2, FALSE)
+  trans2  <- unityTransform(x2, FALSE)
   expect_true(trans2 < -1)  
   
   x3  <- 1
-  trans3  <- unity(x3, FALSE)
+  trans3  <- unityTransform(x3, FALSE)
   expect_true(is.infinite(trans3))  
   
   x4  <- 0
-  trans3  <- unity(x3, FALSE)
+  trans3  <- unityTransform(x3, FALSE)
   expect_true(is.infinite(trans3))   
 })
 
-test_that("identity transformation correctly does not affect the input value",{
+test_that("identityTransform transformation correctly does not affect the input value",{
   x  <- 12.3
-  trans  <- identity(x, FALSE)
+  trans  <- identityTransform(x, FALSE)
   expect_equal(x, trans)  
   
-  inverse  <- identity(x, TRUE)
+  inverse  <- identityTransform(x, TRUE)
   expect_equal(x, inverse)  
 })
 
