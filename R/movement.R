@@ -147,8 +147,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' in order for it to be processed
 #' @param symmetric Optional parameter to define whether to calculate symmetric or 
 #' asymmetric (summed across both directions) movement
-#' @param \dots further arguments to be passed to or from other methods. 
-#' They are ignored in this function. 
+#' @param \dots additional arguments affecting the predictions produced.
 #' @return A list containing a location dataframe from the input with columns 
 #' \code{location}, \code{population} and \code{coordinates} and a matrix
 #' containing the predicted population movements.
@@ -525,8 +524,7 @@ print.flux  <- function(x, ...){
 #' @title Print summary of a flux object 
 #' @description Print summary of a given flux object
 #' @param object a \code{flux} object
-#' @param \dots further arguments to be passed to or from other methods. 
-#' They are ignored in this function. 
+#' @param \dots additional arguments affecting the summary produced.
 #' @name summary.flux
 #' @method summary flux
 #'

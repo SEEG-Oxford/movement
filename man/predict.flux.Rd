@@ -18,8 +18,7 @@ in order for it to be processed}
 \item{symmetric}{Optional parameter to define whether to calculate symmetric or
 asymmetric (summed across both directions) movement}
 
-\item{\dots}{further arguments to be passed to or from other methods.
-They are ignored in this function.}
+\item{\dots}{additional arguments affecting the predictions produced.}
 }
 \value{
 A list containing a location dataframe from the input with columns
