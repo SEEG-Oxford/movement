@@ -55,7 +55,7 @@ matrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
 test_that("movement function throws an error if given the wrong matrix type", {
   expect_true(is.locationdataframe(data)) # check that the data are of correct class
   expect_false(is.movementmatrix(matrix))  # ensure that matrix is not of expected class  
-  expect_error(movement(matrix ~ data, radiation.with.selection()))
+  expect_error(movement(matrix ~ data, radiationWithSelection()))
 })
 
 test_that("movement sets correct parameters and bounds for original radiation model", {
@@ -68,7 +68,7 @@ test_that("movement sets correct parameters and bounds for original radiation mo
 			return (list(prediction=NULL))
 		},		
 		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
-    actual_movement_object <- movement(movementmatrix ~ data, original.radiation()),
+    actual_movement_object <- movement(movementmatrix ~ data, originalRadiation()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.9))
 	)
 })
@@ -83,7 +83,7 @@ test_that("movement sets correct parameters and bounds for uniform selection mod
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
-		actual_movement_object <- movement(movementmatrix ~ data, uniform.selection()),
+		actual_movement_object <- movement(movementmatrix ~ data, uniformSelection()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.9))
 	)
 })
@@ -98,7 +98,7 @@ test_that("movement sets correct parameters and bounds for radiation with select
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
-		actual_movement_object <- movement(movementmatrix ~ data, radiation.with.selection()),
+		actual_movement_object <- movement(movementmatrix ~ data, radiationWithSelection()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.1,lambda=0.2))
 	)
 })
@@ -113,7 +113,7 @@ test_that("movement sets correct parameters and bounds for intervening opportuni
 			return (list(modelparams=NULL,prediction=NULL))
 		},
 		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
-		actual_movement_object <- movement(movementmatrix ~ data, intervening.opportunities()),
+		actual_movement_object <- movement(movementmatrix ~ data, interveningOpportunities()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.001,L=0.00001))
 	)
 })
@@ -143,7 +143,7 @@ test_that("movement sets correct parameters and bounds for gravity with distance
     return (list(modelparams=NULL,prediction=NULL))
   },
   `movement:::analysepredictionusingdpois` = function(x, y) return (1),
-  actual_movement_object <- movement(movementmatrix ~ data, gravity.with.distance()),
+  actual_movement_object <- movement(movementmatrix ~ data, gravityWithDistance()),
   expect_equal(actual_movement_object$optimisationresults$par, c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01))
   )
 })
@@ -164,13 +164,13 @@ test_that("movement creates population_data correctly", {
 })
 
 test_that("predict.flux throws an error if given the wrong locationdataframe parameter", {
-  flux <- original.radiation()
+  flux <- originalRadiation()
   dataframe <- 1
   expect_error(predict(flux,dataframe),"Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame")
 })
 
 test_that("predict.flux returns list of correct data when given a RasterLayer", {
-  flux <- original.radiation()
+  flux <- originalRadiation()
   raster <- raster::raster(nrows=108, ncols=21, xmn=0, xmx=10)
   with_mock(`movement:::predict.movementmodel` = function(x) {
     return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
@@ -180,7 +180,7 @@ test_that("predict.flux returns list of correct data when given a RasterLayer", 
 })
 
 test_that("predict.flux returns list of correct data when given a data.frame", {
-  flux <- original.radiation()
+  flux <- originalRadiation()
   dataframe <- data.frame(c(1))    
   with_mock(
     `movement:::predict.movementmodel` = function(x,...) {

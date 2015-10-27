@@ -18,17 +18,17 @@
 #' The \code{locationdataframe} object contains location data and the \code{movementmatrix}
 #' object contains the observed population movements. 
 #' @param flux_model The name of the movement model to use. Currently supported
-#' models are \code{\link{original.radiation}}, \code{\link{radiation.with.selection}},
-#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
-#' \code{\link{gravity}} and \code{\link{gravity.with.distance}}
+#' models are \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}},
+#' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}},
+#' \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. 
 #'
 #' @seealso \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
-#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{original.radiation}}, 
-#' \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, 
-#' \code{\link{intervening.opportunities}}, \code{\link{gravity}} and \code{\link{gravity.with.distance}}
+#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{originalRadiation}}, 
+#' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
+#' \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 #' @note The most likely format of the location data will be as a single
 #' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
 #' \code{long}. This can be extracted from a larger dataframe with
@@ -47,7 +47,7 @@
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #' #predictionModel <- movementmodel(dataset=kenya10,
 #'  #                                min_network_pop = 50000,
-#'  #                                flux_model = original.radiation(),
+#'  #                                flux_model = originalRadiation(),
 #'  #                                symmetric = TRUE)
 #' # predict the population movement from the model
 #' #predictedMovements = predict(predictionModel)
@@ -161,7 +161,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # generate a flux object
-#' flux <- radiation.with.selection()
+#' flux <- radiationWithSelection()
 #' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
@@ -310,10 +310,10 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' migration patterns. \emph{Nature}, 484, 96-100.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}}, 
-#' \code{\link{intervening.opportunities}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}}
+#' @seealso \code{\link{movement}}, \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
+#' \code{\link{interveningOpportunities}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}}
 #' @export
-original.radiation  <- function(theta=0.9){  
+originalRadiation  <- function(theta=0.9){  
   params  <- c(theta = theta)
   ans  <- list(name = "original radiation", 
                params = params, 
@@ -346,10 +346,10 @@ original.radiation  <- function(theta=0.9){
 #' On the Use of Human Mobility Proxies for Modeling Epidemics. \emph{PLoS Comput. Biol.}, 10, e1003716.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{uniform.selection}}, 
-#' \code{\link{intervening.opportunities}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}} 
+#' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{uniformSelection}}, 
+#' \code{\link{interveningOpportunities}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}} 
 #' @export
-radiation.with.selection  <- function(theta=0.1,lambda=0.2){  
+radiationWithSelection  <- function(theta=0.1,lambda=0.2){  
   params = c(theta=theta,lambda=lambda)
   ans  <- list(name = "radiation with selection",
                params = params, 
@@ -371,10 +371,10 @@ radiation.with.selection  <- function(theta=0.1,lambda=0.2){
 #' Simini, F., Maritan, A. & Neda, Z. (2013). Human mobility in a continuum approach. \emph{PLoS One}, 8, e60069.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
-#' \code{\link{intervening.opportunities}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}}
+#' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
+#' \code{\link{interveningOpportunities}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}}
 #' @export
-uniform.selection  <- function(theta=0.9){ 
+uniformSelection  <- function(theta=0.9){ 
   params = c(theta=theta)
   ans  <- list(name = "uniform selection",
                params = params, 
@@ -412,10 +412,10 @@ uniform.selection  <- function(theta=0.9){
 #' Sociol. Rev.} 5, 845-867.
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
-#' \code{\link{uniform.selection}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}} 
+#' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
+#' \code{\link{uniformSelection}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}} 
 #' @export
-intervening.opportunities  <- function(theta=0.001, L=0.00001){    
+interveningOpportunities  <- function(theta=0.001, L=0.00001){    
   params = c(theta=theta, L=L)
   ans  <- list(name = "intervening opportunities", 
                params = params, 
@@ -446,8 +446,8 @@ intervening.opportunities  <- function(theta=0.001, L=0.00001){
 #' \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484-9. 
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
-#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity.with.distance}}
+#' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
+#' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}}, \code{\link{gravityWithDistance}}
 #' @export
 gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){  
   params = c(theta=theta, alpha=alpha, beta=beta, gamma=gamma)
@@ -489,10 +489,10 @@ gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){
 #' 312, 447-51
 #' @note Limits \eqn{0} and \eqn{Inf} will be changed internally to the numerically safe approximations
 #' \eqn{0 -> sqrt(.Machine$double.eps)} and \eqn{Inf -> sqrt(.Machine$double.xmax)}, respectively.
-#' @seealso \code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}}, 
-#' \code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}}
+#' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
+#' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}}, \code{\link{gravity}}
 #' @export
-gravity.with.distance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
+gravityWithDistance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
   params = c(theta1=theta1, alpha1=alpha1, beta1=beta1, gamma1=gamma1, delta=delta, theta2=theta2, alpha2=alpha2, beta2=beta2, gamma2=gamma2)
   ans  <- list(name = "gravity with distance", 
                params = params, 
@@ -1685,7 +1685,7 @@ get.network.fromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 # @param symmetric Whether to calculate symmetric or asymmetric (summed across
 # both directions) movement
 # @return A movement model object which can be used to run flux predictions.
-movementmodel <- function(dataset, min_network_pop = 50000, flux_model = original.radiation(), symmetric = TRUE) {
+movementmodel <- function(dataset, min_network_pop = 50000, flux_model = originalRadiation(), symmetric = TRUE) {
   me <- list(
     dataset = dataset,
     min_network_pop = min_network_pop,

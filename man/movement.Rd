@@ -13,9 +13,9 @@ The \code{locationdataframe} object contains location data and the \code{movemen
 object contains the observed population movements.}
 
 \item{flux_model}{The name of the movement model to use. Currently supported
-models are \code{\link{original.radiation}}, \code{\link{radiation.with.selection}},
-\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}},
-\code{\link{gravity}} and \code{\link{gravity.with.distance}}}
+models are \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}},
+\code{\link{uniformSelection}}, \code{\link{interveningOpportunities}},
+\code{\link{gravity}} and \code{\link{gravityWithDistance}}}
 
 \item{\dots}{Extra parameters to be passed to the prediction code.}
 }
@@ -46,7 +46,7 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
 #predictionModel <- movementmodel(dataset=kenya10,
  #                                min_network_pop = 50000,
- #                                flux_model = original.radiation(),
+ #                                flux_model = originalRadiation(),
  #                                symmetric = TRUE)
 # predict the population movement from the model
 #predictedMovements = predict(predictionModel)
@@ -57,8 +57,8 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 }
 \seealso{
 \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
-\code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{original.radiation}},
-\code{\link{radiation.with.selection}}, \code{\link{uniform.selection}},
-\code{\link{intervening.opportunities}}, \code{\link{gravity}} and \code{\link{gravity.with.distance}}
+\code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{originalRadiation}},
+\code{\link{radiationWithSelection}}, \code{\link{uniformSelection}},
+\code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 }
 

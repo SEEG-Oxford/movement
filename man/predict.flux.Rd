@@ -44,7 +44,7 @@ data(kenya)
 # aggregate to 10km to speed things up
 kenya10 <- raster::aggregate(kenya, 10, sum)
 # generate a flux object
-flux <- radiation.with.selection()
+flux <- radiationWithSelection()
 # run the prediction for the theoretical model
 predictedMovement  <- predict(flux, kenya10)
 }
