@@ -2219,6 +2219,31 @@ travelTime <- function (friction,
 # variable transformations
 #####################################################
 
+# @name transformFluxObjectParameters
+# @title Transform a list of parameters with the given transformations
+# @description Using the list of transformation specified to transform a list of
+# parameters. If the inverse is set to 'false' the transformation will be performed.
+# Otherwise, the inverse transformation will be peformed. 
+# @Note: the order of the parameters and their associated transformations must be 
+# equivalent
+# @param params a list of parameters
+# @param transform a list of transformations for the parameters
+# @param inverse if true makes the transformation; otherwise perform the inverse 
+#   transformation. Default value is set to 'false'
+# @return a list of transformed parameters
+transformFluxObjectParameters  <- function(params, transform, inverse = FALSE){
+  
+  numberOfParams  <- length(params)
+  transformedParams  <- c(NA, numberOfParams)
+    
+  for(i in 1:numberOfParams){
+    transformation  <- transform[[i]]
+    transformedParams[i]  <- transformation(params[[i]], inverse)
+  }
+  
+  return (transformedParams)
+}
+
 # using the logarithm to ensure that any positive constraint values
 # are unconstraint for the optimisation process
 logTransform  <- function(x, inverse = FALSE){
