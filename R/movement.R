@@ -315,7 +315,7 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 originalRadiation  <- function(theta = 0.9){  
   ans  <- list(name = "original radiation", 
                params = c(theta = theta), 
-               transform = c(logTransform),
+               transform = c(theta = logTransform),
                flux = originalRadiationFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -351,7 +351,7 @@ originalRadiation  <- function(theta = 0.9){
 radiationWithSelection  <- function(theta = 0.1,lambda = 0.2){  
   ans  <- list(name = "radiation with selection",
                params = c(theta = theta,lambda = lambda), 
-               transform = c(logTransform, unityTransform),
+               transform = c(theta = logTransform, lambda = unitTransform),
                flux = radiationWithSelectionFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -376,7 +376,7 @@ radiationWithSelection  <- function(theta = 0.1,lambda = 0.2){
 uniformSelection  <- function(theta = 0.9){ 
   ans  <- list(name = "uniform selection",
                params = c(theta = theta), 
-               transform = c(logTransform),
+               transform = c(theta = logTransform),
                flux = uniformSelectionFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -418,7 +418,7 @@ interveningOpportunities  <- function(theta = 0.001, L = 0.00001){
   params = c(theta = theta, L = L)
   ans  <- list(name = "intervening opportunities", 
                params = params, 
-               transform = c(logTransform, logTransform),
+               transform = c(theta = logTransform, L = logTransform),
                flux = interveningOpportunitiesFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -452,7 +452,8 @@ interveningOpportunities  <- function(theta = 0.001, L = 0.00001){
 gravity  <- function(theta = 0.01, alpha = 0.06, beta = 0.03, gamma = 0.01){  
   ans  <- list(name = "gravity", 
                params = c(theta = theta, alpha = alpha, beta = beta, gamma = gamma), 
-               transform = c(logTransform, identityTransform, identityTransform, identityTransform),
+               transform = c(theta = logTransform, alpha = identityTransform, beta = identityTransform, 
+                             gamma = identityTransform),
                flux = gravityFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -498,8 +499,9 @@ gravityWithDistance  <- function(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03, gam
   ans  <- list(name = "gravity with distance", 
                params = c(theta1 = theta1, alpha1 = alpha1, beta1 = beta1, gamma1 = gamma1, 
                           delta = delta, theta2 = theta2, alpha2 = alpha2, beta2 = beta2, gamma2 = gamma2), 
-               transform = c(logTransform, identityTransform, identityTransform, identityTransform, 
-                             unityTransform, logTransform, identityTransform, identityTransform, identityTransform),
+               transform = c(theta1 = logTransform, alpha1 = identityTransform, beta1 = identityTransform, 
+                             gamma1 = identityTransform, delta = unitTransform, theta2 = logTransform, 
+                             alpha2 = identityTransform, beta2 = identityTransform, gamma2 = identityTransform),
                flux = gravityWithDistanceFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -2231,7 +2233,7 @@ logTransform  <- function(x, inverse = FALSE){
 
 # using the 'probit transformation' to ensure that a variable which
 # is constraint between [0,1] is unconstraint for the optimisation process
-unityTransform  <- function(x, inverse = FALSE){
+unitTransform  <- function(x, inverse = FALSE){
 
   if(inverse){
     trans  <- plogis(x)

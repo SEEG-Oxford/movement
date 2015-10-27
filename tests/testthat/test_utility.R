@@ -130,28 +130,28 @@ test_that("logTransform correctly transforms constraint variables to unconstrain
   expect_true(trans < 0)
 })
 
-test_that("unityTransform correctly transforms into original variable",{
+test_that("unitTransform correctly transforms into original variable",{
   x1  <- 0.4
-  trans1  <- unityTransform(x1, FALSE)
-  inverse1  <- unityTransform(trans1, TRUE)
+  trans1  <- unitTransform(x1, FALSE)
+  inverse1  <- unitTransform(trans1, TRUE)
   expect_equal(x1, inverse1)  
 })
 
-test_that("unityTransform correctly transforms constraint variables to unconstraint variables",{
+test_that("unitTransform correctly transforms constraint variables to unconstraint variables",{
   x1  <- 0.9
-  trans1  <- unityTransform(x1, FALSE)
+  trans1  <- unitTransform(x1, FALSE)
   expect_true(trans1 > 1)  
   
   x2  <- 0.1
-  trans2  <- unityTransform(x2, FALSE)
+  trans2  <- unitTransform(x2, FALSE)
   expect_true(trans2 < -1)  
   
   x3  <- 1
-  trans3  <- unityTransform(x3, FALSE)
+  trans3  <- unitTransform(x3, FALSE)
   expect_true(is.infinite(trans3))  
   
   x4  <- 0
-  trans3  <- unityTransform(x3, FALSE)
+  trans3  <- unitTransform(x3, FALSE)
   expect_true(is.infinite(trans3))   
 })
 
