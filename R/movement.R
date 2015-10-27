@@ -2207,3 +2207,37 @@ travelTime <- function (friction,
   
   return (access_distance)
 }
+
+
+#####################################################
+# variable transformations
+#####################################################
+
+# using the logarithm to ensure that any positive constraint values
+# are unconstraint for the optimisation process
+logtransform  <- function(x, inverse = FALSE){
+  
+  if(inverse){
+    trans  <- exp(x)
+  } else {
+    trans  <- log(x)
+  } 
+  return (trans)
+}
+
+# using the 'probit transformation' to ensure that a variable which
+# is constraint between [0,1] is unconstraint for the optimisation process
+unity  <- function(x, inverse = FALSE){
+
+  if(inverse){
+    trans  <- plogis(x)
+  } else {
+    trans  <- qlogis(x)
+  } 
+  return (trans)  
+}
+
+# no transformation required; simple return the input variable 
+identity  <- function(x, inverse = FALSE){  
+  return (x) 
+}

@@ -116,3 +116,51 @@ test_that("rasterizeShapeFile returns a raster", {
 	print(class(actual))
 	expect_true(is(actual,"RasterLayer"))
 })
+
+test_that("logtransform correctly transforms into original variable",{
+  x1  <- 12.23
+  trans1  <- logtransform(x1, FALSE)
+  inverse1  <- logtransform(trans1, TRUE)
+  expect_equal(x1, inverse1)  
+})
+
+test_that("logtransform correctly transforms constraint variables to unconstraint variables",{
+  x  <- 0.1 # positive constraint
+  trans  <- logtransform(x)
+  expect_true(trans < 0)
+})
+
+test_that("unity correctly transforms into original variable",{
+  x1  <- 0.4
+  trans1  <- unity(x1, FALSE)
+  inverse1  <- unity(trans1, TRUE)
+  expect_equal(x1, inverse1)  
+})
+
+test_that("unity correctly transforms constraint variables to unconstraint variables",{
+  x1  <- 0.9
+  trans1  <- unity(x1, FALSE)
+  expect_true(trans1 > 1)  
+  
+  x2  <- 0.1
+  trans2  <- unity(x2, FALSE)
+  expect_true(trans2 < -1)  
+  
+  x3  <- 1
+  trans3  <- unity(x3, FALSE)
+  expect_true(is.infinite(trans3))  
+  
+  x4  <- 0
+  trans3  <- unity(x3, FALSE)
+  expect_true(is.infinite(trans3))   
+})
+
+test_that("identity transformation correctly does not affect the input value",{
+  x  <- 12.3
+  trans  <- identity(x, FALSE)
+  expect_equal(x, trans)  
+  
+  inverse  <- identity(x, TRUE)
+  expect_equal(x, inverse)  
+})
+
