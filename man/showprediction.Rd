@@ -19,7 +19,4 @@ Given a movement model, plot the underlying
 raster, the configured location points and the predicted movements
 between locations.
 }
-\seealso{
-\code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
-}
 

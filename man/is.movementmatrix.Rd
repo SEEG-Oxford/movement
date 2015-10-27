@@ -6,6 +6,9 @@
 \usage{
 is.movementmatrix(x)
 }
+\arguments{
+\item{x}{The object to be checked.}
+}
 \value{
 True if the given object is a \code{movementmatrix} object; false otherwise
 }

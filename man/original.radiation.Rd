@@ -10,7 +10,7 @@ original.radiation(theta = 0.9)
 \item{theta}{Model parameter \code{theta} with default value and the limits theta = [0, Inf].}
 }
 \value{
-A flux model object with the \code{\link{originalRadiationFlux}} function and a set of starting parameters.
+A flux model object with the \code{original radiation flux} function and a set of starting parameters.
 }
 \description{
 The (original) radiation model generally assumes the rational of job selection. It follows the general
@@ -30,8 +30,7 @@ Simini, F., Gonzalez, M.C., Maritan, A. & Barabasi, A.-L. (2012). A universal mo
 migration patterns. \emph{Nature}, 484, 96-100.
 }
 \seealso{
-\code{\link{movement}}, \code{\link{originalRadiationFlux}}, \code{\link{radiation.with.selection}},
-\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity}},
-\code{\link{gravity.with.distance}}
+\code{\link{movement}}, \code{\link{radiation.with.selection}}, \code{\link{uniform.selection}},
+\code{\link{intervening.opportunities}}, \code{\link{gravity}}, \code{\link{gravity.with.distance}}
 }
 

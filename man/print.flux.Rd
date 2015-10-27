@@ -4,10 +4,13 @@
 \alias{print.flux}
 \title{Print details of a flux object}
 \usage{
-\method{print}{flux}(object, ...)
+\method{print}{flux}(x, ...)
 }
 \arguments{
-\item{object}{a \code{flux} object}
+\item{x}{a \code{flux} object}
+
+\item{\dots}{further arguments to be passed to or from other methods.
+They are ignored in this function.}
 }
 \description{
 Print details of a given flux object

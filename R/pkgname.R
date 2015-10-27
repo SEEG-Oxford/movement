@@ -10,10 +10,8 @@
 #' @docType package
 #' @name movement-package
 #'
-#' @seealso \code{\link{movementmodel}}, \code{\link{predict}},
-#' \code{\link{showprediction}}, \code{\link{movement.predict}},
-#' \code{\link{get.network}}, \code{\link{kenya}}, \code{\link{gravity.flux}},
-#' \code{\link{continuum.flux}}, \code{\link{attemptoptimisation}}
+#' @seealso \code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.optimisedmodel}}
+#' \code{\link{showprediction}}, \code{\link{get.network}}, \code{\link{kenya}}, 
 #'
 #' @importFrom graphics arrows par plot points
 #' @importFrom grDevices rgb

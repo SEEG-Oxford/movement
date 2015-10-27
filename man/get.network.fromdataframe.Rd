@@ -36,7 +36,6 @@ threshold. These can be used as network representation of the landscape for
 use in movement models.
 }
 \seealso{
-\code{\link{raster}}, \code{\link{dist}},
-\code{\link{movement.predict}}
+\code{\link{raster}}, \code{\link{dist}}
 }
 
