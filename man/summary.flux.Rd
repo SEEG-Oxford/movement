@@ -9,8 +9,7 @@
 \arguments{
 \item{object}{a \code{flux} object}
 
-\item{\dots}{further arguments to be passed to or from other methods.
-They are ignored in this function.}
+\item{\dots}{additional arguments affecting the summary produced.}
 }
 \description{
 Print summary of a given flux object

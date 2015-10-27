@@ -97,7 +97,7 @@ test_that("predict.movementmodel uses the correct version of get.network", {
 
 test_that("predict.movementmodel calls movement.predict with the correct flux method", {
 	gravityPredictionModel = list(flux_model = gravity(), symmetric = FALSE)
-	radiationPredictionModel = list(flux_model = radiation.with.selection(), symmetric = FALSE)
+	radiationPredictionModel = list(flux_model = radiationWithSelection(), symmetric = FALSE)
 	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL),
 		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL),
 		`movement:::gravityFlux` = function() return ("gravity"),

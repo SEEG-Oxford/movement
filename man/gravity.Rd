@@ -39,7 +39,7 @@ Balcan, D., Colizza, V., Gonc, B. & Hu, H. (2009). Multiscale mobility networks 
 \emph{Proc. Natl. Acad. Sci. U. S. A.}, 106, 21484-9.
 }
 \seealso{
-\code{\link{movement}}, \code{\link{original.radiation}}, \code{\link{radiation.with.selection}},
-\code{\link{uniform.selection}}, \code{\link{intervening.opportunities}}, \code{\link{gravity.with.distance}}
+\code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}},
+\code{\link{uniformSelection}}, \code{\link{interveningOpportunities}}, \code{\link{gravityWithDistance}}
 }
 
