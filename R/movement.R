@@ -1765,7 +1765,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # @param \dots Parameters passed to \code{\link{ict}}
 # @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
-  predictionModel$flux_model$params = par
+  predictionModel$flux_model$params <- par
   predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
   loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
   return (loglikelihood)
@@ -1791,10 +1791,18 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # @seealso \code{\link{createobservedmatrixfromcsv}}
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 
+  # transform the flux object parameters using the helper function
+  transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
   
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-  optim(predictionModel$flux_model$params, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+  # ? Not sure if that is the correct place to use the transformed parameters? 
+  optimresults  <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+  #optimresults  <- optim(predictionModel$flux_model$params, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 
+  # perform the inverse transformation on the optimised parameters 
+  optimresults$par  <- transformFluxObjectParameters(optimresults$par, predictionModel$flux_model$transform, TRUE)
+  
+  return (optimresults)
   #return transfer here! using the return $par value
 }
 
