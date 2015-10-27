@@ -312,10 +312,10 @@ print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits")
 #' @seealso \code{\link{movement}}, \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
 #' \code{\link{interveningOpportunities}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}}
 #' @export
-originalRadiation  <- function(theta=0.9){  
-  params  <- c(theta = theta)
+originalRadiation  <- function(theta = 0.9){  
   ans  <- list(name = "original radiation", 
-               params = params, 
+               params = c(theta = theta), 
+               transform = c(theta = logTransform),
                flux = originalRadiationFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -348,10 +348,10 @@ originalRadiation  <- function(theta=0.9){
 #' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{uniformSelection}}, 
 #' \code{\link{interveningOpportunities}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}} 
 #' @export
-radiationWithSelection  <- function(theta=0.1,lambda=0.2){  
-  params = c(theta=theta,lambda=lambda)
+radiationWithSelection  <- function(theta = 0.1,lambda = 0.2){  
   ans  <- list(name = "radiation with selection",
-               params = params, 
+               params = c(theta = theta,lambda = lambda), 
+               transform = c(theta = logTransform, lambda = unitTransform),
                flux = radiationWithSelectionFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -373,10 +373,10 @@ radiationWithSelection  <- function(theta=0.1,lambda=0.2){
 #' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
 #' \code{\link{interveningOpportunities}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}}
 #' @export
-uniformSelection  <- function(theta=0.9){ 
-  params = c(theta=theta)
+uniformSelection  <- function(theta = 0.9){ 
   ans  <- list(name = "uniform selection",
-               params = params, 
+               params = c(theta = theta), 
+               transform = c(theta = logTransform),
                flux = uniformSelectionFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -414,10 +414,11 @@ uniformSelection  <- function(theta=0.9){
 #' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
 #' \code{\link{uniformSelection}}, \code{\link{gravity}}, \code{\link{gravityWithDistance}} 
 #' @export
-interveningOpportunities  <- function(theta=0.001, L=0.00001){    
-  params = c(theta=theta, L=L)
+interveningOpportunities  <- function(theta = 0.001, L = 0.00001){    
+  params = c(theta = theta, L = L)
   ans  <- list(name = "intervening opportunities", 
                params = params, 
+               transform = c(theta = logTransform, L = logTransform),
                flux = interveningOpportunitiesFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -448,10 +449,11 @@ interveningOpportunities  <- function(theta=0.001, L=0.00001){
 #' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
 #' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}}, \code{\link{gravityWithDistance}}
 #' @export
-gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){  
-  params = c(theta=theta, alpha=alpha, beta=beta, gamma=gamma)
+gravity  <- function(theta = 0.01, alpha = 0.06, beta = 0.03, gamma = 0.01){  
   ans  <- list(name = "gravity", 
-               params = params, 
+               params = c(theta = theta, alpha = alpha, beta = beta, gamma = gamma), 
+               transform = c(theta = logTransform, alpha = identityTransform, beta = identityTransform, 
+                             gamma = identityTransform),
                flux = gravityFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -491,10 +493,15 @@ gravity  <- function(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01){
 #' @seealso \code{\link{movement}}, \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}}, 
 #' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}}, \code{\link{gravity}}
 #' @export
-gravityWithDistance  <- function(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01){  
-  params = c(theta1=theta1, alpha1=alpha1, beta1=beta1, gamma1=gamma1, delta=delta, theta2=theta2, alpha2=alpha2, beta2=beta2, gamma2=gamma2)
+gravityWithDistance  <- function(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03, gamma1 = 0.01, 
+                                 delta = 0.5, theta2 = 0.01, alpha2 = 0.06, beta2 = 0.03, 
+                                 gamma2 = 0.01){  
   ans  <- list(name = "gravity with distance", 
-               params = params, 
+               params = c(theta1 = theta1, alpha1 = alpha1, beta1 = beta1, gamma1 = gamma1, 
+                          delta = delta, theta2 = theta2, alpha2 = alpha2, beta2 = beta2, gamma2 = gamma2), 
+               transform = c(theta1 = logTransform, alpha1 = identityTransform, beta1 = identityTransform, 
+                             gamma1 = identityTransform, delta = unitTransform, theta2 = logTransform, 
+                             alpha2 = identityTransform, beta2 = identityTransform, gamma2 = identityTransform),
                flux = gravityWithDistanceFlux)
   class(ans)  <- 'flux'
   return(ans)
@@ -2206,4 +2213,37 @@ travelTime <- function (friction,
                                   coords2)
   
   return (access_distance)
+}
+
+#####################################################
+# variable transformations
+#####################################################
+
+# using the logarithm to ensure that any positive constraint values
+# are unconstraint for the optimisation process
+logTransform  <- function(x, inverse = FALSE){
+  
+  if(inverse){
+    trans  <- exp(x)
+  } else {
+    trans  <- log(x)
+  } 
+  return (trans)
+}
+
+# using the 'probit transformation' to ensure that a variable which
+# is constraint between [0,1] is unconstraint for the optimisation process
+unitTransform  <- function(x, inverse = FALSE){
+
+  if(inverse){
+    trans  <- plogis(x)
+  } else {
+    trans  <- qlogis(x)
+  } 
+  return (trans)  
+}
+
+# no transformation required; simple return the input variable 
+identityTransform  <- function(x, inverse = FALSE){  
+  return (x) 
 }
