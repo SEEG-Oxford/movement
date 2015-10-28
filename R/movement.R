@@ -1765,7 +1765,10 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # @param \dots Parameters passed to \code{\link{ict}}
 # @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
-  predictionModel$flux_model$params = par
+  # the flux function requires the untransformed (i.e. original, constraint) parameters and therefore, need to perform 
+  # the inverse transformation here 
+  originalParams  <- transformFluxObjectParameters(par, predictionModel$flux_model$transform, inverse = TRUE)
+  predictionModel$flux_model$params <- originalParams
   predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
   loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
   return (loglikelihood)
@@ -1791,11 +1794,17 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # @seealso \code{\link{createobservedmatrixfromcsv}}
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
 
+  # transform the flux object parameters to unconstraint values using the helper function
+  transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
   
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-  optim(predictionModel$flux_model$params, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+  # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over
+  optimresults  <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
 
-  #return transfer here! using the return $par value
+  # perform the inverse transformation on the optimised parameters into its true (i.e. constraint) scale
+  optimresults$par  <- transformFluxObjectParameters(optimresults$par, predictionModel$flux_model$transform, TRUE)
+  
+  return (optimresults)
 }
 
 ###############################################################################
@@ -2218,6 +2227,31 @@ travelTime <- function (friction,
 #####################################################
 # variable transformations
 #####################################################
+
+# @name transformFluxObjectParameters
+# @title Transform a list of parameters with the given transformations
+# @description Using the list of transformation specified to transform a list of
+# parameters. If the inverse is set to 'false' the transformation will be performed.
+# Otherwise, the inverse transformation will be peformed. 
+# @Note: the order of the parameters and their associated transformations must be 
+# equivalent
+# @param params a list of parameters
+# @param transform a list of transformations for the parameters
+# @param inverse if true makes the transformation; otherwise perform the inverse 
+#   transformation. Default value is set to 'false'
+# @return a list of transformed parameters
+transformFluxObjectParameters  <- function(params, transform, inverse = FALSE){
+  
+  numberOfParams  <- length(params)
+  transformedParams  <- vector(mode = "numeric", numberOfParams)
+    
+  for(i in 1:numberOfParams){
+    transformation  <- transform[[i]]
+    transformedParams[i]  <- transformation(params[[i]], inverse)
+  }
+  
+  return (transformedParams)
+}
 
 # using the logarithm to ensure that any positive constraint values
 # are unconstraint for the optimisation process

@@ -164,3 +164,26 @@ test_that("identityTransform transformation correctly does not affect the input 
   expect_equal(x, inverse)  
 })
 
+test_that("transformFluxObjectParameters correctly returns original parameter list using identityTransform", {
+  originalParams  <- c(alpha = 1, beta = 2, gamma = 3)
+  transform  <- c(alpha = identityTransform, beta = identityTransform, gamma = identityTransform)
+  actualTransformedParams  <- transformFluxObjectParameters(originalParams, transform, FALSE)
+  expect_equal(originalParams, actualTransformedParams, check.attributes = FALSE)
+})
+
+test_that("transformFluxObjectParameters correctly returns transformed parameter list ", {
+  originalParams  <- c(alpha = 1, beta = 1, gamma = 1)
+  expectedTransformedParams  <- c(0, beta = Inf, gamma = 1)
+  transform  <- c(alpha = logTransform, beta = unitTransform, gamma = identityTransform)
+  actualTransformedParams  <- transformFluxObjectParameters(originalParams, transform, FALSE)
+  expect_equal(expectedTransformedParams, actualTransformedParams, check.attributes = FALSE)
+})
+
+test_that("transformFluxObjectParameters correctly returns inverse transformed parameter list ", {
+  originalParams  <- c(0, beta = Inf, gamma = 1)
+  expectedTransformedParams  <- c(alpha = 1, beta = 1, gamma = 1)
+  transform  <- c(alpha = logTransform, beta = unitTransform, gamma = identityTransform)
+  actualTransformedParams  <- transformFluxObjectParameters(originalParams, transform, TRUE)
+  expect_equal(expectedTransformedParams, actualTransformedParams, check.attributes = FALSE)
+})
+
