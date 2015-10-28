@@ -20,16 +20,20 @@ library(movement)
 
 The most common use of the package is to parameterize a movement model based on observed population movements, and then use this model to predict _de novo_ population movements.
 
-```
-m <- movement(locations = df_locations$location, coords = df_locations[, c('lon','lat')], population = df_locations$pop, movement_matrix = observed, model = 'radiation with selection')
-```
-Where df_locations is a data.frame containing location, lon, lat and pop columns corresponding to location ids, coordinates and populations respectively. movement_matrix is a square matrix of observed population movements between the location_ids, and model is the selected movement model (valid models are radiation with selection, original radiation, gravity, intervening opportunities and uniform selection).
-
-This returns an optimisedmodel object which can be used by predict() to predict population movements from a RasterLayer, or a dataframe formatted as df_locations above.
+Code to fit such a model might look like this:
 
 ```
+m <- movement(observed_movement ~ location_data, model = radiationWithSelection())
+```
+
+where ```observed_movement``` is a ```movement_matrix``` object containing observations about movements between pairs of locations, ```location_data``` is a ```location_dataframe``` object containing the coordinates and populations of those locations, and ```radiationWithSelection()``` creates a ```flux``` object, representing the type of movement model to by fitted. Current supported movement models are: radiation with selection, original radiation, gravity, gravity with distance cutoff, intervening opportunities and uniform selection.
+
+The ```movement``` model fits the parameters of the specified movement model, and returns a ```movement_model``` object. This object can be plotted, or used to predict to populations movements to new ```location_dataframe``` object, or even a ```RasterLayer``` object giving populations in each cell:
+
+```
+plot(m)
+prediction <- predict(m, location_data)
 prediction <- predict(m, raster)
-prediction <- predict(m, df_locations)
 ```
 
 ### Contributors
