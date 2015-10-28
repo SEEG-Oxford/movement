@@ -61,10 +61,10 @@ test_that("movement function throws an error if given the wrong matrix type", {
 test_that("movement sets correct parameters and bounds for original radiation model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
-			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
+	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_data, movementData, progress, hessian, ...) {
+			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_data, movement_matrix=movementData, progress=progress, hessian=hessian)))
 		},   
-		`movement:::predict.movementmodel` = function(predictionModel, location_dataframe_origin, progress) {      
+		`movement:::predict.movementmodel` = function(predictionModel, location_data, progress) {      
 			return (list(prediction=NULL))
 		},		
 		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
@@ -159,7 +159,9 @@ test_that("movement creates population_data correctly", {
 		},
 		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
 		actual_movement_object <- movement(movementData ~ data, gravity()),
-		expect_equal(actual_movement_object$optimisationresults$inputs$population_data, data.frame(origin=locations, pop_origin=population, long_origin=coords[,1], lat_origin=coords[,2]))
+		expected_population_data  <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]),
+    class(expected_population_data)  <- c('location_dataframe', 'data.frame'),
+    expect_equal(actual_movement_object$optimisationresults$inputs$population_data, expected_population_data)
 	)
 })
 

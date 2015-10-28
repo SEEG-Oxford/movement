@@ -3,18 +3,18 @@ library(movement)
 context("Internal prediction and optimisation methods")
 	
 test_that("getNetworkFromdataframe returns population list", {
-	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
+	testdataframe <- data.frame(name=c("a", "b", "c", "d"), location=c(1,2,3,4), population=c(10,20,30,40), x=c(-5,-4,-3,-2), y=c(-1,0,1,2))
 	expectedpopulation <- c(10,20,30,40)
 	expect_equal(getNetworkFromdataframe(testdataframe)$population, expectedpopulation)
 })
 
 test_that("getNetworkFromdataframe returns distance matrix", {	
-	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
+	testdataframe <- data.frame(name=c("a", "b", "c", "d"), location=c(1,2,3,4), population=c(10,20,30,40), x=c(-5,-4,-3,-2), y=c(-1,0,1,2))
 	d <- function(x, y) {
-		p1 = testdataframe$long_origin[x]
-		p2 = testdataframe$lat_origin[x]
-		q1 = testdataframe$long_origin[y]
-		q2 = testdataframe$lat_origin[y]
+		p1 = testdataframe$x[x]
+		p2 = testdataframe$y[x]
+		q1 = testdataframe$x[y]
+		q2 = testdataframe$y[y]
 		return(sqrt((p1-q1)^2 + (p2-q2)^2))
 	}
 	expecteddistance <- matrix(c(d(1,1),d(1,2),d(1,3),d(1,4),d(2,1),d(2,2),d(2,3),d(2,4),d(3,1),d(3,2),d(3,3),d(3,4),d(4,1),d(4,2),d(4,3),d(4,4)), nrow=4, dimnames=list(c(1,2,3,4),c(1,2,3,4)))
@@ -24,7 +24,7 @@ test_that("getNetworkFromdataframe returns distance matrix", {
 })
 
 test_that("getNetworkFromdataframe returns coordinates", {	
-	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
+	testdataframe <- data.frame(name=c("a", "b", "c", "d"), location=c(1,2,3,4), population=c(10,20,30,40), x=c(-5,-4,-3,-2), y=c(-1,0,1,2))
 	
 	expectedcoords <- matrix(c(-5,-4,-3,-2,-1,0,1,2), nrow=4, dimnames=list(c(),c("x","y")))
 	
@@ -33,7 +33,7 @@ test_that("getNetworkFromdataframe returns coordinates", {
 })
 
 test_that("getNetworkFromdataframe returns locations", {	
-	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
+	testdataframe <- data.frame(name=c("a", "b", "c", "d"), location=c(1,2,3,4), population=c(10,20,30,40), x=c(-5,-4,-3,-2), y=c(-1,0,1,2))
 	
 	expectedlocations <- c(1,2,3,4)
 	

@@ -9,21 +9,22 @@
 \arguments{
 \item{object}{A configured prediction model of class \code{optimisedmodel}, ??}
 
-\item{newdata}{An optional data.frame or RasterLayer containing population data}
+\item{newdata}{An optional \code{location_dataframe} object or RasterLayer
+containing population data}
 
 \item{\dots}{Extra arguments to pass to the flux function}
 }
 \value{
 A \code{movementmodel} containing a (dense) matrix giving predicted
-movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
-containing the predicted population movements.
+movements between all sites. \code{optimisedmodel}: A list containing a location
+dataframe from the input, and a matrix containing the predicted population movements.
 }
 \description{
 \code{optimisedmodel}:
 Use a trained \code{optimisedmodel} object to predict population movements
 given either a RasterLayer containing a single population layer, or a
-data.frame containing population and location data with the columns
-\code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
-and \code{lat_origin}(numeric).
+\code{location_dataframe}  object containing population and location data
+with the columns \code{location} (character), \code{population} (numeric),
+\code{x} (numeric) and \code{y} (numeric).
 }
 
