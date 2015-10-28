@@ -1578,7 +1578,7 @@ showprediction.movementmodel <- function(object, ...) {
 #' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # get the network for pixels with at least 50,000 inhabitants
-#' net <- get.network(kenya10, min = 50000)
+#' net <- getNetwork(kenya10, min = 50000)
 #' # visualise the distance matrix
 #' sp::plot(raster::raster(net$distance_matrix))
 #' # plot the raster layer
@@ -1592,7 +1592,7 @@ showprediction.movementmodel <- function(object, ...) {
 #'
 #' @seealso \code{\link{raster}}, \code{\link{dist}}
 #' @export
-get.network <- function(raster, min = 1, matrix = TRUE) {
+getNetwork <- function(raster, min = 1, matrix = TRUE) {
   # extract necessary components for movement modelling
   # from a population raster
   
@@ -1719,7 +1719,7 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux_model = origina
 # @method predict movementmodel
 predict.movementmodel <- function(object, newdata = NULL, ...) {
   if(is.null(newdata)) {
-    net <- get.network(object$dataset, min = object$min_network_pop)
+    net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
   else {
     net <- get.network.fromdataframe(newdata, min = object$min_network_pop)
