@@ -3,13 +3,13 @@ library(movement)
 
 context("Internal prediction and optimisation methods")
 	
-test_that("get.network.fromdataframe returns population list", {
+test_that("getNetworkFromdataframe returns population list", {
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
 	expectedpopulation <- c(10,20,30,40)
-	expect_equal(get.network.fromdataframe(testdataframe)$population, expectedpopulation)
+	expect_equal(getNetworkFromdataframe(testdataframe)$population, expectedpopulation)
 })
 
-test_that("get.network.fromdataframe returns distance matrix", {	
+test_that("getNetworkFromdataframe returns distance matrix", {	
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
 	d <- function(x, y) {
 		p1 = testdataframe$long_origin[x]
@@ -20,25 +20,25 @@ test_that("get.network.fromdataframe returns distance matrix", {
 	}
 	expecteddistance <- matrix(c(d(1,1),d(1,2),d(1,3),d(1,4),d(2,1),d(2,2),d(2,3),d(2,4),d(3,1),d(3,2),d(3,3),d(3,4),d(4,1),d(4,2),d(4,3),d(4,4)), nrow=4, dimnames=list(c(1,2,3,4),c(1,2,3,4)))
 	
-	actual <- get.network.fromdataframe(testdataframe)$distance_matrix
+	actual <- getNetworkFromdataframe(testdataframe)$distance_matrix
 	expect_equal(actual, expecteddistance)
 })
 
-test_that("get.network.fromdataframe returns coordinates", {	
+test_that("getNetworkFromdataframe returns coordinates", {	
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
 	
 	expectedcoords <- matrix(c(-5,-4,-3,-2,-1,0,1,2), nrow=4, dimnames=list(c(),c("x","y")))
 	
-	actual <- get.network.fromdataframe(testdataframe)$coordinates
+	actual <- getNetworkFromdataframe(testdataframe)$coordinates
 	expect_equal(actual, expectedcoords)
 })
 
-test_that("get.network.fromdataframe returns locations", {	
+test_that("getNetworkFromdataframe returns locations", {	
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), origin=c(1,2,3,4), pop_origin=c(10,20,30,40), long_origin=c(-5,-4,-3,-2), lat_origin=c(-1,0,1,2))
 	
 	expectedlocations <- c(1,2,3,4)
 	
-	actual <- get.network.fromdataframe(testdataframe)$locations
+	actual <- getNetworkFromdataframe(testdataframe)$locations
 	expect_equal(actual, expectedlocations)
 })
 
@@ -88,10 +88,10 @@ test_that("predict.movementmodel uses the correct version of get.network", {
 	predictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	with_mock(
     get.network = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network"),
-		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network.fromdataframe"),
+		getNetworkFromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetworkFromdataframe"),
 		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) NULL,
 		expect_equal(predict.movementmodel(predictionModel)$net$name, "get.network"),
-		expect_equal(predict.movementmodel(predictionModel, data.frame(c(1,1)))$net$name, "get.network.fromdataframe")
+		expect_equal(predict.movementmodel(predictionModel, data.frame(c(1,1)))$net$name, "getNetworkFromdataframe")
 	)
 })
 
@@ -99,7 +99,7 @@ test_that("predict.movementmodel calls movement.predict with the correct flux me
 	gravityPredictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	radiationPredictionModel = list(flux_model = radiationWithSelection(), symmetric = FALSE)
 	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL),
-		get.network.fromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL),
+		getNetworkFromdataframe = function(x, min) list(distance_matrix = NULL, population = NULL),
 		`movement:::gravityFlux` = function() return ("gravity"),
 		`movement:::radiationWithSelectionFlux` = function() return("radiation with selection"),
 		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) return (flux()),
