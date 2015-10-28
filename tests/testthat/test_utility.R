@@ -45,21 +45,21 @@ test_that("as.locationdataframe creates data.frame with correct lon column", {
 	expect_equal(as.locationdataframe(testdata)$y, c(-5,-4,-3,-2))
 })
 
-test_that("as.movementmatrix returns error for a non-square matrix", {
+test_that("as.movement_matrix returns error for a non-square matrix", {
 	testdata <- data.frame(origin=c("a","a"), destination=c("b", "c"), movement=c(1,2))
-	expect_error(as.movementmatrix(testdata), "Expected a square matrix!")
+	expect_error(as.movement_matrix(testdata), "Expected a square matrix!")
 })
 
-test_that("as.movementmatrix returns a matrix of the correct dimensions", {
+test_that("as.movement_matrix returns a matrix of the correct dimensions", {
 	testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
-	expect_equal(dim(as.movementmatrix(testdata)), c(2,2))
+	expect_equal(dim(as.movement_matrix(testdata)), c(2,2))
 })
 
-test_that("as.movementmatrix returns the correct matrix", {
+test_that("as.movement_matrix returns the correct matrix", {
 	testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
 	expectedmatrix <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
-	class(expectedmatrix)  <- c('matrix', 'movementmatrix')
-	expect_equal(as.movementmatrix(testdata), expectedmatrix)
+	class(expectedmatrix)  <- c('matrix', 'movement_matrix')
+	expect_equal(as.movement_matrix(testdata), expectedmatrix)
 })
 
 test_that("correlate regions works for small test case", {

@@ -13,9 +13,9 @@
 #'
 #' Uses the \code{\link{optim}} method to create an optimised model of
 #' population movements.
-#' @param formula A formula with one response (a \code{movementmatrix} object) and 
-#' one predictor (a \code{locationdataframe} object), e.g. movementmatrix ~ locationdataframe.
-#' The \code{locationdataframe} object contains location data and the \code{movementmatrix}
+#' @param formula A formula with one response (a \code{movement_matrix} object) and 
+#' one predictor (a \code{locationdataframe} object), e.g. movement_matrix ~ locationdataframe.
+#' The \code{locationdataframe} object contains location data and the \code{movement_matrix}
 #' object contains the observed population movements. 
 #' @param flux_model The name of the movement model to use. Currently supported
 #' models are \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}},
@@ -26,7 +26,7 @@
 #' and the optimisation results. 
 #'
 #' @seealso \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
-#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{originalRadiation}}, 
+#' \code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}}, 
 #' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
 #' \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 #' @note The most likely format of the location data will be as a single
@@ -34,8 +34,8 @@
 #' \code{long}. This can be extracted from a larger dataframe with
 #' \code{\link{as.locationdataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
-#' using \code{\link{as.movementmatrix}}. To check that the given objects are suitable, 
-#' the helper functions \code{\link{is.locationdataframe}} and \code{\link{is.movementmatrix}}
+#' using \code{\link{as.movement_matrix}}. To check that the given objects are suitable, 
+#' the helper functions \code{\link{is.locationdataframe}} and \code{\link{is.movement_matrix}}
 #' can be used.
 #' @export
 #' @examples
@@ -57,9 +57,9 @@
 #' #showprediction(predictedMovements)
 movement <- function(formula, flux_model = gravity(), ...) {
   
-  # receive the movementmatrix and the locationdataframe from the formula
+  # receive the movement_matrix and the locationdataframe from the formula
   args  <- extractArgumentsFromFormula(formula)
-  movementmatrix  <- args$movementmatrix
+  movement_matrix  <- args$movement_matrix
   locationdataframe  <- args$locationdataframe
   
   # error handling for flux_model input
@@ -69,7 +69,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
 
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
-  nobs <- nrow(movementmatrix) * ncol(movementmatrix) - nrow(movementmatrix) # all values in the movementmatrix except the diagonal
+  nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
   nulldf <- nobs # no predictors for null degrees of freedom
   
   # create the prediction model which is a movementmodel object
@@ -79,14 +79,14 @@ movement <- function(formula, flux_model = gravity(), ...) {
   populationdata  <- data.frame(origin=locationdataframe$location, pop_origin=locationdataframe$population, long_origin=locationdataframe$x,lat_origin=locationdataframe$y)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, populationdata, movementmatrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, populationdata, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
     
   # populate the training results (so we can see the end result); this is also a movementmodel object
   training_results <- predict.movementmodel(predictionModel, populationdata, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   
   cat("Training complete.\n")
-  dimnames(training_results$prediction) <- dimnames(movementmatrix)
+  dimnames(training_results$prediction) <- dimnames(movement_matrix)
   me <- list(optimisationresults = optimresults,
              trainingresults = training_results,
              coefficients = optimresults$par,
@@ -105,11 +105,11 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
   if (length(formula) == 3) {
     
     # extracte the objects from the formula
-    movementmatrix <- get(as.character(formula[[2]]))
+    movement_matrix <- get(as.character(formula[[2]]))
     locationdataframe <- get(as.character(formula[[3]]))
     
     # run checks to ensure the extracted objects are of the required class
-    if (is.movementmatrix(movementmatrix) &
+    if (is.movement_matrix(movement_matrix) &
           is.locationdataframe(locationdataframe)) {
       bad_args <- FALSE
     } else {
@@ -121,10 +121,10 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
   }
   
   if (bad_args) {
-    stop ('Error: formula must have one response (a movementmatrix object) and one predictor (a locationdataframe object)')
+    stop ('Error: formula must have one response (a movement_matrix object) and one predictor (a locationdataframe object)')
   }
 
-  args  <- list(movementmatrix = movementmatrix, locationdataframe = locationdataframe)
+  args  <- list(movement_matrix = movement_matrix, locationdataframe = locationdataframe)
   return (args)  
 }
 
@@ -1894,9 +1894,9 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 #' 
 #' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
 #' \code{lat} (numeric) and \code{lon} (numeric).
-#' @name as.movementmatrix
+#' @name as.movement_matrix
 #' @export
-as.movementmatrix <- function(dataframe) {
+as.movement_matrix <- function(dataframe) {
   nrows <- length(unique(dataframe[1])[,])
   ncols <- length(unique(dataframe[2])[,])
   if(nrows != ncols) {
@@ -1913,20 +1913,20 @@ as.movementmatrix <- function(dataframe) {
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
   
-  class(mat) <- c('matrix', 'movementmatrix')
+  class(mat) <- c('matrix', 'movement_matrix')
   return (mat)
 }
 
-#' @title  Check if given matrix if 'movementmatrix' object
+#' @title  Check if given matrix if 'movement_matrix' object
 #'
 #' @description
-#' Helper function checking that the given object inherits from \code{movementmatrix} class. 
+#' Helper function checking that the given object inherits from \code{movement_matrix} class. 
 #' 
 #' @param x The object to be checked.
-#' @return True if the given object is a \code{movementmatrix} object; false otherwise
+#' @return True if the given object is a \code{movement_matrix} object; false otherwise
 #' @export
-is.movementmatrix <- function(x) {
-  res  <- inherits(x, 'movementmatrix')
+is.movement_matrix <- function(x) {
+  res  <- inherits(x, 'movement_matrix')
   return(res)
 }
 
@@ -2096,7 +2096,7 @@ correlateregions <- function(location, regionlist, movementdata) {
   # code to remove the missing factors
   allnames$name <- as.factor(as.vector(allnames$name))
   
-  return (list(locations=allnames[,c(1,3,4,5)],observed=as.movementmatrix(movementdata)))	
+  return (list(locations=allnames[,c(1,3,4,5)],observed=as.movement_matrix(movementdata)))	
 }
 
 #' Show a plot comparing and optimised model, and an observed dataset.

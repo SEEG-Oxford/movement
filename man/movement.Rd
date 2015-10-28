@@ -7,9 +7,9 @@
 movement(formula, flux_model = gravity(), ...)
 }
 \arguments{
-\item{formula}{A formula with one response (a \code{movementmatrix} object) and
-one predictor (a \code{locationdataframe} object), e.g. movementmatrix ~ locationdataframe.
-The \code{locationdataframe} object contains location data and the \code{movementmatrix}
+\item{formula}{A formula with one response (a \code{movement_matrix} object) and
+one predictor (a \code{locationdataframe} object), e.g. movement_matrix ~ locationdataframe.
+The \code{locationdataframe} object contains location data and the \code{movement_matrix}
 object contains the observed population movements.}
 
 \item{flux_model}{The name of the movement model to use. Currently supported
@@ -33,8 +33,8 @@ The most likely format of the location data will be as a single
 \code{long}. This can be extracted from a larger dataframe with
 \code{\link{as.locationdataframe}}
 The \code{movement_matrix} can be extracted from a list of movements
-using \code{\link{as.movementmatrix}}. To check that the given objects are suitable,
-the helper functions \code{\link{is.locationdataframe}} and \code{\link{is.movementmatrix}}
+using \code{\link{as.movement_matrix}}. To check that the given objects are suitable,
+the helper functions \code{\link{is.locationdataframe}} and \code{\link{is.movement_matrix}}
 can be used.
 }
 \examples{
@@ -57,7 +57,7 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 }
 \seealso{
 \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
-\code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{originalRadiation}},
+\code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}},
 \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}},
 \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 }
