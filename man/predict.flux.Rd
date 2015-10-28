@@ -10,7 +10,7 @@
 \arguments{
 \item{object}{A theoretical model of type \code{flux} object}
 
-\item{locationdataframe}{A data.frame or RasterLayer containing population data}
+\item{locationdataframe}{A \code{location_dataframe} object or RasterLayer containing population data}
 
 \item{min_network_pop}{Optional parameter for the minimum population of a site
 in order for it to be processed}
@@ -28,9 +28,9 @@ containing the predicted population movements.
 \description{
 Use a \code{flux} object to predict population movements
 given either a RasterLayer containing a single population layer, or a
-data.frame containing population and location data with the columns
-\code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
-and \code{lat_origin} (numeric).
+\code{location_dataframe}  object containing population and location data with the columns
+\code{location} (character), \code{population} (numeric), \code{x} (numeric)
+and \code{y} (numeric).
 
 The model can be calculated either for both directions (by setting the optional parameter
 \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for

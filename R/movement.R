@@ -129,9 +129,9 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' 
 #' @description Use a \code{flux} object to predict population movements
 #' given either a RasterLayer containing a single population layer, or a
-#' data.frame containing population and location data with the columns
-#' \code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
-#' and \code{lat_origin} (numeric).
+#' \code{location_dataframe}  object containing population and location data with the columns
+#' \code{location} (character), \code{population} (numeric), \code{x} (numeric)
+#' and \code{y} (numeric).
 #' 
 #' The model can be calculated either for both directions (by setting the optional parameter
 #' \code{symmetric = FALSE}, resulting in an asymmetric movement matrix) or for
@@ -139,7 +139,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' symmetric matrix)).
 #'
 #' @param object A theoretical model of type \code{flux} object
-#' @param locationdataframe A data.frame or RasterLayer containing population data
+#' @param locationdataframe A \code{location_dataframe} object or RasterLayer containing population data
 #' @param min_network_pop Optional parameter for the minimum population of a site 
 #' in order for it to be processed
 #' @param symmetric Optional parameter to define whether to calculate symmetric or 
@@ -189,17 +189,18 @@ predict.flux <- function(object, locationdataframe, min_network_pop = 50000, sym
 #' \code{optimisedmodel}:
 #' Use a trained \code{optimisedmodel} object to predict population movements
 #' given either a RasterLayer containing a single population layer, or a
-#' data.frame containing population and location data with the columns 
-#' \code{origin} (character), \code{pop_origin} (numeric), \code{long_origin} (numeric)
-#' and \code{lat_origin}(numeric).
+#' \code{location_dataframe}  object containing population and location data 
+#' with the columns \code{location} (character), \code{population} (numeric), 
+#' \code{x} (numeric) and \code{y} (numeric).
 #' 
 #' @param object A configured prediction model of class \code{optimisedmodel}, ??
-#' @param newdata An optional data.frame or RasterLayer containing population data
+#' @param newdata An optional \code{location_dataframe} object or RasterLayer 
+#' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' 
 #' @return A \code{movementmodel} containing a (dense) matrix giving predicted
-#' movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
-#' containing the predicted population movements.
+#' movements between all sites. \code{optimisedmodel}: A list containing a location 
+#' dataframe from the input, and a matrix containing the predicted population movements.
 #' 
 #' @name predict.optimisedmodel
 #' @method predict optimisedmodel
