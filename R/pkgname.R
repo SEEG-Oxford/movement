@@ -11,7 +11,7 @@
 #' @name movement-package
 #'
 #' @seealso \code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.optimisedmodel}}
-#' \code{\link{showprediction}}, \code{\link{get.network}}, \code{\link{kenya}}, 
+#' \code{\link{showprediction}}, \code{\link{getNetwork}}, \code{\link{kenya}}, 
 #'
 #' @importFrom graphics arrows par plot points
 #' @importFrom grDevices rgb

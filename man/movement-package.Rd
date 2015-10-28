@@ -18,6 +18,6 @@ Maintainer: Nick Golding <nick.golding.research at gmail.com>
 }
 \seealso{
 \code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.optimisedmodel}}
-\code{\link{showprediction}}, \code{\link{get.network}}, \code{\link{kenya}},
+\code{\link{showprediction}}, \code{\link{getNetwork}}, \code{\link{kenya}},
 }
 

@@ -4,13 +4,13 @@
 \alias{predict.flux}
 \title{Predict from theoretical flux object}
 \usage{
-\method{predict}{flux}(object, locationdataframe, min_network_pop = 50000,
+\method{predict}{flux}(object, location_dataframe, min_network_pop = 50000,
   symmetric = FALSE, ...)
 }
 \arguments{
 \item{object}{A theoretical model of type \code{flux} object}
 
-\item{locationdataframe}{A \code{location_dataframe} object or RasterLayer containing population data}
+\item{location_dataframe}{A \code{location_dataframe} object or RasterLayer containing population data}
 
 \item{min_network_pop}{Optional parameter for the minimum population of a site
 in order for it to be processed}

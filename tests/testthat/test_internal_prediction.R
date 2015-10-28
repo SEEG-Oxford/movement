@@ -1,6 +1,5 @@
 library(movement)
 
-
 context("Internal prediction and optimisation methods")
 	
 test_that("getNetworkFromdataframe returns population list", {
@@ -84,13 +83,13 @@ test_that("analysepredictionusingdpois using simplest possible matrices returns 
 	expect_equal(actual, 5.227411277760218411004)
 })
 
-test_that("predict.movementmodel uses the correct version of get.network", {
+test_that("predict.movementmodel uses the correct version of getNetwork", {
 	predictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	with_mock(
-    get.network = function(x, min) list(distance_matrix = NULL, population = NULL, name = "get.network"),
+    getNetwork = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetwork"),
     `movement:::getNetworkFromdataframe` = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetworkFromdataframe"),
 		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) NULL,
-		expect_equal(predict.movementmodel(predictionModel)$net$name, "get.network"),
+		expect_equal(predict.movementmodel(predictionModel)$net$name, "getNetwork"),
 		expect_equal(predict.movementmodel(predictionModel, data.frame(c(1,1)))$net$name, "getNetworkFromdataframe")
 	)
 })
@@ -98,8 +97,8 @@ test_that("predict.movementmodel uses the correct version of get.network", {
 test_that("predict.movementmodel calls movement.predict with the correct flux method", {
 	gravityPredictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	radiationPredictionModel = list(flux_model = radiationWithSelection(), symmetric = FALSE)
-	with_mock(get.network = function(x, min) list(distance_matrix = NULL, population = NULL),
-	  `movement:::getNetworkFromdataframe` = function(x, min) list(distance_matrix = NULL, population = NULL),
+	with_mock(getNetwork = function(x, min) list(distance_matrix = NULL, population = NULL),
+    `movement:::getNetworkFromdataframe` = function(x, min) list(distance_matrix = NULL, population = NULL),
 		`movement:::gravityFlux` = function() return ("gravity"),
 		`movement:::radiationWithSelectionFlux` = function() return("radiation with selection"),
 		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) return (flux()),
