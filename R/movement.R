@@ -13,9 +13,9 @@
 #'
 #' Uses the \code{\link{optim}} method to create an optimised model of
 #' population movements.
-#' @param formula A formula with one response (a \code{movementmatrix} object) and 
-#' one predictor (a \code{locationdataframe} object), e.g. movementmatrix ~ locationdataframe.
-#' The \code{locationdataframe} object contains location data and the \code{movementmatrix}
+#' @param formula A formula with one response (a \code{movement_matrix} object) and 
+#' one predictor (a \code{location_dataframe} object), e.g. movement_matrix ~ location_dataframe.
+#' The \code{location_dataframe} object contains location data and the \code{movement_matrix}
 #' object contains the observed population movements. 
 #' @param flux_model The name of the movement model to use. Currently supported
 #' models are \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}},
@@ -25,17 +25,17 @@
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. 
 #'
-#' @seealso \code{\link{as.locationdataframe}}, \code{\link{is.locationdataframe}},
-#' \code{\link{as.movementmatrix}}, \code{\link{is.movementmatrix}}, \code{\link{originalRadiation}}, 
+#' @seealso \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
+#' \code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}}, 
 #' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
 #' \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 #' @note The most likely format of the location data will be as a single
 #' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
 #' \code{long}. This can be extracted from a larger dataframe with
-#' \code{\link{as.locationdataframe}}
+#' \code{\link{as.location_dataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
-#' using \code{\link{as.movementmatrix}}. To check that the given objects are suitable, 
-#' the helper functions \code{\link{is.locationdataframe}} and \code{\link{is.movementmatrix}}
+#' using \code{\link{as.movement_matrix}}. To check that the given objects are suitable, 
+#' the helper functions \code{\link{is.location_dataframe}} and \code{\link{is.movement_matrix}}
 #' can be used.
 #' @export
 #' @examples
@@ -57,10 +57,10 @@
 #' #showprediction(predictedMovements)
 movement <- function(formula, flux_model = gravity(), ...) {
   
-  # receive the movementmatrix and the locationdataframe from the formula
+  # receive the movement_matrix and the location_dataframe from the formula
   args  <- extractArgumentsFromFormula(formula)
-  movementmatrix  <- args$movementmatrix
-  locationdataframe  <- args$locationdataframe
+  movement_matrix  <- args$movement_matrix
+  location_dataframe  <- args$location_dataframe
   
   # error handling for flux_model input
   if(!is(flux_model, "flux")){
@@ -69,24 +69,24 @@ movement <- function(formula, flux_model = gravity(), ...) {
 
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
-  nobs <- nrow(movementmatrix) * ncol(movementmatrix) - nrow(movementmatrix) # all values in the movementmatrix except the diagonal
+  nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
   nulldf <- nobs # no predictors for null degrees of freedom
   
   # create the prediction model which is a movementmodel object
   predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # assemble a populationdata original data.frame for predict.movementmodel to use 
-  populationdata  <- data.frame(origin=locationdataframe$location, pop_origin=locationdataframe$population, long_origin=locationdataframe$x,lat_origin=locationdataframe$y)
+  populationdata  <- data.frame(origin=location_dataframe$location, pop_origin=location_dataframe$population, long_origin=location_dataframe$x,lat_origin=location_dataframe$y)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, populationdata, movementmatrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, populationdata, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
     
   # populate the training results (so we can see the end result); this is also a movementmodel object
   training_results <- predict.movementmodel(predictionModel, populationdata, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   
   cat("Training complete.\n")
-  dimnames(training_results$prediction) <- dimnames(movementmatrix)
+  dimnames(training_results$prediction) <- dimnames(movement_matrix)
   me <- list(optimisationresults = optimresults,
              trainingresults = training_results,
              coefficients = optimresults$par,
@@ -105,12 +105,12 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
   if (length(formula) == 3) {
     
     # extracte the objects from the formula
-    movementmatrix <- get(as.character(formula[[2]]))
-    locationdataframe <- get(as.character(formula[[3]]))
+    movement_matrix <- get(as.character(formula[[2]]))
+    location_dataframe <- get(as.character(formula[[3]]))
     
     # run checks to ensure the extracted objects are of the required class
-    if (is.movementmatrix(movementmatrix) &
-          is.locationdataframe(locationdataframe)) {
+    if (is.movement_matrix(movement_matrix) &
+          is.location_dataframe(location_dataframe)) {
       bad_args <- FALSE
     } else {
       bad_args <- TRUE
@@ -121,10 +121,10 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
   }
   
   if (bad_args) {
-    stop ('Error: formula must have one response (a movementmatrix object) and one predictor (a locationdataframe object)')
+    stop ('Error: formula must have one response (a movement_matrix object) and one predictor (a location_dataframe object)')
   }
 
-  args  <- list(movementmatrix = movementmatrix, locationdataframe = locationdataframe)
+  args  <- list(movement_matrix = movement_matrix, location_dataframe = location_dataframe)
   return (args)  
 }
 
@@ -142,7 +142,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' symmetric matrix)).
 #'
 #' @param object A theoretical model of type \code{flux} object
-#' @param locationdataframe A data.frame or RasterLayer containing population data
+#' @param location_dataframe A data.frame or RasterLayer containing population data
 #' @param min_network_pop Optional parameter for the minimum population of a site 
 #' in order for it to be processed
 #' @param symmetric Optional parameter to define whether to calculate symmetric or 
@@ -164,26 +164,26 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
-predict.flux <- function(object, locationdataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
+predict.flux <- function(object, location_dataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
   
-  if(is(locationdataframe, "RasterLayer")) {
+  if(is(location_dataframe, "RasterLayer")) {
     # create the prediction model (= movementmodel object)
-    predictionModel <- movementmodel(dataset = locationdataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
+    predictionModel <- movementmodel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
     prediction <- predict.movementmodel(predictionModel)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))
-  } else if (is(locationdataframe, "data.frame")) {
+  } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model (= movementmodel object)
-    predictionModel <- movementmodel(dataset=locationdataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
-    prediction <- predict.movementmodel(predictionModel, locationdataframe)
+    predictionModel <- movementmodel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
+    prediction <- predict.movementmodel(predictionModel, location_dataframe)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))
   } else {
-    stop('Error: Expected parameter `locationdataframe` to be either a RasterLayer or a data.frame')
+    stop('Error: Expected parameter `location_dataframe` to be either a RasterLayer or a data.frame')
   }
 }
 
@@ -1578,7 +1578,7 @@ showprediction.movementmodel <- function(object, ...) {
 #' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # get the network for pixels with at least 50,000 inhabitants
-#' net <- get.network(kenya10, min = 50000)
+#' net <- getNetwork(kenya10, min = 50000)
 #' # visualise the distance matrix
 #' sp::plot(raster::raster(net$distance_matrix))
 #' # plot the raster layer
@@ -1592,7 +1592,7 @@ showprediction.movementmodel <- function(object, ...) {
 #'
 #' @seealso \code{\link{raster}}, \code{\link{dist}}
 #' @export
-get.network <- function(raster, min = 1, matrix = TRUE) {
+getNetwork <- function(raster, min = 1, matrix = TRUE) {
   # extract necessary components for movement modelling
   # from a population raster
   
@@ -1716,7 +1716,7 @@ movementmodel <- function(dataset, min_network_pop = 50000, flux_model = origina
 # @method predict movementmodel
 predict.movementmodel <- function(object, newdata = NULL, ...) {
   if(is.null(newdata)) {
-    net <- get.network(object$dataset, min = object$min_network_pop)
+    net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
   else {
     net <- getNetworkFromdataframe(newdata, min = object$min_network_pop)
@@ -1878,11 +1878,11 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
   return (sparseMatrix)
 }
 
-#' @title Conversion to locationdataframe
+#' @title Conversion to location_dataframe
 #' 
-#' @description Convert objects to \code{locationdataframe} objects
+#' @description Convert objects to \code{location_dataframe} objects
 #' 
-#' @param dataframe object to convert to a \code{locationdataframe} object.
+#' @param dataframe object to convert to a \code{location_dataframe} object.
 #' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
 #' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
 #' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
@@ -1891,9 +1891,9 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 #' 
 #' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
 #' \code{lat} (numeric) and \code{lon} (numeric).
-#' @name as.movementmatrix
+#' @name as.movement_matrix
 #' @export
-as.movementmatrix <- function(dataframe) {
+as.movement_matrix <- function(dataframe) {
   nrows <- length(unique(dataframe[1])[,])
   ncols <- length(unique(dataframe[2])[,])
   if(nrows != ncols) {
@@ -1910,29 +1910,29 @@ as.movementmatrix <- function(dataframe) {
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
   
-  class(mat) <- c('matrix', 'movementmatrix')
+  class(mat) <- c('matrix', 'movement_matrix')
   return (mat)
 }
 
-#' @title  Check if given matrix if 'movementmatrix' object
+#' @title  Check if given matrix if 'movement_matrix' object
 #'
 #' @description
-#' Helper function checking that the given object inherits from \code{movementmatrix} class. 
+#' Helper function checking that the given object inherits from \code{movement_matrix} class. 
 #' 
 #' @param x The object to be checked.
-#' @return True if the given object is a \code{movementmatrix} object; false otherwise
+#' @return True if the given object is a \code{movement_matrix} object; false otherwise
 #' @export
-is.movementmatrix <- function(x) {
-  res  <- inherits(x, 'movementmatrix')
+is.movement_matrix <- function(x) {
+  res  <- inherits(x, 'movement_matrix')
   return(res)
 }
 
 
-#' @title Conversion to locationdataframe
+#' @title Conversion to location_dataframe
 #' 
-#' @description Convert objects to \code{locationdataframe} objects
+#' @description Convert objects to \code{location_dataframe} objects
 #' 
-#' @param input object to convert to a \code{locationdataframe} object.
+#' @param input object to convert to a \code{location_dataframe} object.
 #' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
 #' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
 #' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
@@ -1941,16 +1941,16 @@ is.movementmatrix <- function(x) {
 #' 
 #' @return A data.frame containing location data with columns \code{location} (character), \code{population} (numeric), 
 #' \code{x} (numeric) and \code{y} (numeric).
-#' @name as.locationdataframe
+#' @name as.location_dataframe
 #' @export
-as.locationdataframe <- function(input, ...) {
-  UseMethod("as.locationdataframe", input)
+as.location_dataframe <- function(input, ...) {
+  UseMethod("as.location_dataframe", input)
 }
 
-#' @rdname as.locationdataframe
+#' @rdname as.location_dataframe
 #' @export
-#' @method as.locationdataframe data.frame
-as.locationdataframe.data.frame <- function(input, ...) {
+#' @method as.location_dataframe data.frame
+as.location_dataframe.data.frame <- function(input, ...) {
   input <- input[!duplicated(input$origin),]
   pop <- as.numeric(input["pop_origin"]$pop_origin)
   lat <- as.numeric(input["lat_origin"]$lat_origin)
@@ -1960,7 +1960,7 @@ as.locationdataframe.data.frame <- function(input, ...) {
                      population = pop,
                      x = lat,
                      y = long)
-  class(ans)  <- c('locationdataframe', 'data.frame')
+  class(ans)  <- c('location_dataframe', 'data.frame')
   return (ans)
 }
 
@@ -1968,29 +1968,29 @@ as.locationdataframe.data.frame <- function(input, ...) {
 # make sure it is cropped to the correct region first using raster::crop
 # for portugal, this works: crop(gadm, extent(-10, -6.189142, 30, 42.154232))
 # portugal gadm is missing 2 municipalities (Tavira and Guimaraes): http://www.igeo.pt/DadosAbertos/Listagem.aspx#
-#' @rdname as.locationdataframe
+#' @rdname as.location_dataframe
 #' @param populationraster a \code{RasterLayer} object with each the value of
 #'  each cell giving the associated population density.
 #' @export
-#' @method as.locationdataframe SpatialPolygonsDataFrame
-as.locationdataframe.SpatialPolygonsDataFrame <- function(input, populationraster, ...) {
+#' @method as.location_dataframe SpatialPolygonsDataFrame
+as.location_dataframe.SpatialPolygonsDataFrame <- function(input, populationraster, ...) {
   result <- data.frame(simplifytext(input$NAME_2),input$ID_2,raster::extract(populationraster,input, fun=sum),sp::coordinates(input))
   colnames(result) <- c("name", "location", "population", "x", "y")
-  class(result)  <- c('locationdataframe', 'data.frame')
+  class(result)  <- c('location_dataframe', 'data.frame')
   return (result)
 }
 
-#' @title  Check if given data.frame is 'locationdataframe' object
+#' @title  Check if given data.frame is 'location_dataframe' object
 #'
 #' @description
-#' Helper function checking that the given object inherits from \code{locationdataframe} class. 
+#' Helper function checking that the given object inherits from \code{location_dataframe} class. 
 #' 
 #' @param x The object to be checked.
 #' 
-#' @return True if the given object is a \code{locationdataframe} object; false otherwise
+#' @return True if the given object is a \code{location_dataframe} object; false otherwise
 #' @export
-is.locationdataframe <- function(x) {
-  res  <- inherits(x, 'locationdataframe')
+is.location_dataframe <- function(x) {
+  res  <- inherits(x, 'location_dataframe')
   return(res)
 }
 
@@ -2093,7 +2093,7 @@ correlateregions <- function(location, regionlist, movementdata) {
   # code to remove the missing factors
   allnames$name <- as.factor(as.vector(allnames$name))
   
-  return (list(locations=allnames[,c(1,3,4,5)],observed=as.movementmatrix(movementdata)))	
+  return (list(locations=allnames[,c(1,3,4,5)],observed=as.movement_matrix(movementdata)))	
 }
 
 #' Show a plot comparing and optimised model, and an observed dataset.
