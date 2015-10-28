@@ -1766,7 +1766,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # @return The log likelihood of the prediction given the observed data.
 fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
   # the flux function requires the untransformed (i.e. original, constraint) parameters and therefore, need to perform 
-  # the inverse transformation here
+  # the inverse transformation here 
   originalParams  <- transformFluxObjectParameters(par, predictionModel$flux_model$transform, inverse = TRUE)
   predictionModel$flux_model$params <- originalParams
   predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
