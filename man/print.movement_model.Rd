@@ -12,8 +12,7 @@
 
 \item{digits}{number of significant digits, see print.default.}
 
-\item{\dots}{further arguments to be passed to or from other methods.
-They are ignored in this function.}
+\item{\dots}{further arguments to be passed to or from other methods.}
 }
 \description{
 Print etails of an optimised movement model
