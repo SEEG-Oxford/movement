@@ -159,7 +159,9 @@ test_that("movement creates population_data correctly", {
 		},
 		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
 		actual_movement_object <- movement(movementmatrix ~ data, gravity()),
-		expect_equal(actual_movement_object$optimisationresults$inputs$population_data, data.frame(origin=locations, pop_origin=population, long_origin=coords[,1], lat_origin=coords[,2]))
+		expected_population_data  <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]),
+    class(expected_population_data)  <- c('locationdataframe', 'data.frame'),
+		expect_equal(actual_movement_object$optimisationresults$inputs$population_data, expected_population_data)
 	)
 })
 

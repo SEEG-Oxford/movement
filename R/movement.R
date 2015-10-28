@@ -60,7 +60,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
   # receive the movementmatrix and the locationdataframe from the formula
   args  <- extractArgumentsFromFormula(formula)
   movementmatrix  <- args$movementmatrix
-  locationdataframe  <- args$locationdataframe
+  location_data  <- args$locationdataframe
   
   # error handling for flux_model input
   if(!is(flux_model, "flux")){
@@ -75,14 +75,11 @@ movement <- function(formula, flux_model = gravity(), ...) {
   # create the prediction model which is a movementmodel object
   predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
-  # assemble a populationdata original data.frame for predict.movementmodel to use 
-  populationdata  <- data.frame(origin=locationdataframe$location, pop_origin=locationdataframe$population, long_origin=locationdataframe$x,lat_origin=locationdataframe$y)
-  
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, populationdata, movementmatrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, location_data, movementmatrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
     
   # populate the training results (so we can see the end result); this is also a movementmodel object
-  training_results <- predict.movementmodel(predictionModel, populationdata, progress=FALSE)
+  training_results <- predict.movementmodel(predictionModel, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   
   cat("Training complete.\n")
@@ -1631,7 +1628,7 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 # use in movement models.
 #
 # @param dataframe A data.frame object of containing population, and
-# location data.
+# location data using a location_dataframe object
 # @param min The minimum population size for inclusion in the network. All
 # cells with populations greater than or equal to \code{min} will be included
 # and other excluded.
@@ -1647,13 +1644,14 @@ get.network <- function(raster, min = 1, matrix = TRUE) {
 #  \item{coordinate }{A two-column matrix giving the coordinates of the cells
 # of interest in the units of \code{raster}}
 getNetworkFromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
-  dataframe <- dataframe[!duplicated(dataframe$origin),]
-  pop <- as.numeric(dataframe["pop_origin"]$pop_origin)
-  coords <- as.matrix(dataframe[c("long_origin", "lat_origin")])
+
+  dataframe <- dataframe[!duplicated(dataframe$location),]
+  pop <- as.numeric(dataframe["population"]$population)
+  coords <- as.matrix(dataframe[c("x", "y")])
   coords <- matrix(coords, ncol=2)
   colnames(coords)  <- c("x","y")
   dis <- dist(coords)
-  locations <- dataframe["origin"]$origin
+  locations <- dataframe["location"]$location
   
   # if we want a matrix, not a 'dist' object convert it
   if (matrix) {
