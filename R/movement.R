@@ -2242,7 +2242,7 @@ travelTime <- function (friction,
 transformFluxObjectParameters  <- function(params, transform, inverse = FALSE){
   
   numberOfParams  <- length(params)
-  transformedParams  <- c(NA, numberOfParams)
+  transformedParams  <- vector(mode = "numeric", numberOfParams)
     
   for(i in 1:numberOfParams){
     transformation  <- transform[[i]]
