@@ -41,10 +41,10 @@ test_that("getNetworkFromdataframe returns locations", {
 	expect_equal(actual, expectedlocations)
 })
 
-test_that("movementmodel with default parameters creates correct object", {
-	actual <- movementmodel("test")
+test_that("makePredictionModel with default parameters creates correct object", {
+	actual <- makePredictionModel("test")
   default_flux_model_params  <- c(theta=0.9)
-	expect_true(is(actual, "movementmodel"))
+	expect_true(is(actual, "prediction_model"))
 	expect_equal(actual$dataset, "test")
 	expect_equal(actual$min_network_pop, 50000)
   expect_is(actual$flux_model, "flux")
@@ -52,11 +52,11 @@ test_that("movementmodel with default parameters creates correct object", {
 	expect_equal(actual$flux_model$params, default_flux_model_params)
 })
 
-test_that("movementmodel with non-default parameters creates correct object", {
-	actual <- movementmodel("test", 1, gravity(), FALSE)
+test_that("makePredictionModel with non-default parameters creates correct object", {
+	actual <- makePredictionModel("test", 1, gravity(), FALSE)
 	expected_flux_model_params  <- c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01)
 	expected_flux_model_flux  <- gravityFlux
-	expect_is(actual, "movementmodel")
+	expect_is(actual, "prediction_model")
 	expect_equal(actual$dataset, "test")
 	expect_equal(actual$min_network_pop, 1)
 	expect_is(actual$flux_model, "flux")
@@ -83,18 +83,18 @@ test_that("analysepredictionusingdpois using simplest possible matrices returns 
 	expect_equal(actual, 5.227411277760218411004)
 })
 
-test_that("predict.movementmodel uses the correct version of getNetwork", {
+test_that("predict.prediction_model uses the correct version of getNetwork", {
 	predictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	with_mock(
     getNetwork = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetwork"),
     `movement:::getNetworkFromdataframe` = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetworkFromdataframe"),
 		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) NULL,
-		expect_equal(predict.movementmodel(predictionModel)$net$name, "getNetwork"),
-		expect_equal(predict.movementmodel(predictionModel, data.frame(c(1,1)))$net$name, "getNetworkFromdataframe")
+		expect_equal(predict.prediction_model(predictionModel)$net$name, "getNetwork"),
+		expect_equal(predict.prediction_model(predictionModel, data.frame(c(1,1)))$net$name, "getNetworkFromdataframe")
 	)
 })
 
-test_that("predict.movementmodel calls movement.predict with the correct flux method", {
+test_that("predict.prediction_model calls movement.predict with the correct flux method", {
 	gravityPredictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	radiationPredictionModel = list(flux_model = radiationWithSelection(), symmetric = FALSE)
 	with_mock(getNetwork = function(x, min) list(distance_matrix = NULL, population = NULL),
@@ -102,13 +102,13 @@ test_that("predict.movementmodel calls movement.predict with the correct flux me
 		`movement:::gravityFlux` = function() return ("gravity"),
 		`movement:::radiationWithSelectionFlux` = function() return("radiation with selection"),
 		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) return (flux()),
-		expect_equal(predict.movementmodel(gravityPredictionModel)$prediction, "gravity"),
-		expect_equal(predict.movementmodel(radiationPredictionModel)$prediction, "radiation with selection")
+		expect_equal(predict.prediction_model(gravityPredictionModel)$prediction, "gravity"),
+		expect_equal(predict.prediction_model(radiationPredictionModel)$prediction, "radiation with selection")
 	)
 })
 
 test_that("fittingwrapper calls predictedresults with correct parameters", {
-	with_mock(`movement:::predict.movementmodel` = function(x, y, ...) { return (paste(x,y,..., sep=",", collapse=","))},
+	with_mock(`movement:::predict.prediction_model` = function(x, y, ...) { return (paste(x,y,..., sep=",", collapse=","))},
 	          `movement:::analysepredictionusingdpois` = function(x, y) return (x),
             `movement:::transformFluxObjectParameters` = function(x, y, ...) return (x),
             expect_equal(fittingwrapper(c(1,1), list(params = c(1,1)), c(1,2), c(3,4)), "c(1, 1),3,list(params = c(1, 1)),4")
@@ -116,7 +116,7 @@ test_that("fittingwrapper calls predictedresults with correct parameters", {
 })
 
 test_that("fittingwrapper calls analysepredictionusingdpois with correct parameters", {
-	with_mock(`movement:::predict.movementmodel` = function(x, y, ...) return ("predictedResults"),
+	with_mock(`movement:::predict.prediction_model` = function(x, y, ...) return ("predictedResults"),
 	          `movement:::analysepredictionusingdpois` = function(x, y) return (paste(x,y,sep=",",collapse=",")),
 	          `movement:::transformFluxObjectParameters` = function(x, y, ...) return (x),
             expect_equal(fittingwrapper(c(1,1), list(params = c(1,1)), c(1,2), c(3,4)), "predictedResults,1,predictedResults,2")

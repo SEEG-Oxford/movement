@@ -10,7 +10,7 @@
 #' @docType package
 #' @name movement-package
 #'
-#' @seealso \code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.optimisedmodel}}
+#' @seealso \code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.movement_model}}
 #' \code{\link{showprediction}}, \code{\link{getNetwork}}, \code{\link{kenya}}, 
 #'
 #' @importFrom graphics arrows par plot points
