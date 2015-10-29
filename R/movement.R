@@ -168,7 +168,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
     predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
     prediction <- predict.prediction_model(predictionModel)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
-    movement_matrix  <- as.movement_matrix.matrix(prediction$prediction)
+    movement_matrix  <- as.movement_matrix(prediction$prediction)    
     return (list(
       df_locations = df,
       movement_matrix = movement_matrix))
@@ -177,7 +177,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
     predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
     prediction <- predict.prediction_model(predictionModel, location_dataframe)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
-    movement_matrix  <- as.movement_matrix.matrix(prediction$prediction)
+    movement_matrix  <- as.movement_matrix(prediction$prediction)
     return (list(
       df_locations = df,
       movement_matrix = movement_matrix))
@@ -1883,46 +1883,59 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
   return (sparseMatrix)
 }
 
-#' @title Conversion to location_dataframe
-#' 
-#' @description Convert objects to \code{location_dataframe} objects
-#' 
-#' @param dataframe object to convert to a \code{location_dataframe} object.
-#' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
-#' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
-#' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
-#' 
+#' @title Conversion to movement_matrix
+#' @description Convert a \code{data.frame} or \code{matrix} object to a \code{movement_matrix} 
+#' object
+#' @param object object to convert to a \code{movement_matrix} object.
+#' Either a \code{data.frame} with columns \code{origin} (character), \code{destination} (character) and
+#' \code{movement} (numeric) or a square \code{matrix} object
 #' @param \dots further arguments passed to or from other methods.
-#' 
-#' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
-#' \code{lat} (numeric) and \code{lon} (numeric).
-#' @name as.movement_matrix
+#' @return A \code{movement_matrix} containing the observed movements.
 #' @export
-as.movement_matrix <- function(dataframe) {
-  nrows <- length(unique(dataframe[1])[,])
-  ncols <- length(unique(dataframe[2])[,])
+as.movement_matrix <- function(object, ...) {
+  UseMethod("as.movement_matrix", object)
+}
+
+#' @rdname as.movement_matrix
+#' @param object a \code{data.frame} object
+#' @export
+#' @method as.movement_matrix data.frame
+as.movement_matrix.data.frame <- function(object, ...) {
+  print("as.movment_matrix on data.frame")
+  
+  nrows <- length(unique(object[1])[,])
+  ncols <- length(unique(object[2])[,])
   if(nrows != ncols) {
     stop ("Error: Expected a square matrix!")
   }
-  
-  mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(unique(dataframe[1])[,],unique(dataframe[2])[,]))
-  for(idx in 1:nrow(dataframe)) {
-    mat[as.character(dataframe[idx,2]),as.character(dataframe[idx,1])] <- dataframe[idx,3]
+    
+  mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(unique(object[1])[,],unique(object[2])[,]))
+  for(idx in 1:nrow(object)) {
+    mat[as.character(object[idx,2]),as.character(object[idx,1])] <- object[idx,3]
   }
-  
-  mat[is.na(mat)] <- 0	
+    
+  mat[is.na(mat)] <- 0  
   
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
-  
+    
   class(mat) <- c('matrix', 'movement_matrix')
   return (mat)
 }
 
-
-as.movement_matrix.matrix  <- function(mat){
-  class(mat) <- c('matrix', 'movement_matrix')
-  return (mat)
+#' @rdname as.movement_matrix
+#' @param object a \code{matrix} object
+#' @export
+#' @method as.movement_matrix matrix
+as.movement_matrix.matrix <- function(object, ...) {
+  print("as.movment_matrix on matrix")
+  
+  if(nrow(object) != ncol(object)) {
+    stop ("Error: Expected a square matrix!")
+  }
+  
+  class(object) <- c('matrix', 'movement_matrix')
+  return (object)
 }
 
 #' @title  Check if given matrix if 'movement_matrix' object
