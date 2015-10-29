@@ -1905,7 +1905,6 @@ as.movement_matrix <- function(object, ...) {
 }
 
 #' @rdname as.movement_matrix
-#' @param object a \code{data.frame} object which will be converted to a \code{movement_matrix} object
 #' @export
 #' @method as.movement_matrix data.frame
 as.movement_matrix.data.frame <- function(object, ...) {
@@ -1943,7 +1942,6 @@ as.movement_matrix.data.frame <- function(object, ...) {
 
 #' 
 #' @rdname as.movement_matrix
-#' @param object a square \code{matrix} object where the \code{movement_matrix} class will be added
 #' @export
 #' @method as.movement_matrix matrix
 as.movement_matrix.matrix <- function(object, ...) {

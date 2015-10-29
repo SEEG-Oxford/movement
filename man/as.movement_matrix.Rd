@@ -18,10 +18,6 @@ Either a \code{data.frame} with columns \code{origin} (character), \code{destina
 \code{movement} (numeric) or a square \code{matrix} object}
 
 \item{\dots}{further arguments passed to or from other methods.}
-
-\item{object}{a \code{data.frame} object which will be converted to a \code{movement_matrix} object}
-
-\item{object}{a square \code{matrix} object where the \code{movement_matrix} class will be added}
 }
 \value{
 A \code{movement_matrix} containing the observed movements.
