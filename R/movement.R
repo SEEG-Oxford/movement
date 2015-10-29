@@ -168,17 +168,19 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
     predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
     prediction <- predict.prediction_model(predictionModel)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    movement_matrix  <- as.movement_matrix.matrix(prediction$prediction)
     return (list(
       df_locations = df,
-      movement_matrix = prediction$prediction))
+      movement_matrix = movement_matrix))
   } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
     prediction <- predict.prediction_model(predictionModel, location_dataframe)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    movement_matrix  <- as.movement_matrix.matrix(prediction$prediction)
     return (list(
       df_locations = df,
-      movement_matrix = prediction$prediction))
+      movement_matrix = movement_matrix))
   } else {
     stop('Error: Expected parameter `location_dataframe` to be either a RasterLayer or a data.frame')
   }
@@ -1913,6 +1915,12 @@ as.movement_matrix <- function(dataframe) {
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
   
+  class(mat) <- c('matrix', 'movement_matrix')
+  return (mat)
+}
+
+
+as.movement_matrix.matrix  <- function(mat){
   class(mat) <- c('matrix', 'movement_matrix')
   return (mat)
 }

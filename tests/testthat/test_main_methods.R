@@ -177,7 +177,10 @@ test_that("predict.flux returns list of correct data when given a RasterLayer", 
   with_mock(`movement:::predict.prediction_model` = function(x) {
     return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
   },
-  expect_equal(predict(flux,raster),list(df_locations=data.frame(location=1,population=1,coordinates=1),movement_matrix=2))
+  expected_movement_matrix  <- 2,
+  class(expected_movement_matrix)  <- c('matrix', 'movement_matrix'),
+  expected_list <- list(df_locations=data.frame(location=1,population=1,coordinates=1),movement_matrix=expected_movement_matrix),
+  expect_equal(predict(flux,raster), expected_list)
   )
 })
 
@@ -188,7 +191,9 @@ test_that("predict.flux returns list of correct data when given a data.frame", {
     `movement:::predict.prediction_model` = function(x,...) {
       return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
     },
-    expected_list <- list(df_locations=data.frame(location=1,population=1,coordinates=1), movement_matrix = 2),
+    expected_movement_matrix  <- 2,
+    class(expected_movement_matrix)  <- c('matrix', 'movement_matrix'),
+    expected_list <- list(df_locations=data.frame(location=1,population=1,coordinates=1), movement_matrix = expected_movement_matrix),
     actualPredictMovements  <- predict(flux,dataframe), 
     expect_equal(actualPredictMovements, expected_list)
   )  
