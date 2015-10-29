@@ -4,27 +4,24 @@
 \alias{movement}
 \title{Create an optimised movement model}
 \usage{
-movement(locationdataframe, movement_matrix, flux_model, ...)
+movement(formula, flux_model = gravity(), ...)
 }
 \arguments{
-\item{locationdataframe}{A \code{locationdataframe} object, i.e. a data.frame
-containing location data with the column name \code{locations}, \code{population},
-\code{long} and \code{lat}.}
-
-\item{movement_matrix}{A square matrix containing the observed population
-movements between \code{locations}}
+\item{formula}{A formula with one response (a \code{movement_matrix} object) and
+one predictor (a \code{location_dataframe} object), e.g. movement_matrix ~ location_dataframe.
+The \code{location_dataframe} object contains location data and the \code{movement_matrix}
+object contains the observed population movements.}
 
 \item{flux_model}{The name of the movement model to use. Currently supported
-models are \code{original radiation}, \code{radiation with selection},
-\code{uniform selection}, \code{intervening opportunities},
-\code{gravity}}
+models are \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}},
+\code{\link{uniformSelection}}, \code{\link{interveningOpportunities}},
+\code{\link{gravity}} and \code{\link{gravityWithDistance}}}
 
 \item{\dots}{Extra parameters to be passed to the prediction code.}
 }
 \value{
 An \code{optimisedmodel} object containing the training results,
-and the optimisation results. This can then be used by
-\code{\link{predict.movementmodel}} to generate predictions on new data.
+and the optimisation results.
 }
 \description{
 Uses the \code{\link{optim}} method to create an optimised model of
@@ -34,29 +31,34 @@ population movements.
 The most likely format of the location data will be as a single
 \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and
 \code{long}. This can be extracted from a larger dataframe with
-\code{\link{as.locationdataframe}}
+\code{\link{as.location_dataframe}}
 The \code{movement_matrix} can be extracted from a list of movements
-using \code{\link{as.movementmatrix}}
+using \code{\link{as.movement_matrix}}. To check that the given objects are suitable,
+the helper functions \code{\link{is.location_dataframe}} and \code{\link{is.movement_matrix}}
+can be used.
 }
 \examples{
+# TODO: add new exmple using the movement() function
 # load kenya raster
 data(kenya)
 # aggregate to 10km to speed things up
 kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-predictionModel <- movementmodel(dataset=kenya10,
-                                 min_network_pop = 50000,
-                                 flux_model = original.radiation(),
-                                 symmetric = TRUE)
+#predictionModel <- prediction_model(dataset=kenya10,
+ #                                min_network_pop = 50000,
+ #                                flux_model = originalRadiation(),
+ #                                symmetric = TRUE)
 # predict the population movement from the model
-predictedMovements = predict(predictionModel)
+#predictedMovements = predict(predictionModel)
 # visualise the distance matrix
-sp::plot(raster::raster(predictedMovements$net$distance_matrix))
+#sp::plot(raster::raster(predictedMovements$net$distance_matrix))
 # visualise the predicted movements overlaid onto the original raster
-showprediction(predictedMovements)
+#showprediction(predictedMovements)
 }
 \seealso{
-\code{\link{predict.movementmodel}}, \code{\link{as.locationdataframe}},
-\code{\link{as.movementmatrix}}
+\code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
+\code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}},
+\code{\link{radiationWithSelection}}, \code{\link{uniformSelection}},
+\code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 }
 

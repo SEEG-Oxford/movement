@@ -20,7 +20,4 @@ between locations.}
 \description{
 Display the movement predictions on a plot
 }
-\seealso{
-\code{\link{movementmodel}}, \code{\link{predict.movementmodel}}
-}
 
