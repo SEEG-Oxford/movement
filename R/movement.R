@@ -39,22 +39,18 @@
 #' can be used.
 #' @export
 #' @examples
-#' # TODO: add new exmple using the movement() function
-#' # load kenya raster
+#' # get location data
 #' data(kenya)
-#' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
-#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' #predictionModel <- prediction_model(dataset=kenya10,
-#'  #                                min_network_pop = 50000,
-#'  #                                flux_model = originalRadiation(),
-#'  #                                symmetric = TRUE)
-#' # predict the population movement from the model
-#' #predictedMovements = predict(predictionModel)
-#' # visualise the distance matrix
-#' #sp::plot(raster::raster(predictedMovements$net$distance_matrix))
-#' # visualise the predicted movements overlaid onto the original raster
-#' #showprediction(predictedMovements)
+#' net <- getNetwork(kenya10, min = 50000)
+#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' # simulate movements (note the values of movementmatrix must be integer)
+#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+#' movementMatrix <- predictedMovement$movement_matrix
+#' # fit a new model to these data
+#' s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' s
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -1801,13 +1797,14 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
   
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
   # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
-  optimresults  <- tryCatch({
-    optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)    
-  }, error = function(err) {
-    cat(paste("ERROR: optimiser failed: ", err))
-  }, finally={
-    stop("Error: Optimser failed.")
-  })
+  optimresults <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)    
+#   optimresults  <- tryCatch({
+#     optimresults  <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)    
+#   }, error = function(err) {
+#     cat(paste("ERROR: optimiser failed: ", err))
+#   }, finally={
+#     stop("Error: Optimser failed.")
+#   })
     
   # perform the inverse transformation on the optimised parameters into its true (i.e. constraint) scale
   optimresults$par  <- transformFluxObjectParameters(optimresults$par, predictionModel$flux_model$transform, TRUE)
