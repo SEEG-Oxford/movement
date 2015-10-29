@@ -1798,9 +1798,15 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
   transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
   
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-  # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over
-  optimresults  <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
-
+  # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
+  optimresults  <- tryCatch({
+    optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)    
+  }, error = function(err) {
+    cat(paste("ERROR: optimiser failed: ", err))
+  }, finally={
+    stop("Error: Optimser failed.")
+  })
+    
   # perform the inverse transformation on the optimised parameters into its true (i.e. constraint) scale
   optimresults$par  <- transformFluxObjectParameters(optimresults$par, predictionModel$flux_model$transform, TRUE)
   
