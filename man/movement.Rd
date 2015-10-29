@@ -44,7 +44,7 @@ data(kenya)
 # aggregate to 10km to speed things up
 kenya10 <- raster::aggregate(kenya, 10, sum)
 # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#predictionModel <- movementmodel(dataset=kenya10,
+#predictionModel <- prediction_model(dataset=kenya10,
  #                                min_network_pop = 50000,
  #                                flux_model = originalRadiation(),
  #                                symmetric = TRUE)

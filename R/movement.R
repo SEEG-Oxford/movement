@@ -45,7 +45,7 @@
 #' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' #predictionModel <- movementmodel(dataset=kenya10,
+#' #predictionModel <- prediction_model(dataset=kenya10,
 #'  #                                min_network_pop = 50000,
 #'  #                                flux_model = originalRadiation(),
 #'  #                                symmetric = TRUE)
@@ -72,14 +72,14 @@ movement <- function(formula, flux_model = gravity(), ...) {
   nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
   nulldf <- nobs # no predictors for null degrees of freedom
   
-  # create the prediction model which is a movementmodel object
-  predictionModel <- movementmodel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
+  # create the prediction model which is an internal used prediction_model object (not exported to end user!)
+  predictionModel <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, location_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
     
-  # populate the training results (so we can see the end result); this is also a movementmodel object
-  training_results <- predict.movementmodel(predictionModel, location_data, progress=FALSE)
+  # populate the training results (so we can see the end result); this is also a prediction_model object
+  training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   
   cat("Training complete.\n")
@@ -92,7 +92,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
              null.deviance = analysepredictionusingdpois(training_results, c(0,0)), # intercept only model, this is clearly wrong
              deviance = optimresults$value, # -2* log likelihood, which is what we are optimising on anyway
              aic = optimresults$value + 2 * length(optimresults$value)) # deviance + (2* number of params)
-  class(me) <- "optimisedmodel"
+  class(me) <- "movement_model"
   return (me)
 }
 
@@ -164,17 +164,17 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 predict.flux <- function(object, location_dataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
   
   if(is(location_dataframe, "RasterLayer")) {
-    # create the prediction model (= movementmodel object)
-    predictionModel <- movementmodel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
-    prediction <- predict.movementmodel(predictionModel)
+    # create the prediction model object
+    predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
+    prediction <- predict.prediction_model(predictionModel)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))
   } else if (is(location_dataframe, "data.frame")) {
-    # create the prediction model (= movementmodel object)
-    predictionModel <- movementmodel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
-    prediction <- predict.movementmodel(predictionModel, location_dataframe)
+    # create the prediction model object
+    predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
+    prediction <- predict.prediction_model(predictionModel, location_dataframe)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
@@ -184,38 +184,37 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
   }
 }
 
-#' Predict from an optimisedmodel object
+#' Predict from a movement model object
 #' 
-#' \code{optimisedmodel}:
-#' Use a trained \code{optimisedmodel} object to predict population movements
+#' \code{movement_model}:
+#' Use a trained \code{movement_model} object to predict population movements
 #' given either a RasterLayer containing a single population layer, or a
 #' \code{location_dataframe}  object containing population and location data 
 #' with the columns \code{location} (character), \code{population} (numeric), 
 #' \code{x} (numeric) and \code{y} (numeric).
 #' 
-#' @param object A configured prediction model of class \code{optimisedmodel}, ??
+#' @param object A configured prediction model of class \code{movement_model}
 #' @param newdata An optional \code{location_dataframe} object or RasterLayer 
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' 
-#' @return A \code{movementmodel} containing a (dense) matrix giving predicted
-#' movements between all sites. \code{optimisedmodel}: A list containing a location 
-#' dataframe from the input, and a matrix containing the predicted population movements.
+#' @return A list containing a location dataframe from the input, and a matrix 
+#' containing the predicted population movements.
 #' 
-#' @name predict.optimisedmodel
-#' @method predict optimisedmodel
+#' @name predict.movement_model
+#' @method predict movement_model
 #' @export
-predict.optimisedmodel <- function(object, newdata, ...) {
+predict.movement_model <- function(object, newdata, ...) {
   m <- object$trainingresults
   m$dataset <- newdata
   if(is(newdata, "RasterLayer")) {
-    prediction <- predict.movementmodel(m)
+    prediction <- predict.prediction_model(m)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
       movement_matrix = prediction$prediction))
   } else if (is(newdata, "data.frame")) {
-    prediction <- predict.movementmodel(m, newdata)
+    prediction <- predict.prediction_model(m, newdata)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     return (list(
       df_locations = df,
@@ -225,9 +224,15 @@ predict.optimisedmodel <- function(object, newdata, ...) {
   }
 }
 
+#' @title Print a movement model object
+#' @description Print etails of an optimised movement model
+#' @param x an \code{movement_model} object
+#' @param digits number of significant digits, see print.default.
+#' @param \dots further arguments to be passed to or from other methods. 
 #' @export
-#' @method print optimisedmodel
-print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+#' @name print.movement_model
+#' @method print movement_model
+print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
   if(length(coef(x))) {
     cat("Coefficients")
@@ -245,15 +250,15 @@ print.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), 
   invisible(x)
 }
 
-#' @title Summarize an optimised model
-#' @description Print a summary of an optimised model
-#' @param object an \code{optimisedmodel} object
+#' @title Summarize a movement model object
+#' @description Print a summary of a optimised movement model
+#' @param object an \code{movement_model} object
 #' @param \dots additional arguments affecting the summary produced.
 #' 
-#' @name summary.optimisedmodel
-#' @method summary optimisedmodel
+#' @name summary.movement_model
+#' @method summary movement_model
 #' @export
-summary.optimisedmodel <- function(object, ...) {
+summary.movement_model <- function(object, ...) {
   coef.p <- object$trainingresults$modelparams
   dn <- c("Estimate", "Std. Error")
   stderrors <- sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
@@ -267,13 +272,13 @@ summary.optimisedmodel <- function(object, ...) {
     df.null = object$df.null,
     df.residual = object$df.residual,
     stderrors = stderrors)
-  class(ans) <- "summary.optimisedmodel"
+  class(ans) <- "summary.movement_model"
   return (ans)
 }
 
 #' @export
-#' @method print summary.optimisedmodel
-print.summary.optimisedmodel <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+#' @method print summary.movement_model
+print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste('Model:  ', x$model, '\n\n'))
   cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
   if(length(coef(x))) {
@@ -1534,8 +1539,8 @@ showprediction.default <- function(object, ...) {
 
 # @rdname showprediction
 # 
-# @method showprediction movementmodel
-showprediction.movementmodel <- function(object, ...) {
+# @method showprediction prediction_model
+showprediction.prediction_model <- function(object, ...) {
   network <- object$net
   move <- object$prediction
   raster <- object$dataset
@@ -1686,34 +1691,33 @@ getNetworkFromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
 # @param symmetric Whether to calculate symmetric or asymmetric (summed across
 # both directions) movement
 # @return A movement model object which can be used to run flux predictions.
-movementmodel <- function(dataset, min_network_pop = 50000, flux_model = originalRadiation(), symmetric = TRUE) {
+makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = originalRadiation(), symmetric = TRUE) {
   me <- list(
     dataset = dataset,
     min_network_pop = min_network_pop,
     flux_model = flux_model,
     symmetric = symmetric
   )
-  class(me) <- "movementmodel"
+  class(me) <- "prediction_model"
   return (me)
 }
 
-# Predictions from movementmodel objects
+# Predictions from prediction_model objects
 # 
-# Given a movement model, use the configured distances and
+# Given a prediction_model obejct, use the configured distances and
 # flux function to predict movement between all sites.
 # Any extra arguments of the flux functions can specified using the
 # \code{dots} argument.
 # 
-# @param object A configured prediction model of class \code{movementmodel}
+# @param object A configured prediction model of class \code{prediction_model}
 # @param newdata An optional data.frame or RasterLayer containing population data
 # @param \dots Extra arguments to pass to the flux function
-# @return A \code{movementmodel} containing a (dense) matrix giving predicted
-# movements between all sites. \code{optimisedmodel}: A list containing a location dataframe from the input, and a matrix
-# containing the predicted population movements.
+# @return A \code{prediction_model} containing a (dense) matrix giving predicted
+# movements between all sites.
 # 
-# @name predict.movementmodel 
-# @method predict movementmodel
-predict.movementmodel <- function(object, newdata = NULL, ...) {
+# @name predict.prediction_model
+# @method predict prediction_model
+predict.prediction_model <- function(object, newdata = NULL, ...) {
   if(is.null(newdata)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
@@ -1755,7 +1759,7 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # used as the \code{\link{optim}} minimisation value
 #
 # @param par theta values for the flux function
-# @param predictionModel The prediction model of movementmodel object type being optimised 
+# @param predictionModel The prediction_model object type being optimised 
 # @param observedmatrix A matrix containing the observed population movements
 # @param populationdata A dataframe containing population coordinate data
 # @param \dots Parameters passed to \code{\link{ict}}
@@ -1765,7 +1769,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
   # the inverse transformation here 
   originalParams  <- transformFluxObjectParameters(par, predictionModel$flux_model$transform, inverse = TRUE)
   predictionModel$flux_model$params <- originalParams
-  predictedResults <- predict.movementmodel(predictionModel, populationdata, ...)
+  predictedResults <- predict.prediction_model(predictionModel, populationdata, ...)
   loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
   return (loglikelihood)
 }
