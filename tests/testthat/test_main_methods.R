@@ -58,6 +58,17 @@ test_that("movement function throws an error if given the wrong matrix type", {
   expect_error(movement(notMovementMatrix ~ data, radiationWithSelection()))
 })
 
+invalid_movement_matrix  <- matrix(c(0.192,1.2,2.02,3.34,0.42,4.921,5.282,6.282,0.012),nrow=3) # movement cannot be given in decimal numbers (must be integer!)
+class(invalid_movement_matrix) <- c('movement_matrix', 'matrix') 
+assign("invalid_movement_matrix", invalid_movement_matrix, envir = .GlobalEnv)
+
+test_that("movement function throws an error if given an invalid movement matrix", {
+  expect_true(is.location_dataframe(data)) # check that the data are of correct class
+  expect_true(is.movement_matrix(invalid_movement_matrix))  # check that the data are of correct class  
+  # next file is still failing 
+  expect_error(movement(invalid_movement_matrix ~ data, radiationWithSelection()), "Error: Optimser failed.")
+})
+
 test_that("movement sets correct parameters and bounds for original radiation model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
