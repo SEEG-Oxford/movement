@@ -50,6 +50,19 @@ test_that("as.movement_matrix.data.frame returns error for a non-square matrix",
 	expect_error(as.movement_matrix(testdata), "Expected a square matrix!")
 })
 
+test_that("as.movement_matrix.data.frame returns warning when movement contais non-integer values", {
+  testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1.9,2.1))
+  expect_warning(as.movement_matrix(testdata), 
+                 "The given data.frame contains non-integer values. Rounding was used to return a valid movement_matrix object.")
+})
+
+test_that("as.movement_matrix.data.frame returns a rounded matrix when data.frame contains non-integer values", {
+  testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1.9,2.1))
+  expected_matrix <- matrix(c(0,2,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  class(expected_matrix)  <- c('matrix', 'movement_matrix')
+  expect_equal(as.movement_matrix(testdata), expected_matrix)
+})
+
 test_that("as.movement_matrix.data.frame returns a matrix of the correct dimensions", {
 	testdata <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
 	expect_equal(dim(as.movement_matrix(testdata)), c(2,2))
@@ -65,7 +78,7 @@ test_that("as.movement_matrix.data.frame returns the correct matrix", {
 test_that("as.movement_matrix.matrix returns warning for non-integer movement_matrix", {
   non_integer_test_matrix <- matrix(c(0.23,1.222,2.001,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
   expect_warning(as.movement_matrix(non_integer_test_matrix), 
-                "The given movement_matix contains non-integer values. Rounding was used to receive a valid movement_matrix object.")
+                "The given movement_matix contains non-integer values. Rounding was used to return a valid movement_matrix object.")
 })
 
 test_that("as.movement_matrix.matrix returns rounded movement_matrix when given non-integer matrix", {
@@ -92,8 +105,6 @@ test_that("as.movement_matrix.matrix returns the correct matrix", {
   expect_true(is.movement_matrix(actualmatrix))
   expect_equal(actualmatrix, expectedmatrix)
 })
-
-
 
 test_that("correlate regions works for small test case", {
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), location=c(1,2,3,4), pop=c(10,20,30,40), lon=c(-5,-4,-3,-2), lat=c(-1,0,1,2))

@@ -1885,12 +1885,14 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 
 #' @title Conversion to movement_matrix
 #' @description Convert a \code{data.frame} or \code{matrix} object to a \code{movement_matrix} 
-#' object
+#' object. 
 #' @param object object to convert to a \code{movement_matrix} object.
 #' Either a \code{data.frame} with columns \code{origin} (character), \code{destination} (character) and
 #' \code{movement} (numeric) or a square \code{matrix} object
 #' @param \dots further arguments passed to or from other methods.
 #' @return A \code{movement_matrix} containing the observed movements.
+#' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
+#' values, the function will use rounding to return a valid matrix.
 #' @export
 as.movement_matrix <- function(object, ...) {
   UseMethod("as.movement_matrix", object)
@@ -1917,20 +1919,30 @@ as.movement_matrix.data.frame <- function(object, ...) {
   
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
-    
+  
+  # in case the matrix contains non-integer values use rounding to receive integer values required
+  rounded_matrix  <- round(mat)
+  
+  if(!isTRUE(all.equal(mat, rounded_matrix))){
+    # print warning for user that rounding was used
+    warning("The given data.frame contains non-integer values. Rounding was used to return a valid movement_matrix object.")
+  }
+  
+  class(rounded_matrix) <- c('matrix', 'movement_matrix')
+  return (rounded_matrix)
+  
   class(mat) <- c('matrix', 'movement_matrix')
   return (mat)
 }
 
 #' 
 #' @rdname as.movement_matrix
-#' @param object a \code{matrix} object where the \code{movement_matrix} class will be added
+#' @param object a square \code{matrix} object where the \code{movement_matrix} class will be added
 #' @export
 #' @method as.movement_matrix matrix
 as.movement_matrix.matrix <- function(object, ...) {
   
-  print("as.movement_matrix.matrix")
-  
+  # ensure that the given matrix is quare
   if(nrow(object) != ncol(object)) {
     stop ("Error: Expected a square matrix!")
   }
@@ -1940,7 +1952,7 @@ as.movement_matrix.matrix <- function(object, ...) {
   
   if(!isTRUE(all.equal(object, rounded_matrix))){
     # print warning for user that rounding was used
-    warning("The given movement_matix contains non-integer values. Rounding was used to receive a valid movement_matrix object.")
+    warning("The given movement_matix contains non-integer values. Rounding was used to return a valid movement_matrix object.")
   }
   
   class(rounded_matrix) <- c('matrix', 'movement_matrix')
