@@ -62,7 +62,21 @@ test_that("as.movement_matrix.data.frame returns the correct matrix", {
 	expect_equal(as.movement_matrix(testdata), expectedmatrix)
 })
 
+test_that("as.movement_matrix.matrix returns warning for non-integer movement_matrix", {
+  non_integer_test_matrix <- matrix(c(0.23,1.222,2.001,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  expect_warning(as.movement_matrix(non_integer_test_matrix), 
+                "The given movement_matix contains non-integer values. Rounding was used to receive a valid movement_matrix object.")
+})
+
+test_that("as.movement_matrix.matrix returns rounded movement_matrix when given non-integer matrix", {
+  non_integer_test_matrix <- matrix(c(0.97, 1.42, 3, 2.12),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  expected_matrix  <- matrix(c(1, 1, 3, 2),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  class(expected_matrix)  <- c('matrix', 'movement_matrix')
+  expect_equal(as.movement_matrix(non_integer_test_matrix), expected_matrix)
+})
+
 test_that("as.movement_matrix.matrix returns error for a non-square matrix", {
+  "test: as.movement_matrix.matrix returns error for a non-square matrix"
   testmatrix <- matrix(c(0,1,2,0,2,3),nrow=2,dimnames=list(c("a","b"),c("a","b", "c")))
   expect_error(as.movement_matrix(testmatrix), "Expected a square matrix!")
 })
@@ -78,6 +92,8 @@ test_that("as.movement_matrix.matrix returns the correct matrix", {
   expect_true(is.movement_matrix(actualmatrix))
   expect_equal(actualmatrix, expectedmatrix)
 })
+
+
 
 test_that("correlate regions works for small test case", {
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), location=c(1,2,3,4), pop=c(10,20,30,40), lon=c(-5,-4,-3,-2), lat=c(-1,0,1,2))

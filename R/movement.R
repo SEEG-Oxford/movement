@@ -1897,11 +1897,10 @@ as.movement_matrix <- function(object, ...) {
 }
 
 #' @rdname as.movement_matrix
-#' @param object a \code{data.frame} object
+#' @param object a \code{data.frame} object which will be converted to a \code{movement_matrix} object
 #' @export
 #' @method as.movement_matrix data.frame
 as.movement_matrix.data.frame <- function(object, ...) {
-  print("as.movment_matrix on data.frame")
   
   nrows <- length(unique(object[1])[,])
   ncols <- length(unique(object[2])[,])
@@ -1923,19 +1922,29 @@ as.movement_matrix.data.frame <- function(object, ...) {
   return (mat)
 }
 
+#' 
 #' @rdname as.movement_matrix
-#' @param object a \code{matrix} object
+#' @param object a \code{matrix} object where the \code{movement_matrix} class will be added
 #' @export
 #' @method as.movement_matrix matrix
 as.movement_matrix.matrix <- function(object, ...) {
-  print("as.movment_matrix on matrix")
+  
+  print("as.movement_matrix.matrix")
   
   if(nrow(object) != ncol(object)) {
     stop ("Error: Expected a square matrix!")
   }
   
-  class(object) <- c('matrix', 'movement_matrix')
-  return (object)
+  # in case the matrix contains non-integer values use rounding to receive integer values required
+  rounded_matrix  <- round(object)
+  
+  if(!isTRUE(all.equal(object, rounded_matrix))){
+    # print warning for user that rounding was used
+    warning("The given movement_matix contains non-integer values. Rounding was used to receive a valid movement_matrix object.")
+  }
+  
+  class(rounded_matrix) <- c('matrix', 'movement_matrix')
+  return (rounded_matrix)
 }
 
 #' @title  Check if given matrix if 'movement_matrix' object

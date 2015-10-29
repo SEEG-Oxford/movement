@@ -19,15 +19,17 @@ Either a \code{data.frame} with columns \code{origin} (character), \code{destina
 
 \item{\dots}{further arguments passed to or from other methods.}
 
-\item{object}{a \code{data.frame} object}
+\item{object}{a \code{data.frame} object which will be converted to a \code{movement_matrix} object}
 
-\item{object}{a \code{matrix} object}
+\item{object}{a \code{matrix} object where the \code{movement_matrix} class will be added}
 }
 \value{
-A \code{movement_matrix} containing the observed movements
+A \code{movement_matrix} containing the observed movements.
 }
 \description{
 Convert a \code{data.frame} or \code{matrix} object to a \code{movement_matrix}
 object
+
+
 }
 
