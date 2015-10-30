@@ -196,8 +196,8 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' 
-#' @return A list containing a location dataframe from the input, and a matrix 
-#' containing the predicted population movements.
+#' @return A \code{movementpredictions} object which contains a list of the location 
+#' dataframe from the input and the matrix containing the predicted population movements.
 #' 
 #' @name predict.movement_model
 #' @method predict movement_model
@@ -208,18 +208,22 @@ predict.movement_model <- function(object, newdata, ...) {
   if(is(newdata, "RasterLayer")) {
     prediction <- predict.prediction_model(m)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
-    return (list(
+    ans  <- list(
       df_locations = df,
-      movement_matrix = prediction$prediction))
+      movement_matrix = prediction$prediction)
+    class(ans) <- "movementpredictions" 
+    return(ans)
   } else if (is(newdata, "data.frame")) {
     prediction <- predict.prediction_model(m, newdata)
     df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
-    return (list(
+    ans  <- list(
       df_locations = df,
-      movement_matrix = prediction$prediction))
+      movement_matrix = prediction$prediction)
+    class(ans) <- "movementpredictions" 
+    return(ans)
   } else {
     stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
-  }
+  }  
 }
 
 #' @title Print a movement model object
@@ -1544,6 +1548,8 @@ showprediction.prediction_model <- function(object, ...) {
   raster <- object$dataset
   show.prediction(network, raster, move, ...)
 }
+
+
 
 ###############################################################################
 # Internal prediction and optimisation methods                                #
