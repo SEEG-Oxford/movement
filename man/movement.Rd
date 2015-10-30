@@ -48,8 +48,11 @@ class(locationData) <- c('data.frame', 'location_dataframe')
 predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 movementMatrix <- predictedMovement$movement_matrix
 # fit a new model to these data
-s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
-s
+movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+# predict the population movements
+predicted_movements  <- predict(movement_model, kenya10)
+# display the predicted movements
+showprediction(predicted_movements)
 }
 \seealso{
 \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},

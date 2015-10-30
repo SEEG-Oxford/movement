@@ -49,8 +49,11 @@
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- predictedMovement$movement_matrix
 #' # fit a new model to these data
-#' s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
-#' s
+#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' # predict the population movements
+#' predicted_movements  <- predict(movement_model, kenya10)
+#' # display the predicted movements
+#' showprediction(predicted_movements)
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -215,6 +218,8 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
 #' # predict the population movements
 #' predicted_movements  <- predict(movement_model, kenya10)
+#' # display the predicted movements
+#' showprediction(predicted_movements)
 #' @export
 predict.movement_model <- function(object, newdata, ...) {
   m <- object$trainingresults
@@ -1538,8 +1543,24 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #'
 #' @param object A \code{movement_predictions} object
 #' @param \dots Extra parameters to pass to plot
-#'
 #' @export
+#'
+#' @examples
+#' # get location data
+#' data(kenya)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' net <- getNetwork(kenya10, min = 50000)
+#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' # simulate movements (note the values of movementmatrix must be integer)
+#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+#' movementMatrix <- predictedMovement$movement_matrix
+#' # fit a new model to these data
+#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' # predict the population movements
+#' predicted_movements  <- predict(movement_model, kenya10)
+#' # display the predicted movements
+#' showprediction(predicted_movements)
 showprediction <- function(object, ...) {
   UseMethod("showprediction", object)
 }
@@ -1568,7 +1589,6 @@ showprediction.prediction_model <- function(object, ...) {
 #' @export 
 #' @method showprediction movement_predictions
 showprediction.movement_predictions  <- function(object, ...){
-  print("TODO: Showprediction for the prediction of a movement_model")
   move  <- object$movement_matrix
   network <- object$net  
   raster <- object$dataset
