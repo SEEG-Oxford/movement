@@ -77,6 +77,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
+  training_results$dataset  <- list(movement_matrix = movement_matrix, location_dataframe = location_data)
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
