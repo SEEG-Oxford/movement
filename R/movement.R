@@ -223,14 +223,16 @@ predict.movement_model <- function(object, newdata, ...) {
     prediction <- predict.prediction_model(m)
     ans  <- list(
       net = prediction$net,
-      movement_matrix = prediction$prediction)
+      movement_matrix = prediction$prediction,
+      dataset = m$dataset)
     class(ans) <- "movement_predictions" 
     return(ans)
   } else if (is(newdata, "data.frame")) {
     prediction <- predict.prediction_model(m, newdata)
     ans  <- list(
       net = prediction$net,
-      movement_matrix = prediction$prediction)
+      movement_matrix = prediction$prediction,
+      dataset = m$dataset)
     class(ans) <- "movement_predictions" 
     return(ans)
   } else {
@@ -1494,14 +1496,12 @@ movement.predict <- function(distance, population,
 #' @param \dots Extra parameters to pass to plot
 #'
 #' @export
-# TODO Kathrin show.prediction <- function(network, raster_layer, predictedMovements, ...) {
-show.prediction <- function(network, predictedMovements) {
+show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   # visualise the distance matrix
   sp::plot(raster::raster(network$distance_matrix))
   
   # plot the raster layer
-  # TODO Kathrin: need to include the plot for the raster
-  # sp::plot(raster_layer, ...)
+  sp::plot(raster_layer, ...)
   
   # rescale the population of those pixels for plotting
   size <- 0.1 + 2 * network$population / max(network$population)
@@ -1570,11 +1570,10 @@ showprediction.prediction_model <- function(object, ...) {
 showprediction.movement_predictions  <- function(object, ...){
   print("TODO: Showprediction for the prediction of a movement_model")
   move  <- object$movement_matrix
-  network <- object$net
+  network <- object$net  
+  raster <- object$dataset
   
-  # TODO Kathrin: need to get the raster to be passed over to the show.predict methods
-  #show.prediction(network, raster, move, ...)
-  show.prediction(network, move, ...)
+  show.prediction(network, raster, move, ...)
 }
 
 
