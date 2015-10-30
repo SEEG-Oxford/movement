@@ -1571,7 +1571,7 @@ showprediction <- function(object, ...) {
 #' @export 
 #' @method showprediction default
 showprediction.default <- function(object, ...) {
-  print("showprediction doesn't know how to handle this object.")
+  warning("showprediction doesn't know how to handle this object.")
   return (object)
 }
 
