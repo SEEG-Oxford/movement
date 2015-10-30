@@ -2263,7 +2263,7 @@ densityCompare <- function(obs, pred) {
 # n <- 1e4
 # distances <- rnorm(n, 0, 100) ^ 2
 # obs <- rpois(n, 20)
-# pred <- rpois(n, x)
+# pred <- rpois(n, obs)
 plotComparePredictions <- function (obs, pred, distances) {
   
   op <- par()
@@ -2272,12 +2272,14 @@ plotComparePredictions <- function (obs, pred, distances) {
       mfrow = c(1, 3),
       oma = c(2, 0, 3, 0))
   
-  scatter(x, y)
-  densityCompare(x, y)
-  distanceDistPlot(x, y, d)
+  scatter(obs, pred)
+  densityCompare(obs, pred)
+  distanceDistPlot(obs, pred, d)
   
-  pc <- format(cor(x, y), digits = 3)
-  ssi <- format(sorensen(x, y), digits = 3)
+  pc <- format(cor(obs, pred), digits = 3)
+  ssi <- format(sorensen(obs, pred), digits = 3)
+  nll <- format(poissonNLL(obs, pred), digits = 3)
+
   title(main = sprintf('predicted vs. observed movements\ncorrelation = %s; Sorensen similarity = %s; NLL = %s',
                        pc, ssi, nll),
         outer = TRUE)
