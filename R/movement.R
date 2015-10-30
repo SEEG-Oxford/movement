@@ -1510,6 +1510,22 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   }
 }
 
+#' @title Plot a movement model object
+#' @description plot ...
+#' @param x a \code{movement_model}
+#' @param y ...
+#' @param \dots further arguments to be passed to or from other methods. 
+#' @name plot.movement_model
+#' @method plot movement_model
+#' @importFrom viridis viridis
+#' @export
+plot.movement_model  <- function(x, ...){
+  print("TODO: plot method for movement_model object")
+  print(str(x))
+  
+  #plotComparePredictions(obs, pred, distances)
+}
+
 #' @title Plot movement predictions
 #'
 #' @name showprediction
@@ -1544,6 +1560,7 @@ showprediction.prediction_model <- function(object, ...) {
   raster <- object$dataset
   show.prediction(network, raster, move, ...)
 }
+
 
 ###############################################################################
 # Internal prediction and optimisation methods                                #
@@ -2318,12 +2335,12 @@ plotComparePredictions <- function (obs, pred, distances) {
       mfrow = c(1, 3),
       oma = c(2, 0, 3, 0))
   
-  scatter(x, y)
-  densityCompare(x, y)
-  distanceDistPlot(x, y, d)
+  scatter(obs, pred)
+  densityCompare(obs, pred)
+  distanceDistPlot(obs, pred, distances)
   
-  pc <- format(cor(x, y), digits = 3)
-  ssi <- format(sorensen(x, y), digits = 3)
+  pc <- format(cor(obs, pred), digits = 3)
+  ssi <- format(sorensen(obs, pred), digits = 3)
   title(main = sprintf('predicted vs. observed movements\ncorrelation = %s; Sorensen similarity = %s; NLL = %s',
                        pc, ssi, nll),
         outer = TRUE)
