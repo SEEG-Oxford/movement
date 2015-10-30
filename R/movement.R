@@ -2205,6 +2205,132 @@ resultasdataframe <- function(predictedresult) {
 #' @name kenya
 NULL
 
+# plot the observed and predicted distributions of movement distances
+# expressed as the probability that an individual's movement has a given distance
+# calculate in nbin bins
+distanceDistPlot <- function(obs, pred, distances, nbin = 50) {
+  
+  # get probabilities for obs and pred
+  pred_prob <- distProb(distances, pred, nbin, log = FALSE)
+  obs_prob <- distProb(distances, obs, nbin, log = FALSE)
+  
+  plot(obs_prob,
+       log = 'xy',
+       type = 'b',
+       pch = 16,
+       col = grey(0.5),
+       ylab = 'p(distance)',
+       xlab = 'distance',
+       sub = 'black = predicted; grey = observed')
+  
+  points(pred_prob,
+         type = 'b',
+         pch = 16)
+  
+}
+
+# given a vector of distances and vector of number of movements
+# (either observed or predicted), created binned estimates of the probability
+# that an individual movement is of that distance
+# if log = TRUE, the bin distances will be uniform on the log scale
+# (but still returned on the observed scale)
+distProb <- function (distances, movements, nbin, log) {
+  
+  max_dist <- max(distances) + options()$eps
+  
+  if (log) {
+    bins <- exp(seq(-10, log(max_dist), length.out = nbin + 1))
+  } else {
+    bins <- seq(0, max_dist, length.out = nbin + 1)
+  }
+  
+  # get bin allocation for each distance
+  chop <- cut(distances, bins, include.lowest = TRUE)
+  
+  # get number of movements in each bin
+  sums <- tapply(movements, chop, sum)
+  sums[is.na(sums)] <- 0
+  
+  # convert to probabilities
+  probs <- sums / sum(sums)
+  
+  # create dataframe and return
+  df <- data.frame(bins = bins[-1],
+                   probs = probs)
+  
+  return (df)
+}
+
+poissonNLL <- function(obs, pred) {
+  -sum(dpois(obs, pred, log = TRUE))
+}
+sorensen <- function(obs, pred) {
+  mean(2 * pmin(obs, pred) / (obs + pred))
+}
+
+# create a bespoke smootherScatter plot between
+# observed and predicted movements. dots passes
+# additional arguments to smoothScatter
+# @importFrom viridis viridis
+scatter <- function (obs, pred, ...) {
+  ly <- log1p(pred)
+  lx <- log1p(obs)
+  smoothScatter(ly ~ lx,
+                colramp = viridis::viridis,
+                asp = 1,
+                pch = 16,
+                cex = 0.3,
+                col = grey(0.5),
+                xaxs = 'i',
+                yaxs = 'i',
+                xlab = 'log(observed movements)',
+                ylab = 'log(predicted movements)')
+}
+
+densityCompare <- function(obs, pred) {
+  plot(density(obs),
+       lwd = 3,
+       col = grey(0.4),
+       xlab = 'number of movements',
+       main = '',
+       sub = 'black = predicted; grey = observed')
+  
+  lines(density(pred),
+        lwd = 3)
+  
+}
+
+# make a three-panel plot visualising the goodness of fit of a movement model
+# obs is a vector of observed movement counts,
+# pred is a vector of predicted movement counts,
+# distances is a vector of distances between locations,
+# corresponding to these movement counts.
+# here is some fake data that works:
+# n <- 1e4
+# distances <- rnorm(n, 0, 100) ^ 2
+# obs <- rpois(n, 20)
+# pred <- rpois(n, x)
+plotComparePredictions <- function (obs, pred, distances) {
+  
+  op <- par()
+  
+  par(pty = 's',
+      mfrow = c(1, 3),
+      oma = c(2, 0, 3, 0))
+  
+  scatter(x, y)
+  densityCompare(x, y)
+  distanceDistPlot(x, y, d)
+  
+  pc <- format(cor(x, y), digits = 3)
+  ssi <- format(sorensen(x, y), digits = 3)
+  title(main = sprintf('predicted vs. observed movements\ncorrelation = %s; Sorensen similarity = %s; NLL = %s',
+                       pc, ssi, nll),
+        outer = TRUE)
+  
+  par(op)    
+}
+
 #' @name travelTime
 #' @title Calculate travel times between coordinates
 #' @description Using a friction raster (giving time taken to cross each cell)
