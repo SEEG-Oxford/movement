@@ -221,17 +221,15 @@ predict.movement_model <- function(object, newdata, ...) {
   m$dataset <- newdata
   if(is(newdata, "RasterLayer")) {
     prediction <- predict.prediction_model(m)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     ans  <- list(
-      df_locations = df,
+      net = prediction$net,
       movement_matrix = prediction$prediction)
     class(ans) <- "movementpredictions" 
     return(ans)
   } else if (is(newdata, "data.frame")) {
     prediction <- predict.prediction_model(m, newdata)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
     ans  <- list(
-      df_locations = df,
+      net = prediction$net,
       movement_matrix = prediction$prediction)
     class(ans) <- "movementpredictions" 
     return(ans)
@@ -1569,6 +1567,8 @@ showprediction.prediction_model <- function(object, ...) {
 #' @method showprediction movementpedictions
 showprediction.movementpedictions  <- function(object, ...){
   print("TODO: Showprediction for the prediction of a movement_model")
+  move  <- object$movement_matrix
+  
   print(str(object))
 }
 
