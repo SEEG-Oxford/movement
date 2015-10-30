@@ -1574,16 +1574,6 @@ showprediction.default <- function(object, ...) {
   return (object)
 }
 
-# @rdname showprediction
-# 
-# @method showprediction prediction_model
-showprediction.prediction_model <- function(object, ...) {
-  network <- object$net
-  move <- object$prediction
-  raster <- object$dataset
-  show.prediction(network, raster, move, ...)
-}
-
 #' @rdname showprediction
 #'
 #' @export 
@@ -1595,7 +1585,6 @@ showprediction.movement_predictions  <- function(object, ...){
   
   show.prediction(network, raster, move, ...)
 }
-
 
 ###############################################################################
 # Internal prediction and optimisation methods                                #
