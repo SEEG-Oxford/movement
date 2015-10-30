@@ -26,4 +26,19 @@ given either a RasterLayer containing a single population layer, or a
 with the columns \code{location} (character), \code{population} (numeric),
 \code{x} (numeric) and \code{y} (numeric).
 }
+\examples{
+# get location data
+data(kenya)
+kenya10 <- raster::aggregate(kenya, 10, sum)
+net <- getNetwork(kenya10, min = 50000)
+locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+class(locationData) <- c('data.frame', 'location_dataframe')
+# simulate movements (note the values of movementmatrix must be integer)
+predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+movementMatrix <- predictedMovement$movement_matrix
+# fit a new model to these data
+movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+# predict the population movements
+predicted_movements  <- predict(movement_model, kenya10)
+}
 
