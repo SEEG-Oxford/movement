@@ -291,6 +291,26 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
   cat(paste('AIC:  ', x$aic, '\n'))
 }
 
+#' @title Plot a movement model object
+#' @description plot ...
+#' @param x a \code{movement_model}
+#' @param \dots further arguments to be passed to or from other methods. 
+#' @name plot.movement_model
+#' @method plot movement_model
+#' @importFrom viridis viridis
+#' @export
+plot.movement_model  <- function(x, ...){
+  
+  print("TODO: plot method for movement_model object")
+  
+  #extract the relevant parameters from the movement_model object
+  obs <- x$trainingresults$dataset$movement_matrix # observed movemenent
+  pred <- x$trainingresults$prediction # predicted movements
+  distances <- x$trainingresults$net$distance_matrix # distances  
+      
+  plotComparePredictions(obs, pred, distances)
+}
+
 ###############################################################################
 # Model definition and prediction methods                                     #
 ###############################################################################
@@ -1511,21 +1531,6 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   }
 }
 
-#' @title Plot a movement model object
-#' @description plot ...
-#' @param x a \code{movement_model}
-#' @param y ...
-#' @param \dots further arguments to be passed to or from other methods. 
-#' @name plot.movement_model
-#' @method plot movement_model
-#' @importFrom viridis viridis
-#' @export
-plot.movement_model  <- function(x, ...){
-  print("TODO: plot method for movement_model object")
-  print(str(x))
-  
-  #plotComparePredictions(obs, pred, distances)
-}
 
 #' @title Plot movement predictions
 #'
@@ -2342,6 +2347,7 @@ plotComparePredictions <- function (obs, pred, distances) {
   
   pc <- format(cor(obs, pred), digits = 3)
   ssi <- format(sorensen(obs, pred), digits = 3)
+  
   title(main = sprintf('predicted vs. observed movements\ncorrelation = %s; Sorensen similarity = %s; NLL = %s',
                        pc, ssi, nll),
         outer = TRUE)
