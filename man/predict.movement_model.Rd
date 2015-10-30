@@ -15,7 +15,7 @@ containing population data}
 \item{\dots}{Extra arguments to pass to the flux function}
 }
 \value{
-A \code{movementpredictions} object which contains a list of the location
+A \code{movement_predictions} object which contains a list of the location
 dataframe from the input and the matrix containing the predicted population movements.
 }
 \description{

@@ -3,23 +3,23 @@
 \name{showprediction}
 \alias{showprediction}
 \alias{showprediction.default}
-\alias{showprediction.movementpedictions}
+\alias{showprediction.movement_predictions}
 \title{Plot movement predictions}
 \usage{
 showprediction(object, ...)
 
 \method{showprediction}{default}(object, ...)
 
-\method{showprediction}{movementpedictions}(object, ...)
+\method{showprediction}{movement_predictions}(object, ...)
 }
 \arguments{
-\item{object}{A configured prediction model}
+\item{object}{A \code{movement_predictions} object}
 
 \item{\dots}{Extra parameters to pass to plot}
 }
 \description{
-Given a movement model, plot the underlying
-raster, the configured location points and the predicted movements
+Given a predicted movement model (that is a \code{movement_predictions} object),
+plot the underlying raster, the configured location points and the predicted movements
 between locations.
 }
 

@@ -9,7 +9,7 @@ test_that("predict.movement_model returns list of correct data when given a Rast
               return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
             },
 	          expected_predict_movement_model  <- list(net=list(locations=1,population=1,coordinates=1),movement_matrix=2),
-            class(expected_predict_movement_model)  <- "movementpredictions",
+            class(expected_predict_movement_model)  <- "movement_predictions",
 	          actual_predict_movement_model  <- predict.movement_model(predictionModel,dataframe),
             expect_equal(actual_predict_movement_model, expected_predict_movement_model)
 	)
@@ -24,7 +24,7 @@ test_that("predict.movement_model returns list of correct data when given a data
               return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
             },
             expected_predict_movement_model <- list(net=list(locations=1,population=1,coordinates=1), movement_matrix = 2),
-            class(expected_predict_movement_model)  <- "movementpredictions",
+            class(expected_predict_movement_model)  <- "movement_predictions",
             actual_predict_movement_model  <- predict.movement_model(predictionModel,dataframe), 
             expect_equal(actual_predict_movement_model, expected_predict_movement_model)
   )  

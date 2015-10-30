@@ -196,7 +196,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' 
-#' @return A \code{movementpredictions} object which contains a list of the location 
+#' @return A \code{movement_predictions} object which contains a list of the location 
 #' dataframe from the input and the matrix containing the predicted population movements.
 #' 
 #' @name predict.movement_model
@@ -224,14 +224,14 @@ predict.movement_model <- function(object, newdata, ...) {
     ans  <- list(
       net = prediction$net,
       movement_matrix = prediction$prediction)
-    class(ans) <- "movementpredictions" 
+    class(ans) <- "movement_predictions" 
     return(ans)
   } else if (is(newdata, "data.frame")) {
     prediction <- predict.prediction_model(m, newdata)
     ans  <- list(
       net = prediction$net,
       movement_matrix = prediction$prediction)
-    class(ans) <- "movementpredictions" 
+    class(ans) <- "movement_predictions" 
     return(ans)
   } else {
     stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
@@ -1494,12 +1494,14 @@ movement.predict <- function(distance, population,
 #' @param \dots Extra parameters to pass to plot
 #'
 #' @export
-show.prediction <- function(network, raster_layer, predictedMovements, ...) {
+# TODO Kathrin show.prediction <- function(network, raster_layer, predictedMovements, ...) {
+show.prediction <- function(network, predictedMovements) {
   # visualise the distance matrix
   sp::plot(raster::raster(network$distance_matrix))
   
   # plot the raster layer
-  sp::plot(raster_layer, ...)
+  # TODO Kathrin: need to include the plot for the raster
+  # sp::plot(raster_layer, ...)
   
   # rescale the population of those pixels for plotting
   size <- 0.1 + 2 * network$population / max(network$population)
@@ -1530,11 +1532,11 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #'
 #' @name showprediction
 #'
-#' @description Given a movement model, plot the underlying
-#' raster, the configured location points and the predicted movements
+#' @description Given a predicted movement model (that is a \code{movement_predictions} object), 
+#' plot the underlying raster, the configured location points and the predicted movements
 #' between locations.
 #'
-#' @param object A configured prediction model
+#' @param object A \code{movement_predictions} object
 #' @param \dots Extra parameters to pass to plot
 #'
 #' @export
@@ -1564,12 +1566,15 @@ showprediction.prediction_model <- function(object, ...) {
 #' @rdname showprediction
 #'
 #' @export 
-#' @method showprediction movementpedictions
-showprediction.movementpedictions  <- function(object, ...){
+#' @method showprediction movement_predictions
+showprediction.movement_predictions  <- function(object, ...){
   print("TODO: Showprediction for the prediction of a movement_model")
   move  <- object$movement_matrix
+  network <- object$net
   
-  print(str(object))
+  # TODO Kathrin: need to get the raster to be passed over to the show.predict methods
+  #show.prediction(network, raster, move, ...)
+  show.prediction(network, move, ...)
 }
 
 
