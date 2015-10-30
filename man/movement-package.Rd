@@ -25,7 +25,7 @@ object containing the coordinates and populations of those locations, and \code{
 creates a \code{flux} object, representing the type of movement model to by fitted. Current supported
 movement models are: \code{\link{radiationWithSelection}}, \code{\link{originalRadiation}},
 \code{\link{gravity}}, \code{\link{gravityWithDistance}}, \code{\link{interveningOpportunities}} and
-\code{\link{uniform selection}}.
+\code{\link{uniformSelection}}.
 
 The \code{\link{movement}} model fits the parameters of the specified movement model, and returns a
 \code{movement_model} object. This object can be plotted (\code{plot(m)}), or used to predict to

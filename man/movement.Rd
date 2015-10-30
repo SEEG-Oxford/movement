@@ -38,22 +38,18 @@ the helper functions \code{\link{is.location_dataframe}} and \code{\link{is.move
 can be used.
 }
 \examples{
-# TODO: add new exmple using the movement() function
-# load kenya raster
+# get location data
 data(kenya)
-# aggregate to 10km to speed things up
 kenya10 <- raster::aggregate(kenya, 10, sum)
-# create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#predictionModel <- prediction_model(dataset=kenya10,
- #                                min_network_pop = 50000,
- #                                flux_model = originalRadiation(),
- #                                symmetric = TRUE)
-# predict the population movement from the model
-#predictedMovements = predict(predictionModel)
-# visualise the distance matrix
-#sp::plot(raster::raster(predictedMovements$net$distance_matrix))
-# visualise the predicted movements overlaid onto the original raster
-#showprediction(predictedMovements)
+net <- getNetwork(kenya10, min = 50000)
+locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+class(locationData) <- c('data.frame', 'location_dataframe')
+# simulate movements (note the values of movementmatrix must be integer)
+predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+movementMatrix <- predictedMovement$movement_matrix
+# fit a new model to these data
+s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+s
 }
 \seealso{
 \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},

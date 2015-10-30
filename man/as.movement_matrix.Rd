@@ -2,23 +2,34 @@
 % Please edit documentation in R/movement.R
 \name{as.movement_matrix}
 \alias{as.movement_matrix}
-\title{Conversion to location_dataframe}
+\alias{as.movement_matrix.data.frame}
+\alias{as.movement_matrix.matrix}
+\title{Conversion to movement_matrix}
 \usage{
-as.movement_matrix(dataframe)
+as.movement_matrix(object, ...)
+
+\method{as.movement_matrix}{data.frame}(object, ...)
+
+\method{as.movement_matrix}{matrix}(object, ...)
 }
 \arguments{
-\item{dataframe}{object to convert to a \code{location_dataframe} object.
-Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
-\code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
-\code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object}
+\item{object}{object to convert to a \code{movement_matrix} object.
+Either a \code{data.frame} with columns \code{origin} (character), \code{destination} (character) and
+\code{movement} (numeric) or a square \code{matrix} object}
 
 \item{\dots}{further arguments passed to or from other methods.}
 }
 \value{
-A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric),
-\code{lat} (numeric) and \code{lon} (numeric).
+A \code{movement_matrix} containing the observed movements.
 }
 \description{
-Convert objects to \code{location_dataframe} objects
+Convert a \code{data.frame} or \code{matrix} object to a \code{movement_matrix}
+object.
+
+
+}
+\note{
+The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
+values, the function will use rounding to return a valid matrix.
 }
 

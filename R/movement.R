@@ -39,22 +39,18 @@
 #' can be used.
 #' @export
 #' @examples
-#' # TODO: add new exmple using the movement() function
-#' # load kenya raster
+#' # get location data
 #' data(kenya)
-#' # aggregate to 10km to speed things up
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
-#' # create the prediction model for the aggregate dataset using the fixed parameter radiation model
-#' #predictionModel <- prediction_model(dataset=kenya10,
-#'  #                                min_network_pop = 50000,
-#'  #                                flux_model = originalRadiation(),
-#'  #                                symmetric = TRUE)
-#' # predict the population movement from the model
-#' #predictedMovements = predict(predictionModel)
-#' # visualise the distance matrix
-#' #sp::plot(raster::raster(predictedMovements$net$distance_matrix))
-#' # visualise the predicted movements overlaid onto the original raster
-#' #showprediction(predictedMovements)
+#' net <- getNetwork(kenya10, min = 50000)
+#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' # simulate movements (note the values of movementmatrix must be integer)
+#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+#' movementMatrix <- predictedMovement$movement_matrix
+#' # fit a new model to these data
+#' s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' s
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -168,17 +164,19 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
     predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
     prediction <- predict.prediction_model(predictionModel)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    movement_matrix  <- as.movement_matrix(prediction$prediction)    
     return (list(
       df_locations = df,
-      movement_matrix = prediction$prediction))
+      movement_matrix = movement_matrix))
   } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
     prediction <- predict.prediction_model(predictionModel, location_dataframe)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
+    movement_matrix  <- as.movement_matrix(prediction$prediction)
     return (list(
       df_locations = df,
-      movement_matrix = prediction$prediction))
+      movement_matrix = movement_matrix))
   } else {
     stop('Error: Expected parameter `location_dataframe` to be either a RasterLayer or a data.frame')
   }
@@ -1796,10 +1794,20 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
 
   # transform the flux object parameters to unconstraint values using the helper function
   transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
-  
+    
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
-  # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over
-  optimresults  <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)
+  # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
+  optimresults <- tryCatch({
+    optimresults <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)    
+  }, error = function(err) {
+    message(paste("ERROR: optimiser failed: ", err))
+    return(NULL) 
+  })
+
+  # check if the tryCatch returns null in which case the program should stop!
+  if(is.null(optimresults[[1]])){
+    stop("Error: Optimser failed.")
+  }
 
   # perform the inverse transformation on the optimised parameters into its true (i.e. constraint) scale
   optimresults$par  <- transformFluxObjectParameters(optimresults$par, predictionModel$flux_model$transform, TRUE)
@@ -1881,40 +1889,78 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
   return (sparseMatrix)
 }
 
-#' @title Conversion to location_dataframe
-#' 
-#' @description Convert objects to \code{location_dataframe} objects
-#' 
-#' @param dataframe object to convert to a \code{location_dataframe} object.
-#' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
-#' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
-#' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
-#' 
+#' @title Conversion to movement_matrix
+#' @description Convert a \code{data.frame} or \code{matrix} object to a \code{movement_matrix} 
+#' object. 
+#' @param object object to convert to a \code{movement_matrix} object.
+#' Either a \code{data.frame} with columns \code{origin} (character), \code{destination} (character) and
+#' \code{movement} (numeric) or a square \code{matrix} object
 #' @param \dots further arguments passed to or from other methods.
-#' 
-#' @return A data.frame containing location data with columns \code{location} (character), \code{pop} (numeric), 
-#' \code{lat} (numeric) and \code{lon} (numeric).
-#' @name as.movement_matrix
+#' @return A \code{movement_matrix} containing the observed movements.
+#' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
+#' values, the function will use rounding to return a valid matrix.
 #' @export
-as.movement_matrix <- function(dataframe) {
-  nrows <- length(unique(dataframe[1])[,])
-  ncols <- length(unique(dataframe[2])[,])
+as.movement_matrix <- function(object, ...) {
+  UseMethod("as.movement_matrix", object)
+}
+
+#' @rdname as.movement_matrix
+#' @export
+#' @method as.movement_matrix data.frame
+as.movement_matrix.data.frame <- function(object, ...) {
+  
+  nrows <- length(unique(object[1])[,])
+  ncols <- length(unique(object[2])[,])
   if(nrows != ncols) {
     stop ("Error: Expected a square matrix!")
   }
-  
-  mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(unique(dataframe[1])[,],unique(dataframe[2])[,]))
-  for(idx in 1:nrow(dataframe)) {
-    mat[as.character(dataframe[idx,2]),as.character(dataframe[idx,1])] <- dataframe[idx,3]
+    
+  mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(unique(object[1])[,],unique(object[2])[,]))
+  for(idx in 1:nrow(object)) {
+    mat[as.character(object[idx,2]),as.character(object[idx,1])] <- object[idx,3]
   }
-  
-  mat[is.na(mat)] <- 0	
+    
+  mat[is.na(mat)] <- 0  
   
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
   
+  # in case the matrix contains non-integer values use rounding to receive integer values required
+  rounded_matrix  <- round(mat)
+  
+  if(!isTRUE(all.equal(mat, rounded_matrix))){
+    # print warning for user that rounding was used
+    warning("The given data.frame contains non-integer values. Rounding was used to return a valid movement_matrix object.")
+  }
+  
+  class(rounded_matrix) <- c('matrix', 'movement_matrix')
+  return (rounded_matrix)
+  
   class(mat) <- c('matrix', 'movement_matrix')
   return (mat)
+}
+
+#' 
+#' @rdname as.movement_matrix
+#' @export
+#' @method as.movement_matrix matrix
+as.movement_matrix.matrix <- function(object, ...) {
+  
+  # ensure that the given matrix is quare
+  if(nrow(object) != ncol(object)) {
+    stop ("Error: Expected a square matrix!")
+  }
+  
+  # in case the matrix contains non-integer values use rounding to receive integer values required
+  rounded_matrix  <- round(object)
+  
+  if(!isTRUE(all.equal(object, rounded_matrix))){
+    # print warning for user that rounding was used
+    warning("The given movement_matix contains non-integer values. Rounding was used to return a valid movement_matrix object.")
+  }
+  
+  class(rounded_matrix) <- c('matrix', 'movement_matrix')
+  return (rounded_matrix)
 }
 
 #' @title  Check if given matrix if 'movement_matrix' object
@@ -2200,7 +2246,7 @@ distProb <- function (distances, movements, nbin, log) {
   
   # get bin allocation for each distance
   chop <- cut(distances, bins, include.lowest = TRUE)
-
+  
   # get number of movements in each bin
   sums <- tapply(movements, chop, sum)
   sums[is.na(sums)] <- 0
@@ -2284,8 +2330,7 @@ plotComparePredictions <- function (obs, pred, distances) {
                        pc, ssi, nll),
         outer = TRUE)
   
-  par(op)  
-  
+  par(op)    
 }
 
 #' @name travelTime
