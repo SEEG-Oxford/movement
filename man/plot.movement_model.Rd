@@ -12,6 +12,6 @@
 \item{\dots}{further arguments to be passed to or from other methods.}
 }
 \description{
-plot ...
+plot 3 different figures ...
 }
 

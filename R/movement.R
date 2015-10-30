@@ -298,7 +298,6 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 #' @param \dots further arguments to be passed to or from other methods. 
 #' @name plot.movement_model
 #' @method plot movement_model
-#' @importFrom viridis viridis
 #' @export
 plot.movement_model  <- function(x, ...){
     
