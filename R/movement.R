@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ###############################################################################
 # Main interface methods                                                      #
 ###############################################################################
@@ -307,7 +308,7 @@ plot.movement_model  <- function(x, ...){
   obs <- x$trainingresults$dataset$movement_matrix # observed movemenent
   pred <- x$trainingresults$prediction # predicted movements
   distances <- x$trainingresults$net$distance_matrix # distances  
-      
+  
   plotComparePredictions(obs, pred, distances)
 }
 
@@ -1531,7 +1532,6 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
   }
 }
 
-
 #' @title Plot movement predictions
 #'
 #' @name showprediction
@@ -1566,7 +1566,6 @@ showprediction.prediction_model <- function(object, ...) {
   raster <- object$dataset
   show.prediction(network, raster, move, ...)
 }
-
 
 ###############################################################################
 # Internal prediction and optimisation methods                                #
@@ -2332,7 +2331,7 @@ densityCompare <- function(obs, pred) {
 # n <- 1e4
 # distances <- rnorm(n, 0, 100) ^ 2
 # obs <- rpois(n, 20)
-# pred <- rpois(n, x)
+# pred <- rpois(n, obs)
 plotComparePredictions <- function (obs, pred, distances) {
   
   op <- par()
@@ -2343,11 +2342,12 @@ plotComparePredictions <- function (obs, pred, distances) {
   
   scatter(obs, pred)
   densityCompare(obs, pred)
-  distanceDistPlot(obs, pred, distances)
+  distanceDistPlot(obs, pred, d)
   
   pc <- format(cor(obs, pred), digits = 3)
   ssi <- format(sorensen(obs, pred), digits = 3)
-  
+  nll <- format(poissonNLL(obs, pred), digits = 3)
+
   title(main = sprintf('predicted vs. observed movements\ncorrelation = %s; Sorensen similarity = %s; NLL = %s',
                        pc, ssi, nll),
         outer = TRUE)
