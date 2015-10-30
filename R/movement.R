@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 ###############################################################################
 # Main interface methods                                                      #
 ###############################################################################
@@ -50,8 +49,9 @@
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- predictedMovement$movement_matrix
 #' # fit a new model to these data
-#' s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
-#' s
+#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' # print movement_model
+#' print(movement_model)
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -293,7 +293,7 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 }
 
 #' @title Plot a movement model object
-#' @description plot ...
+#' @description plot 3 different figures ...
 #' @param x a \code{movement_model}
 #' @param \dots further arguments to be passed to or from other methods. 
 #' @name plot.movement_model
@@ -301,14 +301,13 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 #' @importFrom viridis viridis
 #' @export
 plot.movement_model  <- function(x, ...){
-  
-  print("TODO: plot method for movement_model object")
-  
+    
   #extract the relevant parameters from the movement_model object
   obs <- x$trainingresults$dataset$movement_matrix # observed movemenent
   pred <- x$trainingresults$prediction # predicted movements
   distances <- x$trainingresults$net$distance_matrix # distances  
   
+  # calls the unexported functions to generate the plots
   plotComparePredictions(obs, pred, distances)
 }
 
@@ -2342,7 +2341,7 @@ plotComparePredictions <- function (obs, pred, distances) {
   
   scatter(obs, pred)
   densityCompare(obs, pred)
-  distanceDistPlot(obs, pred, d)
+  distanceDistPlot(obs, pred, distances)
   
   pc <- format(cor(obs, pred), digits = 3)
   ssi <- format(sorensen(obs, pred), digits = 3)

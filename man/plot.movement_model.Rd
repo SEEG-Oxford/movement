@@ -9,8 +9,6 @@
 \arguments{
 \item{x}{a \code{movement_model}}
 
-\item{y}{...}
-
 \item{\dots}{further arguments to be passed to or from other methods.}
 }
 \description{
