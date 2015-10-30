@@ -199,8 +199,9 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' 
-#' @return A \code{movement_predictions} object which contains a list of the location 
-#' dataframe from the input and the matrix containing the predicted population movements.
+#' @return A \code{movement_predictions} object containing a list with the location 
+#' dataframe from the input, the matrix containing the predicted population movements 
+#' and the data set of the population.
 #' 
 #' @name predict.movement_model
 #' @method predict movement_model
