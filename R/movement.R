@@ -24,7 +24,10 @@
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. 
-#'
+#' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
+#' values, the function will use rounding to return a valid matrix and display a warning to inform the user of this
+#' additional rounding.
+
 #' @seealso \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
 #' \code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}}, 
 #' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
@@ -73,16 +76,25 @@ movement <- function(formula, flux_model = gravity(), ...) {
   nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
   nulldf <- nobs # no predictors for null degrees of freedom
   
+  # check to ensure that the given observed movement has only integer values
+  # in case the matrix contains non-integer values use rounding to receive integer values required
+  rounded_matrix  <- round(movement_matrix)
+  
+  if(!isTRUE(all.equal(movement_matrix, rounded_matrix))){
+    # print warning for user that rounding was used
+    warning("The given observed movement matrix contains non-integer values. Rounding was used to receive a valid movement matrix.")
+  }
+  
   # create the prediction model which is an internal used prediction_model object (not exported to end user!)
   predictionModel <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, location_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
   
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
-  training_results$dataset  <- list(movement_matrix = movement_matrix, location_dataframe = location_data)
+  training_results$dataset  <- list(movement_matrix = rounded_matrix, location_dataframe = location_data)
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
@@ -232,7 +244,7 @@ predict.movement_model <- function(object, newdata, ...) {
     prediction <- predict.prediction_model(m)
     ans  <- list(
       net = prediction$net,
-      movement_matrix = prediction$prediction,
+      movement_matrix = as.movement_matrix(prediction$prediction),
       dataset = m$dataset)
     class(ans) <- "movement_predictions" 
     return(ans)
@@ -240,7 +252,7 @@ predict.movement_model <- function(object, newdata, ...) {
     prediction <- predict.prediction_model(m, newdata)
     ans  <- list(
       net = prediction$net,
-      movement_matrix = prediction$prediction,
+      movement_matrix = as.movement_matrix(prediction$prediction),
       dataset = m$dataset)
     class(ans) <- "movement_predictions" 
     return(ans)
@@ -1948,8 +1960,6 @@ createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, va
 #' \code{movement} (numeric) or a square \code{matrix} object
 #' @param \dots further arguments passed to or from other methods.
 #' @return A \code{movement_matrix} containing the observed movements.
-#' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
-#' values, the function will use rounding to return a valid matrix.
 #' @export
 as.movement_matrix <- function(object, ...) {
   UseMethod("as.movement_matrix", object)
@@ -1976,17 +1986,6 @@ as.movement_matrix.data.frame <- function(object, ...) {
   mat <- mat[order(rownames(mat)),]
   mat <- mat[,order(colnames(mat))]
   
-  # in case the matrix contains non-integer values use rounding to receive integer values required
-  rounded_matrix  <- round(mat)
-  
-  if(!isTRUE(all.equal(mat, rounded_matrix))){
-    # print warning for user that rounding was used
-    warning("The given data.frame contains non-integer values. Rounding was used to return a valid movement_matrix object.")
-  }
-  
-  class(rounded_matrix) <- c('matrix', 'movement_matrix')
-  return (rounded_matrix)
-  
   class(mat) <- c('matrix', 'movement_matrix')
   return (mat)
 }
@@ -2002,16 +2001,8 @@ as.movement_matrix.matrix <- function(object, ...) {
     stop ("Error: Expected a square matrix!")
   }
   
-  # in case the matrix contains non-integer values use rounding to receive integer values required
-  rounded_matrix  <- round(object)
-  
-  if(!isTRUE(all.equal(object, rounded_matrix))){
-    # print warning for user that rounding was used
-    warning("The given movement_matix contains non-integer values. Rounding was used to return a valid movement_matrix object.")
-  }
-  
-  class(rounded_matrix) <- c('matrix', 'movement_matrix')
-  return (rounded_matrix)
+  class(object) <- c('matrix', 'movement_matrix')
+  return (object)
 }
 
 #' @title  Check if given matrix if 'movement_matrix' object
