@@ -306,6 +306,10 @@ plot.movement_model  <- function(x, ...){
   pred <- x$trainingresults$prediction # predicted movements
   distances <- x$trainingresults$net$distance_matrix # distances  
   
+  # convert to vectors
+  obs <- as.vector(obs)
+  pred <- as.vector(pred)
+  
   # calls the unexported functions to generate the plots
   plotComparePredictions(obs, pred, distances)
 }
@@ -2234,14 +2238,17 @@ distanceDistPlot <- function(obs, pred, distances, nbin = 50) {
   pred_prob <- distProb(distances, pred, nbin, log = FALSE)
   obs_prob <- distProb(distances, obs, nbin, log = FALSE)
   
-  plot(obs_prob,
-       log = 'xy',
-       type = 'b',
-       pch = 16,
-       col = grey(0.5),
-       ylab = 'p(distance)',
-       xlab = 'distance',
-       sub = 'black = predicted; grey = observed')
+  # plot on log-log scale, suppressing warnings about 0 values
+  suppressWarnings(
+    plot(obs_prob,
+         log = 'xy',
+         type = 'b',
+         pch = 16,
+         col = grey(0.5),
+         ylab = 'p(distance)',
+         xlab = 'distance',
+         sub = 'black = predicted; grey = observed')
+  )
   
   points(pred_prob,
          type = 'b',
@@ -2284,8 +2291,10 @@ distProb <- function (distances, movements, nbin, log) {
 poissonNLL <- function(obs, pred) {
   -sum(dpois(obs, pred, log = TRUE))
 }
+
 sorensen <- function(obs, pred) {
-  mean(2 * pmin(obs, pred) / (obs + pred))
+  mean(2 * pmin(obs, pred) / (obs + pred),
+       na.rm = TRUE)
 }
 
 # create a bespoke smootherScatter plot between
@@ -2332,16 +2341,20 @@ densityCompare <- function(obs, pred) {
 # pred <- rpois(n, obs)
 plotComparePredictions <- function (obs, pred, distances) {
   
+  # get current plotting options
   op <- par()
   
+  # change plotting options
   par(pty = 's',
       mfrow = c(1, 3),
       oma = c(2, 0, 3, 0))
   
+  # make each plot type
   scatter(obs, pred)
   densityCompare(obs, pred)
   distanceDistPlot(obs, pred, distances)
   
+  # get validation statistics
   pc <- format(cor(obs, pred), digits = 3)
   ssi <- format(sorensen(obs, pred), digits = 3)
   nll <- format(poissonNLL(obs, pred), digits = 3)
@@ -2350,7 +2363,10 @@ plotComparePredictions <- function (obs, pred, distances) {
                        pc, ssi, nll),
         outer = TRUE)
   
-  par(op)    
+  # reset plotting options
+  par(pty = op$pty,
+      mfrow = op$mfrow,
+      oma = op$oma)    
 }
 
 #' @name travelTime
