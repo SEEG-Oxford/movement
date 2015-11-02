@@ -2051,7 +2051,7 @@ as.location_dataframe <- function(input, ...) {
 #' @method as.location_dataframe data.frame
 as.location_dataframe.data.frame <- function(input, ...) {
   # potentially TODO - remove duplicated locations/origins
-  # input <- input[!duplicated(input$origin),]
+  input <- input[!duplicated(input$location),]
   
   class(input)  <- c('location_dataframe', 'data.frame')
   return (input)

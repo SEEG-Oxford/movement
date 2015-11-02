@@ -9,11 +9,15 @@ test_that("spaces are replaced with underscores", {
 	expect_equal(simplifytext("string with spaces"), "STRING_WITH_SPACES")
 })
 
-# TODO
-# test_that("as.location_dataframe removes duplicate origins", {
-# 	testdata <- data.frame(origin=c(1,1,2,3,4), pop_origin=c(10,10,20,30,40), lat_origin=c(-1,-1,0,1,2), long_origin=c(-5,-5,-4,-3,-2))
-# 	expect_equal(nrow(as.location_dataframe(testdata)), 4)
-# })
+test_that("as.location_dataframe removes duplicate locations when all values are the same", {
+  testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,10,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
+	expect_equal(nrow(as.location_dataframe(testdata)), 4)
+})
+
+test_that("as.location_dataframe removes duplicate locations with different population values", {
+  testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
+  expect_equal(nrow(as.location_dataframe(testdata)), 4)
+})
 
 test_that("as.location_dataframe creates correct class types", {
   testdata <- data.frame(location=c(1,2,3,4), population=c(10,20,30,40), x=c(-1,0,1,2), y=c(-5,-4,-3,-2))
@@ -27,22 +31,22 @@ test_that("as.location_dataframe creates data.frame with 4 columns", {
 })
 
 test_that("as.location_dataframe creates data.frame with correct location column", {
-  testdata <- data.frame(location=c(1,2,3,4), population=c(10,20,30,40), x=c(-1,0,1,2), y=c(-5,-4,-3,-2))
+  testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
 	expect_equal(as.location_dataframe(testdata)$location, c(1,2,3,4))
 })
 
-test_that("as.location_dataframe creates data.frame with correct pop column", {
-  testdata <- data.frame(location=c(1,2,3,4), population=c(10,20,30,40), x=c(-1,0,1,2), y=c(-5,-4,-3,-2))
+test_that("as.location_dataframe creates data.frame with correct population column", {
+  testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
 	expect_equal(as.location_dataframe(testdata)$population, c(10,20,30,40))
 })
 
 test_that("as.location_dataframe creates data.frame with correct x (lat) column", {
-  testdata <- data.frame(location=c(1,2,3,4), population=c(10,20,30,40), x=c(-1,0,1,2), y=c(-5,-4,-3,-2))
+  testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
 	expect_equal(as.location_dataframe(testdata)$x, c(-1,0,1,2))
 })
 
 test_that("as.location_dataframe creates data.frame with correct y (long) column", {
-  testdata <- data.frame(location=c(1,2,3,4), population=c(10,20,30,40), x=c(-1,0,1,2), y=c(-5,-4,-3,-2))
+  testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
 	expect_equal(as.location_dataframe(testdata)$y, c(-5,-4,-3,-2))
 })
 
