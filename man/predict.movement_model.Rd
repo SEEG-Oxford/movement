@@ -42,6 +42,6 @@ movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection
 # predict the population movements
 predicted_movements  <- predict(movement_model, kenya10)
 # display the predicted movements
-showprediction(predicted_movements)
+plot(predicted_movements)
 }
 

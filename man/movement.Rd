@@ -54,7 +54,7 @@ print(movement_model)
 # predict the population movements
 predicted_movements  <- predict(movement_model, kenya10)
 # display the predicted movements
-showprediction(predicted_movements)
+plot(predicted_movements)
 }
 \seealso{
 \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},

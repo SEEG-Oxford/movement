@@ -32,7 +32,7 @@
 #' or even a \code{RasterLayer} object giving populations in each cell (\code{prediction <- predict(m, raster)}).
 #'
 #' @seealso \code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.movement_model}}
-#' \code{\link{showprediction}}, \code{\link{getNetwork}}, \code{\link{kenya}}, 
+#' \code{\link{plot.movement_predictions}}, \code{\link{getNetwork}}, \code{\link{kenya}}, 
 #'
 #' @importFrom graphics arrows par plot points
 #' @importFrom grDevices rgb
