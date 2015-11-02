@@ -55,7 +55,7 @@
 #' # predict the population movements
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
-#' showprediction(predicted_movements)
+#' plot(predicted_movements)
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -223,7 +223,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' # predict the population movements
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
-#' showprediction(predicted_movements)
+#' plot(predicted_movements)
 #' @export
 predict.movement_model <- function(object, newdata, ...) {
   m <- object$trainingresults
@@ -1561,16 +1561,17 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 
 #' @title Plot movement predictions
 #'
-#' @name showprediction
-#'
 #' @description Given a predicted movement model (that is a \code{movement_predictions} object), 
 #' plot the underlying raster, the configured location points and the predicted movements
 #' between locations.
 #'
-#' @param object A \code{movement_predictions} object
+#' @param x A \code{movement_predictions} object
 #' @param \dots Extra parameters to pass to plot
+#' 
+#' @name plot.movement_predictions
+#' @method plot movement_predictions
+#' 
 #' @export
-#'
 #' @examples
 #' # get location data
 #' data(kenya)
@@ -1586,28 +1587,11 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' # predict the population movements
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
-#' showprediction(predicted_movements)
-showprediction <- function(object, ...) {
-  UseMethod("showprediction", object)
-}
-
-#' @rdname showprediction
-#'
-#' @export 
-#' @method showprediction default
-showprediction.default <- function(object, ...) {
-  warning("showprediction doesn't know how to handle this object.")
-  return (object)
-}
-
-#' @rdname showprediction
-#'
-#' @export 
-#' @method showprediction movement_predictions
-showprediction.movement_predictions  <- function(object, ...){
-  move  <- object$movement_matrix
-  network <- object$net  
-  raster <- object$dataset
+#' plot(predicted_movements)
+plot.movement_predictions  <- function(x, ...){
+  move  <- x$movement_matrix
+  network <- x$net  
+  raster <- x$dataset
   
   show.prediction(network, raster, move, ...)
 }
