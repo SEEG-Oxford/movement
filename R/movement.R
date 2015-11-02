@@ -2033,14 +2033,13 @@ is.movement_matrix <- function(x) {
 #' @description Convert objects to \code{location_dataframe} objects
 #' 
 #' @param input object to convert to a \code{location_dataframe} object.
-#' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
-#' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
-#' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
+#' Either a data.frame with columns \code{location} (character), \code{populations} (numeric) and coordinates
+#' \code{x} (numeric) and \code{y} (numeric) or a \code{SpatialPolygonsDataFrame} object
 #' 
 #' @param \dots further arguments passed to or from other methods.
 #' 
-#' @return A data.frame containing location data with columns \code{location} (character), \code{population} (numeric), 
-#' \code{x} (numeric) and \code{y} (numeric).
+#' @return A \code{location_dataframe} objects which is a \code{data.frame} containing location data with 
+#' columns \code{location} (character), \code{population} (numeric), \code{x} (numeric) and \code{y} (numeric).
 #' @name as.location_dataframe
 #' @export
 as.location_dataframe <- function(input, ...) {
@@ -2051,17 +2050,11 @@ as.location_dataframe <- function(input, ...) {
 #' @export
 #' @method as.location_dataframe data.frame
 as.location_dataframe.data.frame <- function(input, ...) {
-  input <- input[!duplicated(input$origin),]
-  pop <- as.numeric(input["pop_origin"]$pop_origin)
-  lat <- as.numeric(input["lat_origin"]$lat_origin)
-  long <- as.numeric(input["long_origin"]$long_origin)
-  locations <- as.numeric(input["origin"]$origin)
-  ans  <- data.frame(location = locations,
-                     population = pop,
-                     x = lat,
-                     y = long)
-  class(ans)  <- c('location_dataframe', 'data.frame')
-  return (ans)
+  # potentially TODO - remove duplicated locations/origins
+  # input <- input[!duplicated(input$origin),]
+  
+  class(input)  <- c('location_dataframe', 'data.frame')
+  return (input)
 }
 
 # use region data downloaded from http://www.gadm.org/country along with a world population raster
