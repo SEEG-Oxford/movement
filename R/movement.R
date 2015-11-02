@@ -52,6 +52,10 @@
 #' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
 #' # print movement_model
 #' print(movement_model)
+#' # predict the population movements
+#' predicted_movements  <- predict(movement_model, kenya10)
+#' # display the predicted movements
+#' showprediction(predicted_movements)
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -63,7 +67,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
   if(!is(flux_model, "flux")){
     stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
   }
-
+  
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
   nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
@@ -74,7 +78,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
   
   # attempt to parameterise the model using optim  
   optimresults <- attemptoptimisation(predictionModel, location_data, movement_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
-    
+  
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
@@ -118,7 +122,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
   if (bad_args) {
     stop ('Error: formula must have one response (a movement_matrix object) and one predictor (a location_dataframe object)')
   }
-
+  
   args  <- list(movement_matrix = movement_matrix, location_dataframe = location_dataframe)
   return (args)  
 }
@@ -198,30 +202,51 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' 
-#' @return A list containing a location dataframe from the input, and a matrix 
-#' containing the predicted population movements.
+#' @return A \code{movement_predictions} object containing a list with the location 
+#' dataframe from the input, the matrix containing the predicted population movements 
+#' and the data set of the population.
 #' 
 #' @name predict.movement_model
 #' @method predict movement_model
+#' @examples
+#' # get location data
+#' data(kenya)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' net <- getNetwork(kenya10, min = 50000)
+#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' # simulate movements (note the values of movementmatrix must be integer)
+#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+#' movementMatrix <- predictedMovement$movement_matrix
+#' # fit a new model to these data
+#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' # predict the population movements
+#' predicted_movements  <- predict(movement_model, kenya10)
+#' # display the predicted movements
+#' showprediction(predicted_movements)
 #' @export
 predict.movement_model <- function(object, newdata, ...) {
   m <- object$trainingresults
   m$dataset <- newdata
   if(is(newdata, "RasterLayer")) {
     prediction <- predict.prediction_model(m)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
-    return (list(
-      df_locations = df,
-      movement_matrix = prediction$prediction))
+    ans  <- list(
+      net = prediction$net,
+      movement_matrix = prediction$prediction,
+      dataset = m$dataset)
+    class(ans) <- "movement_predictions" 
+    return(ans)
   } else if (is(newdata, "data.frame")) {
     prediction <- predict.prediction_model(m, newdata)
-    df <- data.frame(location=prediction$net$locations, pop=prediction$net$population, coordinates=prediction$net$coordinates)
-    return (list(
-      df_locations = df,
-      movement_matrix = prediction$prediction))
+    ans  <- list(
+      net = prediction$net,
+      movement_matrix = prediction$prediction,
+      dataset = m$dataset)
+    class(ans) <- "movement_predictions" 
+    return(ans)
   } else {
     stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
-  }
+  }  
 }
 
 #' @title Print a movement model object
@@ -243,7 +268,7 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
   cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
       x$df.residual, "Residual\n")
   if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
-  cat("Null Deviance:	   ", x$null.deviance,
+  cat("Null Deviance:     ", x$null.deviance,
       "\nResidual Deviance: ", x$deviance,
       "\tAIC:", x$aic)
   cat("\n")
@@ -300,7 +325,7 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 #' @method plot movement_model
 #' @export
 plot.movement_model  <- function(x, ...){
-    
+  
   #extract the relevant parameters from the movement_model object
   obs <- x$trainingresults$dataset$movement_matrix # observed movemenent
   pred <- x$trainingresults$prediction # predicted movements
@@ -628,11 +653,11 @@ summary.flux  <- function(object, ...){
 # \emph{PLoS ONE} 8(3): e60069.
 # \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 originalRadiationFlux <- function(i, j, distance, population,
-                           theta = c(1), symmetric = FALSE,
-                           minpop = 1, maxrange = Inf) {
+                                  theta = c(1), symmetric = FALSE,
+                                  minpop = 1, maxrange = Inf) {
   # get model parameters
   p <- theta[1]
-    
+  
   # get the population sizes $m_i$ and $n_j$
   m_i <- population[i]
   n_j <- population[j]
@@ -708,7 +733,7 @@ originalRadiationFlux <- function(i, j, distance, population,
   
   # and in the opposite direction
   T_ji <- T_j * P_nam_ji
-    
+  
   # return this
   if (symmetric) return (T_ij + T_ji)
   else return (c(T_ij, T_ji))
@@ -777,12 +802,12 @@ originalRadiationFlux <- function(i, j, distance, population,
 # \emph{PLoS ONE} 8(3): e60069.
 # \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 radiationWithSelectionFlux <- function(i, j, distance, population,
-                           theta = c(1,1), symmetric = FALSE,
-                           minpop = 1, maxrange = Inf) {
+                                       theta = c(1,1), symmetric = FALSE,
+                                       minpop = 1, maxrange = Inf) {
   # get model parameters
   p <- theta[1]
   lambda <- theta[2]
-    
+  
   # get the population sizes $m_i$ and $n_j$
   m_i <- population[i]
   n_j <- population[j]
@@ -929,11 +954,11 @@ radiationWithSelectionFlux <- function(i, j, distance, population,
 # \emph{PLoS ONE} 8(3): e60069.
 # \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 uniformSelectionFlux <- function(i, j, distance, population,
-                           theta = c(1), symmetric = FALSE,
-                           minpop = 1, maxrange = Inf) {
+                                 theta = c(1), symmetric = FALSE,
+                                 minpop = 1, maxrange = Inf) {
   # get model parameters
   p <- theta[1]
-    
+  
   # get the population sizes $m_i$ and $n_j$
   m_i <- population[i]
   n_j <- population[j]
@@ -1080,8 +1105,8 @@ uniformSelectionFlux <- function(i, j, distance, population,
 # Simini F, Maritan A, Neda Z (2013) Human mobility in a continuum approach.
 # \emph{PLoS ONE} 8(3): e60069. \url{http://dx.doi.org/10.1371/journal.pone.0060069}
 interveningOpportunitiesFlux <- function(i, j, distance, population,
-                           theta = c(1), symmetric = FALSE,
-                           minpop = 1, maxrange = Inf) {
+                                         theta = c(1), symmetric = FALSE,
+                                         minpop = 1, maxrange = Inf) {
   # get model parameters
   p <- theta[1]
   L <- theta[2]
@@ -1153,7 +1178,7 @@ interveningOpportunitiesFlux <- function(i, j, distance, population,
   
   m_i_times_n_j <- m_i * n_j
   m_i_plus_n_j <- m_i + n_j
-    
+  
   P_nam_ij <- (exp(-L * (m_i + i_s_ij)) - exp(-L * (m_i_plus_n_j + i_s_ij))) / exp(-L * m_i)
   P_nam_ji <- (exp(-L * (n_j + j_s_ij)) - exp(-L * (m_i_plus_n_j + j_s_ij))) / exp(-L * n_j)
   
@@ -1161,7 +1186,7 @@ interveningOpportunitiesFlux <- function(i, j, distance, population,
   
   # and in the opposite direction
   T_ji <- T_j * P_nam_ji
-    
+  
   # return this
   if (symmetric) return (T_ij + T_ji)
   else return (c(T_ij, T_ji))
@@ -1219,9 +1244,9 @@ interveningOpportunitiesFlux <- function(i, j, distance, population,
 # Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
 # of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
 gravityFlux <- function(i, j, distance, population,
-                         theta = c(1, 0.6, 0.3, 3),
-                         symmetric = FALSE,
-                         minpop = 1, maxrange = Inf) {
+                        theta = c(1, 0.6, 0.3, 3),
+                        symmetric = FALSE,
+                        minpop = 1, maxrange = Inf) {
   # given the indices $i$ and $j$, vector of population sizes
   # 'population', (dense) distance matrix 'distance', vector of parameters
   # 'theta' in the order [scalar, exponent on donor pop, exponent on recipient
@@ -1313,9 +1338,9 @@ gravityFlux <- function(i, j, distance, population,
 # Viboud et al. (2006) Synchrony, Waves, and Spatial Hierarchies in the Spread
 # of Influenza. \emph{Science} \url{http://dx.doi.org/10.1126/science.1125237}
 gravityWithDistanceFlux <- function(i, j, distance, population,
-                                     theta = c(1, 0.6, 0.3, 3, 1, 1, 0.6, 0.3, 3),
-                                     symmetric = FALSE,
-                                     minpop = 1, maxrange = Inf) {
+                                    theta = c(1, 0.6, 0.3, 3, 1, 1, 0.6, 0.3, 3),
+                                    symmetric = FALSE,
+                                    minpop = 1, maxrange = Inf) {
   # given the indices $i$ and $j$, vector of population sizes
   # 'population', (dense) distance matrix 'distance', vector of parameters
   # 'theta' in the order [scalar, exponent on donor pop, exponent on recipient
@@ -1538,14 +1563,30 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #'
 #' @name showprediction
 #'
-#' @description Given a movement model, plot the underlying
-#' raster, the configured location points and the predicted movements
+#' @description Given a predicted movement model (that is a \code{movement_predictions} object), 
+#' plot the underlying raster, the configured location points and the predicted movements
 #' between locations.
 #'
-#' @param object A configured prediction model
+#' @param object A \code{movement_predictions} object
 #' @param \dots Extra parameters to pass to plot
-#'
 #' @export
+#'
+#' @examples
+#' # get location data
+#' data(kenya)
+#' kenya10 <- raster::aggregate(kenya, 10, sum)
+#' net <- getNetwork(kenya10, min = 50000)
+#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' # simulate movements (note the values of movementmatrix must be integer)
+#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+#' movementMatrix <- predictedMovement$movement_matrix
+#' # fit a new model to these data
+#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' # predict the population movements
+#' predicted_movements  <- predict(movement_model, kenya10)
+#' # display the predicted movements
+#' showprediction(predicted_movements)
 showprediction <- function(object, ...) {
   UseMethod("showprediction", object)
 }
@@ -1555,17 +1596,19 @@ showprediction <- function(object, ...) {
 #' @export 
 #' @method showprediction default
 showprediction.default <- function(object, ...) {
-  print("showprediction doesn't know how to handle this object.")
+  warning("showprediction doesn't know how to handle this object.")
   return (object)
 }
 
-# @rdname showprediction
-# 
-# @method showprediction prediction_model
-showprediction.prediction_model <- function(object, ...) {
-  network <- object$net
-  move <- object$prediction
+#' @rdname showprediction
+#'
+#' @export 
+#' @method showprediction movement_predictions
+showprediction.movement_predictions  <- function(object, ...){
+  move  <- object$movement_matrix
+  network <- object$net  
   raster <- object$dataset
+  
   show.prediction(network, raster, move, ...)
 }
 
@@ -1672,7 +1715,7 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 #  \item{coordinate }{A two-column matrix giving the coordinates of the cells
 # of interest in the units of \code{raster}}
 getNetworkFromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
-
+  
   dataframe <- dataframe[!duplicated(dataframe$location),]
   pop <- as.numeric(dataframe["population"]$population)
   coords <- as.matrix(dataframe[c("x", "y")])
@@ -1749,8 +1792,8 @@ predict.prediction_model <- function(object, newdata = NULL, ...) {
   object$net = net
   
   object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
-                                                symmetric = object$symmetric, theta = object$flux_model$params, ...)    
-   
+                                       symmetric = object$symmetric, theta = object$flux_model$params, ...)    
+  
   return (object)
 }
 
@@ -1815,10 +1858,10 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 #
 # @seealso \code{\link{createobservedmatrixfromcsv}}
 attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
-
+  
   # transform the flux object parameters to unconstraint values using the helper function
   transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
-    
+  
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
   # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
   optimresults <- tryCatch({
@@ -1827,12 +1870,12 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
     message(paste("ERROR: optimiser failed: ", err))
     return(NULL) 
   })
-
+  
   # check if the tryCatch returns null in which case the program should stop!
   if(is.null(optimresults[[1]])){
     stop("Error: Optimser failed.")
   }
-
+  
   # perform the inverse transformation on the optimised parameters into its true (i.e. constraint) scale
   optimresults$par  <- transformFluxObjectParameters(optimresults$par, predictionModel$flux_model$transform, TRUE)
   
@@ -1938,12 +1981,12 @@ as.movement_matrix.data.frame <- function(object, ...) {
   if(nrows != ncols) {
     stop ("Error: Expected a square matrix!")
   }
-    
+  
   mat <- matrix(ncol = ncols, nrow = nrows, dimnames = list(unique(object[1])[,],unique(object[2])[,]))
   for(idx in 1:nrow(object)) {
     mat[as.character(object[idx,2]),as.character(object[idx,1])] <- object[idx,3]
   }
-    
+  
   mat[is.na(mat)] <- 0  
   
   mat <- mat[order(rownames(mat)),]
@@ -2291,10 +2334,8 @@ distProb <- function (distances, movements, nbin, log) {
 poissonNLL <- function(obs, pred) {
   -sum(dpois(obs, pred, log = TRUE))
 }
-
 sorensen <- function(obs, pred) {
-  mean(2 * pmin(obs, pred) / (obs + pred),
-       na.rm = TRUE)
+  mean(2 * pmin(obs, pred) / (obs + pred))
 }
 
 # create a bespoke smootherScatter plot between
@@ -2358,7 +2399,7 @@ plotComparePredictions <- function (obs, pred, distances) {
   pc <- format(cor(obs, pred), digits = 3)
   ssi <- format(sorensen(obs, pred), digits = 3)
   nll <- format(poissonNLL(obs, pred), digits = 3)
-
+  
   title(main = sprintf('predicted vs. observed movements\ncorrelation = %s; Sorensen similarity = %s; NLL = %s',
                        pc, ssi, nll),
         outer = TRUE)
@@ -2454,7 +2495,7 @@ transformFluxObjectParameters  <- function(params, transform, inverse = FALSE){
   
   numberOfParams  <- length(params)
   transformedParams  <- vector(mode = "numeric", numberOfParams)
-    
+  
   for(i in 1:numberOfParams){
     transformation  <- transform[[i]]
     transformedParams[i]  <- transformation(params[[i]], inverse)
@@ -2478,7 +2519,7 @@ logTransform  <- function(x, inverse = FALSE){
 # using the 'probit transformation' to ensure that a variable which
 # is constraint between [0,1] is unconstraint for the optimisation process
 unitTransform  <- function(x, inverse = FALSE){
-
+  
   if(inverse){
     trans  <- plogis(x)
   } else {

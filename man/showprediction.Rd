@@ -3,20 +3,40 @@
 \name{showprediction}
 \alias{showprediction}
 \alias{showprediction.default}
+\alias{showprediction.movement_predictions}
 \title{Plot movement predictions}
 \usage{
 showprediction(object, ...)
 
 \method{showprediction}{default}(object, ...)
+
+\method{showprediction}{movement_predictions}(object, ...)
 }
 \arguments{
-\item{object}{A configured prediction model}
+\item{object}{A \code{movement_predictions} object}
 
 \item{\dots}{Extra parameters to pass to plot}
 }
 \description{
-Given a movement model, plot the underlying
-raster, the configured location points and the predicted movements
+Given a predicted movement model (that is a \code{movement_predictions} object),
+plot the underlying raster, the configured location points and the predicted movements
 between locations.
+}
+\examples{
+# get location data
+data(kenya)
+kenya10 <- raster::aggregate(kenya, 10, sum)
+net <- getNetwork(kenya10, min = 50000)
+locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+class(locationData) <- c('data.frame', 'location_dataframe')
+# simulate movements (note the values of movementmatrix must be integer)
+predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+movementMatrix <- predictedMovement$movement_matrix
+# fit a new model to these data
+movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+# predict the population movements
+predicted_movements  <- predict(movement_model, kenya10)
+# display the predicted movements
+showprediction(predicted_movements)
 }
 

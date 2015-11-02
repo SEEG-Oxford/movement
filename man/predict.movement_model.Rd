@@ -15,8 +15,9 @@ containing population data}
 \item{\dots}{Extra arguments to pass to the flux function}
 }
 \value{
-A list containing a location dataframe from the input, and a matrix
-containing the predicted population movements.
+A \code{movement_predictions} object containing a list with the location
+dataframe from the input, the matrix containing the predicted population movements
+and the data set of the population.
 }
 \description{
 \code{movement_model}:
@@ -25,5 +26,22 @@ given either a RasterLayer containing a single population layer, or a
 \code{location_dataframe}  object containing population and location data
 with the columns \code{location} (character), \code{population} (numeric),
 \code{x} (numeric) and \code{y} (numeric).
+}
+\examples{
+# get location data
+data(kenya)
+kenya10 <- raster::aggregate(kenya, 10, sum)
+net <- getNetwork(kenya10, min = 50000)
+locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+class(locationData) <- c('data.frame', 'location_dataframe')
+# simulate movements (note the values of movementmatrix must be integer)
+predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+movementMatrix <- predictedMovement$movement_matrix
+# fit a new model to these data
+movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+# predict the population movements
+predicted_movements  <- predict(movement_model, kenya10)
+# display the predicted movements
+showprediction(predicted_movements)
 }
 
