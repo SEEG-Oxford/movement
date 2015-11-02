@@ -28,6 +28,10 @@ Uses the \code{\link{optim}} method to create an optimised model of
 population movements.
 }
 \note{
+The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
+values, the function will use rounding to return a valid matrix and display a warning to inform the user of this
+additional rounding.
+
 The most likely format of the location data will be as a single
 \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and
 \code{long}. This can be extracted from a larger dataframe with
@@ -46,7 +50,7 @@ locationData <- data.frame(location = net$locations, population = net$population
 class(locationData) <- c('data.frame', 'location_dataframe')
 # simulate movements (note the values of movementmatrix must be integer)
 predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-movementMatrix <- predictedMovement$movement_matrix
+movementMatrix <- round(predictedMovement$movement_matrix)
 # fit a new model to these data
 movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
 # print movement_model
