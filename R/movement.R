@@ -50,7 +50,7 @@
 #' class(locationData) <- c('data.frame', 'location_dataframe')
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-#' movementMatrix <- predictedMovement$movement_matrix
+#' movementMatrix <- round(predictedMovement$movement_matrix)
 #' # fit a new model to these data
 #' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
 #' # print movement_model
@@ -229,7 +229,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' class(locationData) <- c('data.frame', 'location_dataframe')
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-#' movementMatrix <- predictedMovement$movement_matrix
+#' movementMatrix <- round(predictedMovement$movement_matrix)
 #' # fit a new model to these data
 #' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
 #' # predict the population movements
@@ -1593,7 +1593,7 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' class(locationData) <- c('data.frame', 'location_dataframe')
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-#' movementMatrix <- predictedMovement$movement_matrix
+#' movementMatrix <- round(predictedMovement$movement_matrix)
 #' # fit a new model to these data
 #' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
 #' # predict the population movements
