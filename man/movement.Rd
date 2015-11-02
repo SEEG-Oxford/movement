@@ -48,8 +48,9 @@ class(locationData) <- c('data.frame', 'location_dataframe')
 predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 movementMatrix <- predictedMovement$movement_matrix
 # fit a new model to these data
-s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
-s
+movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+# print movement_model
+print(movement_model)
 }
 \seealso{
 \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},

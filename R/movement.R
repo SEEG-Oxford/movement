@@ -49,8 +49,9 @@
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- predictedMovement$movement_matrix
 #' # fit a new model to these data
-#' s <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
-#' s
+#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' # print movement_model
+#' print(movement_model)
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -77,6 +78,7 @@ movement <- function(formula, flux_model = gravity(), ...) {
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
+  training_results$dataset  <- list(movement_matrix = movement_matrix, location_dataframe = location_data)
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
@@ -288,6 +290,28 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
   cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
   cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
   cat(paste('AIC:  ', x$aic, '\n'))
+}
+
+#' @title Plot a movement model object
+#' @description plot 3 different figures ...
+#' @param x a \code{movement_model}
+#' @param \dots further arguments to be passed to or from other methods. 
+#' @name plot.movement_model
+#' @method plot movement_model
+#' @export
+plot.movement_model  <- function(x, ...){
+    
+  #extract the relevant parameters from the movement_model object
+  obs <- x$trainingresults$dataset$movement_matrix # observed movemenent
+  pred <- x$trainingresults$prediction # predicted movements
+  distances <- x$trainingresults$net$distance_matrix # distances  
+  
+  # convert to vectors
+  obs <- as.vector(obs)
+  pred <- as.vector(pred)
+  
+  # calls the unexported functions to generate the plots
+  plotComparePredictions(obs, pred, distances)
 }
 
 ###############################################################################
@@ -2214,14 +2238,17 @@ distanceDistPlot <- function(obs, pred, distances, nbin = 50) {
   pred_prob <- distProb(distances, pred, nbin, log = FALSE)
   obs_prob <- distProb(distances, obs, nbin, log = FALSE)
   
-  plot(obs_prob,
-       log = 'xy',
-       type = 'b',
-       pch = 16,
-       col = grey(0.5),
-       ylab = 'p(distance)',
-       xlab = 'distance',
-       sub = 'black = predicted; grey = observed')
+  # plot on log-log scale, suppressing warnings about 0 values
+  suppressWarnings(
+    plot(obs_prob,
+         log = 'xy',
+         type = 'b',
+         pch = 16,
+         col = grey(0.5),
+         ylab = 'p(distance)',
+         xlab = 'distance',
+         sub = 'black = predicted; grey = observed')
+  )
   
   points(pred_prob,
          type = 'b',
@@ -2264,8 +2291,10 @@ distProb <- function (distances, movements, nbin, log) {
 poissonNLL <- function(obs, pred) {
   -sum(dpois(obs, pred, log = TRUE))
 }
+
 sorensen <- function(obs, pred) {
-  mean(2 * pmin(obs, pred) / (obs + pred))
+  mean(2 * pmin(obs, pred) / (obs + pred),
+       na.rm = TRUE)
 }
 
 # create a bespoke smootherScatter plot between
@@ -2312,16 +2341,20 @@ densityCompare <- function(obs, pred) {
 # pred <- rpois(n, obs)
 plotComparePredictions <- function (obs, pred, distances) {
   
+  # get current plotting options
   op <- par()
   
+  # change plotting options
   par(pty = 's',
       mfrow = c(1, 3),
       oma = c(2, 0, 3, 0))
   
+  # make each plot type
   scatter(obs, pred)
   densityCompare(obs, pred)
-  distanceDistPlot(obs, pred, d)
+  distanceDistPlot(obs, pred, distances)
   
+  # get validation statistics
   pc <- format(cor(obs, pred), digits = 3)
   ssi <- format(sorensen(obs, pred), digits = 3)
   nll <- format(poissonNLL(obs, pred), digits = 3)
@@ -2330,7 +2363,10 @@ plotComparePredictions <- function (obs, pred, distances) {
                        pc, ssi, nll),
         outer = TRUE)
   
-  par(op)    
+  # reset plotting options
+  par(pty = op$pty,
+      mfrow = op$mfrow,
+      oma = op$oma)    
 }
 
 #' @name travelTime
