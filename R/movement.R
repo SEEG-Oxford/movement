@@ -2050,9 +2050,21 @@ as.location_dataframe <- function(input, ...) {
 #' @export
 #' @method as.location_dataframe data.frame
 as.location_dataframe.data.frame <- function(input, ...) {
-  # potentially TODO - remove duplicated locations/origins
-  input <- input[!duplicated(input$location),]
   
+  # find suplicated rows for the reporting
+  duplicated_rows  <- input[duplicated(input$location),]
+  # TODO - find a way how best to generate a warning 
+#  print("duplicated rows:")
+#  print(duplicated_rows)
+#   for(row in duplicated_rows){
+#     warning("Warning: the duplicated entry ")
+#     print("Warning: the duplicated location ")
+#     #print(row$location)
+#   }
+  
+  #remove duplicated locations/origins
+  input <- input[!duplicated(input$location),]
+    
   class(input)  <- c('location_dataframe', 'data.frame')
   return (input)
 }
