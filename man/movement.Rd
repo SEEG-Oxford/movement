@@ -49,6 +49,8 @@ predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symm
 movementMatrix <- predictedMovement$movement_matrix
 # fit a new model to these data
 movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+# print movement_model
+print(movement_model)
 # predict the population movements
 predicted_movements  <- predict(movement_model, kenya10)
 # display the predicted movements
