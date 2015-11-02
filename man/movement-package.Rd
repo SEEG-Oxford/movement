@@ -38,6 +38,6 @@ Maintainer: Nick Golding <nick.golding.research at gmail.com>
 }
 \seealso{
 \code{\link{movement}} \code{\link{predict.flux}}, \code{\link{predict.movement_model}}
-\code{\link{showprediction}}, \code{\link{getNetwork}}, \code{\link{kenya}},
+\code{\link{plot.movement_predictions}}, \code{\link{getNetwork}}, \code{\link{kenya}},
 }
 

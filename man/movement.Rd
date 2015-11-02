@@ -28,6 +28,10 @@ Uses the \code{\link{optim}} method to create an optimised model of
 population movements.
 }
 \note{
+The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
+values, the function will use rounding to return a valid matrix and display a warning to inform the user of this
+additional rounding.
+
 The most likely format of the location data will be as a single
 \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and
 \code{long}. This can be extracted from a larger dataframe with

@@ -28,8 +28,4 @@ object.
 
 
 }
-\note{
-The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
-values, the function will use rounding to return a valid matrix.
-}
 
