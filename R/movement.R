@@ -44,7 +44,7 @@
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
 #' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
-#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- predictedMovement$movement_matrix
@@ -214,7 +214,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
 #' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
-#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- predictedMovement$movement_matrix
@@ -1578,7 +1578,7 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
 #' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
-#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- predictedMovement$movement_matrix
