@@ -47,7 +47,7 @@
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
 #' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
-#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- round(predictedMovement$movement_matrix)
@@ -226,7 +226,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
 #' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
-#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- round(predictedMovement$movement_matrix)
@@ -1590,7 +1590,7 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
 #' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
-#' class(locationData) <- c('data.frame', 'location_dataframe')
+#' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- round(predictedMovement$movement_matrix)
@@ -2024,14 +2024,13 @@ is.movement_matrix <- function(x) {
 #' @description Convert objects to \code{location_dataframe} objects
 #' 
 #' @param input object to convert to a \code{location_dataframe} object.
-#' Either a data.frame with columns \code{origin} (character), \code{destination} (character), \code{movement} (numeric),
-#' \code{pop_origin} (numeric), \code{pop_destination} (numeric), \code{lat_origin} (numeric), \code{long_origin} (numeric),
-#' \code{lat_destination} (numeric) and \code{long_destination} (numeric) or a \code{SpatialPolygonsDataFrame} object
+#' Either a data.frame with columns \code{location} (character), \code{populations} (numeric) and coordinate
+#' columns \code{x} (numeric) and \code{y} (numeric) or a \code{SpatialPolygonsDataFrame} object
 #' 
 #' @param \dots further arguments passed to or from other methods.
 #' 
-#' @return A data.frame containing location data with columns \code{location} (character), \code{population} (numeric), 
-#' \code{x} (numeric) and \code{y} (numeric).
+#' @return A \code{location_dataframe} objects which is a \code{data.frame} containing location data with 
+#' columns \code{location} (character), \code{population} (numeric), \code{x} (numeric) and \code{y} (numeric).
 #' @name as.location_dataframe
 #' @export
 as.location_dataframe <- function(input, ...) {
@@ -2042,17 +2041,19 @@ as.location_dataframe <- function(input, ...) {
 #' @export
 #' @method as.location_dataframe data.frame
 as.location_dataframe.data.frame <- function(input, ...) {
-  input <- input[!duplicated(input$origin),]
-  pop <- as.numeric(input["pop_origin"]$pop_origin)
-  lat <- as.numeric(input["lat_origin"]$lat_origin)
-  long <- as.numeric(input["long_origin"]$long_origin)
-  locations <- as.numeric(input["origin"]$origin)
-  ans  <- data.frame(location = locations,
-                     population = pop,
-                     x = lat,
-                     y = long)
-  class(ans)  <- c('location_dataframe', 'data.frame')
-  return (ans)
+  
+  # find duplicated rows and print a warning message if any duplicated entries were found
+  duplicated_rows  <- input[duplicated(input$location),]
+  if(nrow(duplicated_rows) > 0){
+    warning("Warning: The following duplicated rows were removed from the location data frame:")
+    warning(duplicated_rows)
+  }
+   
+  #remove duplicated locations/origins
+  input <- input[!duplicated(input$location),]
+    
+  class(input)  <- c('location_dataframe', 'data.frame')
+  return (input)
 }
 
 # use region data downloaded from http://www.gadm.org/country along with a world population raster
