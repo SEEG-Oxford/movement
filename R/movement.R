@@ -1533,26 +1533,18 @@ movement.predict <- function(distance, population,
 #'
 #' @param network A list containing a population vector, distance matrix and
 #' sets of coordinates for each location
-#' @param raster_layer A base layer to plot the predictions onto.
-#' @param predictedMovements A data.frame containing predicted movements
+#' @param predicted_movements A data.frame containing predicted movements
 #' between locations.
 #' @param \dots Extra parameters to pass to plot
 #'
 #' @export
-show.prediction <- function(network, raster_layer, predictedMovements, ...) {
-  # visualise the distance matrix
-  sp::plot(raster::raster(network$distance_matrix))
-  
-  # plot the raster layer
-  sp::plot(raster_layer, ...)
+show.prediction <- function(network, predicted_movements, ...) {
   
   # rescale the population of those pixels for plotting
   size <- 0.1 + 2 * network$population / max(network$population)
   
   # plot the pixels selected, with point size proportional to population size
-  points(network$coordinates, pch = 16,
-         cex = size,
-         col = rgb(0, 0, 1, 0.6))
+  plot(network$coordinates, pch = 16, cex = size, col = rgb(0, 0, 1, 0.6), asp = 1)
   
   # get the number of locations included
   n <- nrow(network$coordinates)
@@ -1566,7 +1558,7 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
              network$coordinates[j, 2],
              lwd = 4,
              length = 0,
-             col = rgb(0, 0, 1, predictedMovements[i, j] / (max(predictedMovements) + 0)))
+             col = rgb(0, 0, 1, predicted_movements[i, j] / (max(predicted_movements) + 0)))
     }
   }
 }
@@ -1601,11 +1593,12 @@ show.prediction <- function(network, raster_layer, predictedMovements, ...) {
 #' # display the predicted movements
 #' plot(predicted_movements)
 plot.movement_predictions  <- function(x, ...){
-  move  <- x$movement_matrix
-  network <- x$net  
-  raster <- x$dataset
-  
-  show.prediction(network, raster, move, ...)
+  # extract the relevant parameters needed
+  network <- x$net
+  movement <- x$movement_matrix
+
+  # call the function which handles the plotting
+  show.prediction(network, movement, ...)
 }
 
 ###############################################################################

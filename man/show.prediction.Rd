@@ -4,15 +4,13 @@
 \alias{show.prediction}
 \title{Display the movement predictions on a plot}
 \usage{
-show.prediction(network, raster_layer, predictedMovements, ...)
+show.prediction(network, predicted_movements, ...)
 }
 \arguments{
 \item{network}{A list containing a population vector, distance matrix and
 sets of coordinates for each location}
 
-\item{raster_layer}{A base layer to plot the predictions onto.}
-
-\item{predictedMovements}{A data.frame containing predicted movements
+\item{predicted_movements}{A data.frame containing predicted movements
 between locations.}
 
 \item{\dots}{Extra parameters to pass to plot}
