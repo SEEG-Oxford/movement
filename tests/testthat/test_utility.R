@@ -19,6 +19,11 @@ test_that("as.location_dataframe removes duplicate locations with different popu
   expect_equal(nrow(as.location_dataframe(testdata)), 4)
 })
 
+test_that("as.location_dataframe print warning when removing duplicate locations", {
+  testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
+  expect_warning(as.location_dataframe(testdata), "Warning: The following duplicated rows were removed from the location data frame:")
+})
+
 test_that("as.location_dataframe creates correct class types", {
   testdata <- data.frame(location=c(1,2,3,4), population=c(10,20,30,40), x=c(-1,0,1,2), y=c(-5,-4,-3,-2))
   expect_is(as.location_dataframe(testdata), 'data.frame')

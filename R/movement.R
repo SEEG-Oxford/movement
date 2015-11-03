@@ -2033,8 +2033,8 @@ is.movement_matrix <- function(x) {
 #' @description Convert objects to \code{location_dataframe} objects
 #' 
 #' @param input object to convert to a \code{location_dataframe} object.
-#' Either a data.frame with columns \code{location} (character), \code{populations} (numeric) and coordinates
-#' \code{x} (numeric) and \code{y} (numeric) or a \code{SpatialPolygonsDataFrame} object
+#' Either a data.frame with columns \code{location} (character), \code{populations} (numeric) and coordinate
+#' columns \code{x} (numeric) and \code{y} (numeric) or a \code{SpatialPolygonsDataFrame} object
 #' 
 #' @param \dots further arguments passed to or from other methods.
 #' 
@@ -2051,17 +2051,13 @@ as.location_dataframe <- function(input, ...) {
 #' @method as.location_dataframe data.frame
 as.location_dataframe.data.frame <- function(input, ...) {
   
-  # find suplicated rows for the reporting
+  # find duplicated rows and print a warning message if any duplicated entries were found
   duplicated_rows  <- input[duplicated(input$location),]
-  # TODO - find a way how best to generate a warning 
-#  print("duplicated rows:")
-#  print(duplicated_rows)
-#   for(row in duplicated_rows){
-#     warning("Warning: the duplicated entry ")
-#     print("Warning: the duplicated location ")
-#     #print(row$location)
-#   }
-  
+  if(nrow(duplicated_rows) > 0){
+    warning("Warning: The following duplicated rows were removed from the location data frame:")
+    warning(duplicated_rows)
+  }
+   
   #remove duplicated locations/origins
   input <- input[!duplicated(input$location),]
     
