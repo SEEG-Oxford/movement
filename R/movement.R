@@ -1529,15 +1529,13 @@ movement.predict <- function(distance, population,
 # Prediction visualisation methods                                            #
 ###############################################################################
 
-#' Display the movement predictions on a plot
-#'
-#' @param network A list containing a population vector, distance matrix and
-#' sets of coordinates for each location
-#' @param predicted_movements A data.frame containing predicted movements
-#' between locations.
-#' @param \dots Extra parameters to pass to plot
-#'
-#' @export
+# Display the movement predictions on a plot
+#
+# @param network A list containing a population vector, distance matrix and
+# sets of coordinates for each location
+# @param predicted_movements A data.frame containing predicted movements
+# between locations.
+# @param \dots Extra parameters to pass to plot
 show.prediction <- function(network, predicted_movements, ...) {
   
   # rescale the population of those pixels for plotting
