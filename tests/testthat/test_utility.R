@@ -90,6 +90,14 @@ test_that("as.movement_matrix.matrix returns the correct matrix", {
   expect_equal(actualmatrix, expectedmatrix)
 })
 
+test_that("test", {
+  testmatrix <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  print(testmatrix)
+  #as.data.frame.movement_matrix
+  expect_equal(1,1)
+})
+
+
 test_that("correlate regions works for small test case", {
 	testdataframe <- data.frame(name=c("a", "b", "c", "d"), location=c(1,2,3,4), pop=c(10,20,30,40), lon=c(-5,-4,-3,-2), lat=c(-1,0,1,2))
 	testregionlist <- data.frame(V1=c(1,2,3,4),V2=c("a","b","c","d"))
@@ -214,4 +222,6 @@ test_that("transformFluxObjectParameters correctly returns inverse transformed p
   actualTransformedParams  <- transformFluxObjectParameters(originalParams, transform, TRUE)
   expect_equal(expectedTransformedParams, actualTransformedParams, check.attributes = FALSE)
 })
+
+
 

@@ -2196,23 +2196,27 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 }
 
 # @export
-resultasdataframe <- function(predictedresult) {
-  locations = predictedresult$df_locations
-  mm = predictedresult$movement_matrix
+as.data.frame.movement_matrix <- function(movement_matrix, location_dataframe) {
+
+  # TODO Kathrin
+  #locations = predictedresult$df_locations
+  #mm = predictedresult$movement_matrix 
   
-  if (nrow(locations) != nrow(mm) ||  nrow(mm) != ncol(mm)) {
+  # check input values
+  if (nrow(location_dataframe) != nrow(movement_matrix) ||  nrow(movement_matrix) != ncol(movement_matrix)) {
     stop("Something is wrong with this predicted result. The dimensions of the square matrix should be of the same length as the list of locations")
   }
   
-  result <- data.frame(matrix(nrow=(nrow(mm)^2),ncol=3))
+  result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2),ncol=3))
   
-  for(idx in 1:nrow(mm)) {
-    for(idx2 in 1:ncol(mm)) {
-      row <- c(as.vector(locations[idx,1]),as.vector(locations[idx2,1]),mm[idx,idx2])
-      rownum <- ((idx -1) * nrow(mm)) + idx2
+  for(idx in 1:nrow(movement_matrix)) {
+    for(idx2 in 1:ncol(movement_matrix)) {
+      row <- c(as.vector(location_dataframe[idx,1]),as.vector(location_dataframe[idx2,1]),movement_matrix[idx,idx2])
+      rownum <- ((idx -1) * nrow(movement_matrix)) + idx2
       result[rownum,] <- row
     }
   }
+  
   #head(result)
   colnames(result) <- c("Origin", "Destination", "Movement")
   return (result)
