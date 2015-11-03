@@ -25,7 +25,7 @@ locationData <- data.frame(location = net$locations, population = net$population
 locationData  <- as.location_dataframe(locationData)
 # simulate movements (note the values of movementmatrix must be integer)
 predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-movementMatrix <- predictedMovement$movement_matrix
+movementMatrix <- round(predictedMovement$movement_matrix)
 # fit a new model to these data
 movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
 # predict the population movements

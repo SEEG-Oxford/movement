@@ -6,14 +6,15 @@ test_that("predict.movement_model returns list of correct data when given a Rast
 	predictionModel <- list(trainingresults=NULL)
 	dataframe <- raster::raster(nrows=108, ncols=21, xmn=0, xmx=10)
 	with_mock(`movement:::predict.prediction_model` = function(x) {
-              return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
+              return (list(net=list(locations=1,population=1,coordinates=1),prediction=matrix(2)))
             },
-	          expected_predict_movement_model  <- list(net=list(locations=1,population=1,coordinates=1),movement_matrix=2, dataset = dataframe),
+	          expected_predict_movement_model  <- list(net=list(locations=1,population=1,coordinates=1),movement_matrix = as.movement_matrix(matrix(2)), dataset = dataframe),
             class(expected_predict_movement_model)  <- "movement_predictions",
 	          actual_predict_movement_model  <- predict.movement_model(predictionModel,dataframe),
             expect_equal(actual_predict_movement_model, expected_predict_movement_model)
 	)
 })
+
 
 test_that("predict.movement_model returns list of correct data when given a data.frame", {
   predictionModel <- list(trainingresults=NULL)
@@ -21,9 +22,9 @@ test_that("predict.movement_model returns list of correct data when given a data
   dataframe <- data.frame(c(1))    
   with_mock(# note: need to specify explicit the environment of the function which will be replaced by a mock implementation
             `movement:::predict.prediction_model` = function(x,...) {
-              return (list(net=list(locations=1,population=1,coordinates=1),prediction=2))
+              return (list(net=list(locations=1,population=1,coordinates=1),prediction=matrix(2)))
             },
-            expected_predict_movement_model <- list(net=list(locations=1,population=1,coordinates=1), movement_matrix = 2, dataset = dataframe),
+            expected_predict_movement_model <- list(net=list(locations=1,population=1,coordinates=1), movement_matrix = as.movement_matrix(matrix(2)), dataset = dataframe),
             class(expected_predict_movement_model)  <- "movement_predictions",
             actual_predict_movement_model  <- predict.movement_model(predictionModel,dataframe), 
             expect_equal(actual_predict_movement_model, expected_predict_movement_model)
@@ -62,16 +63,36 @@ test_that("movement function throws an error if given the wrong matrix type", {
   expect_error(movement(notMovementMatrix ~ data, radiationWithSelection()))
 })
 
-invalid_movement_matrix  <- matrix(c(0.192,1.2,2.02,3.34,0.42,4.921,5.282,6.282,0.012),nrow=3) # movement cannot be given in decimal numbers (must be integer!)
-class(invalid_movement_matrix) <- c('movement_matrix', 'matrix') 
-assign("invalid_movement_matrix", invalid_movement_matrix, envir = .GlobalEnv)
+movement_matrix_with_non_integer_values  <- matrix(c(0.192,1.2,2.02,3.34,0.42,4.921,5.282,6.282,0.012),nrow=3) # movement cannot be given in decimal numbers (must be integer!)
+class(movement_matrix_with_non_integer_values) <- c('movement_matrix', 'matrix') 
+assign("movement_matrix_with_non_integer_values", movement_matrix_with_non_integer_values, envir = .GlobalEnv)
 
 test_that("movement function throws an error if given an invalid movement matrix", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
-  expect_true(is.movement_matrix(invalid_movement_matrix))  # check that the data are of correct class  
+  expect_true(is.movement_matrix(movement_matrix_with_non_integer_values))  # check that the data are of correct class  
   # next file is still failing 
-  expect_error(movement(invalid_movement_matrix ~ data, radiationWithSelection()), "Error: Optimser failed.")
+  expect_warning(movement(movement_matrix_with_non_integer_values ~ data, radiationWithSelection()), 
+                 "The given observed movement matrix contains non-integer values. Rounding was used to receive a valid movement matrix.")
 })
+
+test_that("test", {
+  expect_true(is.location_dataframe(data)) # check that the data are of correct class
+  expect_true(is.movement_matrix(movement_matrix_with_non_integer_values))  # check that the data are of correct class  
+  with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_data, movement_matrix_with_non_integer_values, progress, hessian, ...) {
+    return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_data, movement_matrix=movement_matrix_with_non_integer_values, progress=progress, hessian=hessian)))
+  },   
+  `movement:::predict.prediction_model` = function(predictionModel, location_data, progress) {      
+    return (list(prediction=NULL))
+  },		
+  `movement:::analysepredictionusingdpois` = function(x, y) return (1),
+  actual_movement_object <- movement(movement_matrix_with_non_integer_values ~ data, originalRadiation()),
+  expected_rounded_matrix  <- matrix(c(0,1,2,3,0,5,5,6,0),nrow=3),
+  class(expected_rounded_matrix)  <- c('movement_matrix', 'matrix'),
+  actual_movement_matrix  <- actual_movement_object$trainingresults$dataset$movement_matrix,
+  expect_equal(actual_movement_matrix, expected_rounded_matrix)
+  )
+})
+
 
 test_that("movement sets correct parameters and bounds for original radiation model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
