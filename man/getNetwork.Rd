@@ -19,14 +19,16 @@ and other excluded.}
 \code{FALSE}).}
 }
 \value{
-A list with three components:
+A list with four components:
  \item{population }{A vector giving the populations at the cells of
 interest}
- \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
+ \item{distance_matrix} {A distance matrix (either of class \code{matrix} or
 \code{dist}) diving the pairwise euclidean distance between the cells of
 interest in the units of \code{raster}}
- \item{coordinate }{A two-column matrix giving the coordinates of the cells
+ \item{coordinate} {A two-column matrix giving the coordinates of the cells
 of interest in the units of \code{raster}}
+ \item{locations} {A vector giving the locations at the cells of
+interest}
 }
 \description{
 Given raster map of population density, extract a distance matrix and vector

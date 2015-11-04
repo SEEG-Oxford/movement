@@ -1638,15 +1638,16 @@ plot.movement_predictions  <- function(x, ...){
 #' @param matrix Whether the distance matrix should be returned as a
 #' \code{matrix} object (if \code{TRUE}) or as a \code{dist} object (if
 #' \code{FALSE}).
-#' @return A list with three components:
+#' @return A list with four components:
 #'  \item{population }{A vector giving the populations at the cells of
 #' interest}
-#'  \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
+#'  \item{distance_matrix} {A distance matrix (either of class \code{matrix} or
 #' \code{dist}) diving the pairwise euclidean distance between the cells of
 #' interest in the units of \code{raster}}
-#'  \item{coordinate }{A two-column matrix giving the coordinates of the cells
+#'  \item{coordinate} {A two-column matrix giving the coordinates of the cells
 #' of interest in the units of \code{raster}}
-#'
+#'  \item{locations} {A vector giving the locations at the cells of
+#' interest}
 #' @examples
 #' # load kenya raster
 #' data(kenya)
@@ -1800,6 +1801,11 @@ predict.prediction_model <- function(object, newdata = NULL, ...) {
   
   object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
                                        symmetric = object$symmetric, theta = object$flux_model$params, ...)    
+  
+  # locations are stored within 'net$locations' which can be used to assign the row & column names 
+  # of the predicted movement_matrix 
+  rownames(object$prediction) <- net$locations
+  colnames(object$prediction) <- net$locations
   
   return (object)
 }
