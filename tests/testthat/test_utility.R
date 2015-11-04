@@ -228,13 +228,10 @@ test_that("as.data.frame.movement_matrix returns an error when given matrix is n
   expect_error(as.data.frame.movement_matrix(non_movment_matrix), "Error: expected a movement_matrix object.")
 })
 
-# test_that("test", {
-#   testmatrix  <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
-#   expected_data.frame  <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(1,2))
-#   print("expected_data.frame")
-#   print(expected_data.frame)
-#   actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
-#   print("actual data frame")
-#   print(actual_data.frame)
-#   expect_equal(expected_data.frame, actual_data.frame)
-# })
+test_that("as.data.frame.movement_matrix correctly returns the data.frame", {
+  testmatrix  <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  testmatrix  <- as.movement_matrix(testmatrix)
+  expected_data.frame  <- data.frame(origin=c("a","a","b","b"), destination=c("a", "b", "a", "b"), movement=c(0,2,1,0), stringsAsFactors = FALSE)
+  actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
+  expect_equal(expected_data.frame, actual_data.frame)
+})

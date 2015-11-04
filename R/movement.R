@@ -2205,8 +2205,6 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 #' @export
 as.data.frame.movement_matrix <- function(movement_matrix) {
 
-  print("Call as.data.frame.movement_matrix")
-
   # check input values
   if (nrow(movement_matrix) != ncol(movement_matrix)) {
     stop("Error: expected square matrix.")
@@ -2217,28 +2215,27 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
   }
   
   # TODO Kathrin
-  #locations = predictedresult$df_locations
-  #mm = predictedresult$movement_matrix 
-  
   #TODO print warning when no sensible row / column names available (add to description as note)
+  
+  number_of_rows  <- nrow(movement_matrix)^2
+  number_of_cols  <- 3
   
   result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2),ncol=3))
   
-#   for(idx in 1:nrow(movement_matrix)) {
-#     for(idx2 in 1:ncol(movement_matrix)) {
-#       #row <- c(as.vector(location_dataframe[idx,1]),as.vector(location_dataframe[idx2,1]),movement_matrix[idx,idx2])
-#       # TODO
-#       row <- c(movement_matrix[idx,idx2])
-#       
-#       rownum <- ((idx -1) * nrow(movement_matrix)) + idx2
-#       result[rownum,] <- row
-#     }
-#   }
+  for(idx in 1:nrow(movement_matrix)) {
+    for(idx2 in 1:ncol(movement_matrix)) {
+      origin  <- rownames(movement_matrix)[idx]
+      destination  <- colnames(movement_matrix)[idx2]      
+      row <- c(origin, destination, movement_matrix[idx,idx2])
+      rownum <- ((idx -1) * nrow(movement_matrix)) + idx2
+      result[rownum,] <- row
+    }
+  }
   
-  #head(result)
-  colnames(result) <- c("Origin", "Destination", "Movement")
-  print("as.data.frame.movement_matrix: Resulting data.frame")
-  print(result)
+  colnames(result) <- c("origin", "destination", "movement")
+  
+  # convert the movement column to numeric mode
+  result$movement  <- as.numeric(result$movement)
 
   return (result)
 }
