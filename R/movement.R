@@ -2198,10 +2198,15 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 #' @title Convert a movement_matrix object into a data.frame
 #'
 #' @description Convert a \code{movement_matrix} object into a \code{data.frame} with
-#' columns \code{origin}(character), \code{destination}(character) and \code{movement}(numeric).
-#' @note It will print a warning ... TODO
-#' @param movement_matrix A \code{movement_matrix} object
-#' @return A standardised text string.
+#' columns \code{origin} (character), \code{destination} (character) and \code{movement} (numeric).
+#' The origins and the destinations are taken from the row and column names of the matrix, 
+#' respectively. 
+#' @note If the given matrix does not contain any row or column names, the function will generate
+#' a warning and the origin and destinations will be the row and column numbers of the relevant 
+#' matrix cell. 
+#' @param movement_matrix A \code{movement_matrix} object. 
+#' @return A \code{data.frame} with columns \code{origin} (character), \code{destination} (character) 
+#' and \code{movement} (numeric)
 #' @export
 as.data.frame.movement_matrix <- function(movement_matrix) {
   
@@ -2214,19 +2219,18 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
     stop("Error: expected a movement_matrix object.")
   }
 
+  # keep track if the row and column names of given matrix are defined; it not set this boolean to true
+  # which will generate a warning
   missing_row_col_names = FALSE;
-  
-  # TODO print warning when no sensible row / column names available (add to description as note)
-  # TODO: update documentation
   
   result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2),ncol=3))
   
   for(idx in 1:nrow(movement_matrix)) {
     for(idx2 in 1:ncol(movement_matrix)) {
       # if there are row names defined, use them for the origin; otherwise, use the row number
-      if(is.null(rownames(movement_matrix)[idx])){
-        missing_row_col_names  <- TRUE
+      if(is.null(rownames(movement_matrix)[idx])){        
         origin  <- idx
+        missing_row_col_names  <- TRUE
       }else{
         origin  <- rownames(movement_matrix)[idx]
       }

@@ -7,16 +7,21 @@
 \method{as.data.frame}{movement_matrix}(movement_matrix)
 }
 \arguments{
-\item{movement_matrix}{A \code{movement_matrix} object}
+\item{movement_matrix}{A \code{movement_matrix} object.}
 }
 \value{
-A standardised text string.
+A \code{data.frame} with columns \code{origin} (character), \code{destination} (character)
+and \code{movement} (numeric)
 }
 \description{
 Convert a \code{movement_matrix} object into a \code{data.frame} with
-columns \code{origin}(character), \code{destination}(character) and \code{movement}(numeric).
+columns \code{origin} (character), \code{destination} (character) and \code{movement} (numeric).
+The origins and the destinations are taken from the row and column names of the matrix,
+respectively.
 }
 \note{
-It will print a warning ... TODO
+If the given matrix does not contain any row or column names, the function will generate
+a warning and the origin and destinations will be the row and column numbers of the relevant
+matrix cell.
 }
 
