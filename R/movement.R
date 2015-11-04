@@ -71,6 +71,11 @@ movement <- function(formula, flux_model = gravity(), ...) {
     stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
   }
   
+  # check if the given movement_matrix and the location_data are consistent within the locations
+  if(!(consistencyCheckMovementMatrixLocationDataframe(movement_matrix, location_data))){
+    warning("The given movement_matrix and the location_dataframe having non-matching location information.")
+  }
+  
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
   nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
