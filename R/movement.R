@@ -2223,10 +2223,20 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
   # which will generate a warning
   missing_row_col_names = FALSE;
   
-  result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2),ncol=3))
-  
+  # expected number of entries excluding the diagnol entries where origin == destination
+  result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2) - nrow(movement_matrix),ncol=3))
+    
+  counter  <- 1
   for(idx in 1:nrow(movement_matrix)) {
     for(idx2 in 1:ncol(movement_matrix)) {
+      
+      # skip over matrix entries where row_number (i.e.'origin') == column_number (i.e. 'destination')
+      if(idx == idx2){
+        print("skip this cell")
+        next;
+      }
+      print("continue with this cell")
+      
       # if there are row names defined, use them for the origin; otherwise, use the row number
       if(is.null(rownames(movement_matrix)[idx])){        
         origin  <- idx
@@ -2244,9 +2254,9 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
       }
       
       row <- c(origin, destination, movement_matrix[idx,idx2])
-      rownum <- ((idx -1) * nrow(movement_matrix)) + idx2
-      result[rownum,] <- row
-    }
+      result[counter,]  <- row
+      counter  <- counter + 1
+    } 
   }
   
   if(missing_row_col_names){
@@ -2259,7 +2269,7 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
   result$origin  <- as.character(result$origin)
   result$destination  <- as.character(result$destination)
   result$movement  <- as.numeric(result$movement)
-
+  
   return (result)
 }
 
