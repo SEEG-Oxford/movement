@@ -7,7 +7,9 @@
 \method{as.data.frame}{movement_matrix}(x, ...)
 }
 \arguments{
-\item{x}{A \code{movement_matrix} object.}
+\item{x}{a \code{movement_matrix} object.}
+
+\item{\dots}{additional arguments to be passed to or from methods.}
 }
 \value{
 A \code{data.frame} with columns \code{origin} (character), \code{destination} (character)
