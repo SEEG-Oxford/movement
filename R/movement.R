@@ -2302,8 +2302,10 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
 #' \url{http://www.afripop.org} provided by Professor Andy Tatem.
 #'
 #' @examples
+#' \dontrun{
 #' data(kenya)
 #' sp::plot(kenya)
+#' }
 #'
 #' @references
 #' Linard C., Gilbert, M. Snow, R.W., Noor, A.M. & Tatem, A.J. (2010)
