@@ -2009,7 +2009,6 @@ is.movement_matrix <- function(x) {
   return(res)
 }
 
-
 #' @title Conversion to location_dataframe
 #' 
 #' @description Convert objects to \code{location_dataframe} objects
@@ -2085,6 +2084,38 @@ is.location_dataframe <- function(x) {
 simplifytext <- function(string) {
   return (gsub("\\s", "_", toupper(iconv(string, from='UTF-8', to='ASCII//TRANSLIT'))))
 }
+
+# Consistency check between movement matrix and location dataframe 
+# 
+# Check that the row & column names of a given movement_matrix are consistent with the
+# location given in the location_dataframe.
+#
+# @param movement_matrix A movement_matrix object
+# @param location_dataframe A location_dataframe object
+# @return TRUE, if the row & column names are consistent with the locations; FALSE otherwise
+consistencyCheckMovementMatrixLocationDataframe  <- function(movement_matrix, location_dataframe){
+  
+  consistent  <- TRUE
+  
+  # the number of rows for both input structures must be equivalent to be consistent
+  if(!(nrow(movement_matrix) == nrow(location_dataframe))){
+    consistent  <- FALSE
+    return (consistent)
+  }
+  
+  # movement_matrix must have row and column names defined (i.e. not null) to have location information
+  if(is.null(rownames(movement_matrix)[1]) || (is.null(colnames(movement_matrix)[idx]))){
+    consistent  <- FALSE
+    return (consistent)
+  }
+  
+  
+  return (consistent)
+}
+
+
+
+
 
 #' Correlate the regions in a location dataframe with a list of regions which
 #' map to an observed movement dataset.
