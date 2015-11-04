@@ -17,7 +17,8 @@ and \code{movement} (numeric)
 Convert a \code{movement_matrix} object into a \code{data.frame} with
 columns \code{origin} (character), \code{destination} (character) and \code{movement} (numeric).
 The origins and the destinations are taken from the row and column names of the matrix,
-respectively.
+respectively. The entries where origins are equal to destinations (that is, the matrix
+diagonal) are removed during this conversion process.
 }
 \note{
 If the given matrix does not contain any row or column names, the function will generate
