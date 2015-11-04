@@ -2233,11 +2233,9 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
       
       # skip over matrix entries where row_number (i.e.'origin') == column_number (i.e. 'destination')
       if(idx == idx2){
-        print("skip this cell")
         next;
       }
-      print("continue with this cell")
-      
+       
       # if there are row names defined, use them for the origin; otherwise, use the row number
       if(is.null(rownames(movement_matrix)[idx])){        
         origin  <- idx
