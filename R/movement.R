@@ -2225,18 +2225,19 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 #' @note If the given matrix does not contain any row or column names, the function will generate
 #' a warning and the origin and destinations will be the row and column numbers of the relevant 
 #' matrix cell. 
-#' @param movement_matrix A \code{movement_matrix} object. 
+#' @param x a \code{movement_matrix} object. 
+#' @param \dots additional arguments to be passed to or from methods.
 #' @return A \code{data.frame} with columns \code{origin} (character), \code{destination} (character) 
 #' and \code{movement} (numeric)
 #' @export
-as.data.frame.movement_matrix <- function(movement_matrix) {
+as.data.frame.movement_matrix <- function(x, ...) {
   
   # check input values
-  if (nrow(movement_matrix) != ncol(movement_matrix)) {
+  if (nrow(x) != ncol(x)) {
     stop("Error: expected square matrix.")
   }
   
-  if(!is.movement_matrix(movement_matrix)){
+  if(!is.movement_matrix(x)){
     stop("Error: expected a movement_matrix object.")
   }
 
@@ -2245,11 +2246,11 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
   missing_row_col_names = FALSE;
   
   # expected number of entries excluding the diagnol entries where origin == destination
-  result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2) - nrow(movement_matrix),ncol=3))
+  result <- data.frame(matrix(nrow=(nrow(x)^2) - nrow(x),ncol=3))
     
   counter  <- 1
-  for(idx in 1:nrow(movement_matrix)) {
-    for(idx2 in 1:ncol(movement_matrix)) {
+  for(idx in 1:nrow(x)) {
+    for(idx2 in 1:ncol(x)) {
       
       # skip over matrix entries where row_number (i.e.'origin') == column_number (i.e. 'destination')
       if(idx == idx2){
@@ -2257,22 +2258,22 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
       }
        
       # if there are row names defined, use them for the origin; otherwise, use the row number
-      if(is.null(rownames(movement_matrix)[idx])){        
+      if(is.null(rownames(x)[idx])){        
         origin  <- idx
         missing_row_col_names  <- TRUE
       }else{
-        origin  <- rownames(movement_matrix)[idx]
+        origin  <- rownames(x)[idx]
       }
       
       # if there are column names defined, use them for the destination; otherwise, use the column number
-      if(is.null(colnames(movement_matrix)[idx2] )){
+      if(is.null(colnames(x)[idx2] )){
         destination  <- idx2
         missing_row_col_names  <- TRUE
       }else{
-        destination  <- colnames(movement_matrix)[idx2] 
+        destination  <- colnames(x)[idx2] 
       }
       
-      row <- c(origin, destination, movement_matrix[idx,idx2])
+      row <- c(origin, destination, x[idx,idx2])
       result[counter,]  <- row
       counter  <- counter + 1
     } 
