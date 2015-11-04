@@ -2195,26 +2195,80 @@ showcomparisonplot <- function(optimisedmodel, observed) {
   plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
 }
 
-# @export
-resultasdataframe <- function(predictedresult) {
-  locations = predictedresult$df_locations
-  mm = predictedresult$movement_matrix
+#' @title Convert a movement_matrix object into a data.frame
+#'
+#' @description Convert a \code{movement_matrix} object into a \code{data.frame} with
+#' columns \code{origin} (character), \code{destination} (character) and \code{movement} (numeric).
+#' The origins and the destinations are taken from the row and column names of the matrix, 
+#' respectively. The entries where origins are equal to destinations (that is, the matrix 
+#' diagonal) are removed during this conversion process. 
+#' @note If the given matrix does not contain any row or column names, the function will generate
+#' a warning and the origin and destinations will be the row and column numbers of the relevant 
+#' matrix cell. 
+#' @param movement_matrix A \code{movement_matrix} object. 
+#' @return A \code{data.frame} with columns \code{origin} (character), \code{destination} (character) 
+#' and \code{movement} (numeric)
+#' @export
+as.data.frame.movement_matrix <- function(movement_matrix) {
   
-  if (nrow(locations) != nrow(mm) ||  nrow(mm) != ncol(mm)) {
-    stop("Something is wrong with this predicted result. The dimensions of the square matrix should be of the same length as the list of locations")
+  # check input values
+  if (nrow(movement_matrix) != ncol(movement_matrix)) {
+    stop("Error: expected square matrix.")
   }
   
-  result <- data.frame(matrix(nrow=(nrow(mm)^2),ncol=3))
-  
-  for(idx in 1:nrow(mm)) {
-    for(idx2 in 1:ncol(mm)) {
-      row <- c(as.vector(locations[idx,1]),as.vector(locations[idx2,1]),mm[idx,idx2])
-      rownum <- ((idx -1) * nrow(mm)) + idx2
-      result[rownum,] <- row
-    }
+  if(!is.movement_matrix(movement_matrix)){
+    stop("Error: expected a movement_matrix object.")
   }
-  #head(result)
-  colnames(result) <- c("Origin", "Destination", "Movement")
+
+  # keep track if the row and column names of given matrix are defined; it not set this boolean to true
+  # which will generate a warning
+  missing_row_col_names = FALSE;
+  
+  # expected number of entries excluding the diagnol entries where origin == destination
+  result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2) - nrow(movement_matrix),ncol=3))
+    
+  counter  <- 1
+  for(idx in 1:nrow(movement_matrix)) {
+    for(idx2 in 1:ncol(movement_matrix)) {
+      
+      # skip over matrix entries where row_number (i.e.'origin') == column_number (i.e. 'destination')
+      if(idx == idx2){
+        next;
+      }
+       
+      # if there are row names defined, use them for the origin; otherwise, use the row number
+      if(is.null(rownames(movement_matrix)[idx])){        
+        origin  <- idx
+        missing_row_col_names  <- TRUE
+      }else{
+        origin  <- rownames(movement_matrix)[idx]
+      }
+      
+      # if there are column names defined, use them for the destination; otherwise, use the column number
+      if(is.null(colnames(movement_matrix)[idx2] )){
+        destination  <- idx2
+        missing_row_col_names  <- TRUE
+      }else{
+        destination  <- colnames(movement_matrix)[idx2] 
+      }
+      
+      row <- c(origin, destination, movement_matrix[idx,idx2])
+      result[counter,]  <- row
+      counter  <- counter + 1
+    } 
+  }
+  
+  if(missing_row_col_names){
+    warning("The given movement_matrix has no row or column names defined to identify the origins and destinations.")
+  }
+  
+  colnames(result) <- c("origin", "destination", "movement")
+  
+  # convert the columns into the expected modes
+  result$origin  <- as.character(result$origin)
+  result$destination  <- as.character(result$destination)
+  result$movement  <- as.numeric(result$movement)
+  
   return (result)
 }
 

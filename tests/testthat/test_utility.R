@@ -215,3 +215,58 @@ test_that("transformFluxObjectParameters correctly returns inverse transformed p
   expect_equal(expectedTransformedParams, actualTransformedParams, check.attributes = FALSE)
 })
 
+test_that("as.data.frame.movement_matrix returns an error when given a non-square matrix", {
+  non_square_matrix  <- matrix(c(0,1,2,0,0,1),nrow=2,dimnames=list(c("a","b"),c("a","b", "c")))
+  class(non_square_matrix) <- c('matrix', 'movement_matrix')
+  expect_true(is.movement_matrix(non_square_matrix))  
+  expect_error(as.data.frame.movement_matrix(non_square_matrix), "Error: expected square matrix.")
+})
+
+test_that("as.data.frame.movement_matrix returns an error when given matrix is not movement_matrix object", {
+  non_movment_matrix  <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  expect_false(is.movement_matrix(non_movment_matrix))  
+  expect_error(as.data.frame.movement_matrix(non_movment_matrix), "Error: expected a movement_matrix object.")
+})
+
+test_that("as.data.frame.movement_matrix correctly returns the data.frame", {
+  testmatrix  <- matrix(c(0,1,2,0),nrow=2,dimnames=list(c("a","b"),c("a","b")))
+  testmatrix  <- as.movement_matrix(testmatrix)
+  expected_data.frame  <- data.frame(origin=c("a","b"), destination=c("b", "a"), movement=c(2,1), stringsAsFactors = FALSE)
+  actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
+  print("actual_data.frame")
+  print(actual_data.frame)
+  expect_equal(expected_data.frame, actual_data.frame)
+})
+
+test_that("as.data.frame.movement_matrix returns data.frame with default origin/destinations when missing row / column names", {
+  testmatrix  <- matrix(c(0,1,2,0),nrow=2)
+  testmatrix  <- as.movement_matrix(testmatrix)
+  expected_data.frame  <- data.frame(origin=c("1","2"), destination=c("2", "1"), movement=c(2,1), stringsAsFactors = FALSE)
+  actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
+  expect_equal(expected_data.frame, actual_data.frame)
+})
+
+test_that("as.data.frame.movement_matrix correctly returns the data.frame for 4x4 matrix", {
+  row1 <- c(0,1,2,3)
+  row2 <- c(4,0,5,6)
+  row3 <- c(7,8,0,9)
+  row4 <- c(10,11,12,0)
+  testmatrix  <- matrix(rbind(row1,row2,row3,row4), nrow = 4,dimnames=list(c("a","b","c", "d"),c("a","b","c","d")))
+  testmatrix  <- as.movement_matrix(testmatrix)
+  print(testmatrix)
+  expected_data.frame  <- data.frame(origin = c("a", "a", "a", "b", "b", "b", "c", "c", "c", "d", "d", "d"), 
+                                     destination = c("b", "c","d","a","c","d", "a", "b", "d", "a", "b", "c"), 
+                                     movement=c(1,2,3,4,5,6,7,8,9,10,11,12), 
+                                     stringsAsFactors = FALSE)
+  actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
+  print("actual_data.frame")
+  print(actual_data.frame)
+  expect_equal(expected_data.frame, actual_data.frame)
+})
+
+
+test_that("as.data.frame.movement_matrix print warning when missing row / column names", {
+  testmatrix  <- matrix(c(0,1,2,0),nrow=2)
+  testmatrix  <- as.movement_matrix(testmatrix)
+  expect_warning(as.data.frame.movement_matrix(testmatrix), "The given movement_matrix has no row or column names defined to identify the origins and destinations.")
+})
