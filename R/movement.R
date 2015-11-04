@@ -2204,7 +2204,7 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 #' @return A standardised text string.
 #' @export
 as.data.frame.movement_matrix <- function(movement_matrix) {
-
+  
   # check input values
   if (nrow(movement_matrix) != ncol(movement_matrix)) {
     stop("Error: expected square matrix.")
@@ -2213,28 +2213,47 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
   if(!is.movement_matrix(movement_matrix)){
     stop("Error: expected a movement_matrix object.")
   }
+
+  missing_row_col_names = FALSE;
   
-  # TODO Kathrin
-  #TODO print warning when no sensible row / column names available (add to description as note)
-  
-  number_of_rows  <- nrow(movement_matrix)^2
-  number_of_cols  <- 3
+  # TODO print warning when no sensible row / column names available (add to description as note)
+  # TODO: update documentation
   
   result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2),ncol=3))
   
   for(idx in 1:nrow(movement_matrix)) {
     for(idx2 in 1:ncol(movement_matrix)) {
-      origin  <- rownames(movement_matrix)[idx]
-      destination  <- colnames(movement_matrix)[idx2]      
+      # if there are row names defined, use them for the origin; otherwise, use the row number
+      if(is.null(rownames(movement_matrix)[idx])){
+        missing_row_col_names  <- TRUE
+        origin  <- idx
+      }else{
+        origin  <- rownames(movement_matrix)[idx]
+      }
+      
+      # if there are column names defined, use them for the destination; otherwise, use the column number
+      if(is.null(colnames(movement_matrix)[idx2] )){
+        destination  <- idx2
+        missing_row_col_names  <- TRUE
+      }else{
+        destination  <- colnames(movement_matrix)[idx2] 
+      }
+      
       row <- c(origin, destination, movement_matrix[idx,idx2])
       rownum <- ((idx -1) * nrow(movement_matrix)) + idx2
       result[rownum,] <- row
     }
   }
   
+  if(missing_row_col_names){
+    warning("The given movement_matrix has no row or column names defined to identify the origins and destinations.")
+  }
+  
   colnames(result) <- c("origin", "destination", "movement")
   
-  # convert the movement column to numeric mode
+  # convert the columns into the expected modes
+  result$origin  <- as.character(result$origin)
+  result$destination  <- as.character(result$destination)
   result$movement  <- as.numeric(result$movement)
 
   return (result)

@@ -235,3 +235,17 @@ test_that("as.data.frame.movement_matrix correctly returns the data.frame", {
   actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
   expect_equal(expected_data.frame, actual_data.frame)
 })
+
+test_that("as.data.frame.movement_matrix returns data.frame with default origin/destinations when missing row / column names", {
+  testmatrix  <- matrix(c(0,1,2,0),nrow=2)
+  testmatrix  <- as.movement_matrix(testmatrix)
+  expected_data.frame  <- data.frame(origin=c("1","1","2","2"), destination=c("1", "2", "1", "2"), movement=c(0,2,1,0), stringsAsFactors = FALSE)
+  actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
+  expect_equal(expected_data.frame, actual_data.frame)
+})
+
+test_that("as.data.frame.movement_matrix print warning when missing row / column names", {
+  testmatrix  <- matrix(c(0,1,2,0),nrow=2)
+  testmatrix  <- as.movement_matrix(testmatrix)
+  expect_warning(as.data.frame.movement_matrix(testmatrix), "The given movement_matrix has no row or column names defined to identify the origins and destinations.")
+})
