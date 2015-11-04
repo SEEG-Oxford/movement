@@ -2467,10 +2467,10 @@ plotComparePredictions <- function (obs, pred, distances) {
 #' @param coords2 an optional two-column matrix or dataframe, or a SpatialPoints
 #'  object, giving coordinates to compute travel time to.
 #' @param directions directions in which cells are connected, can be either 4,
-#'  8, 16 or some other number. See \code{\link[gDistance]{adjacent}} for
+#'  8, 16 or some other number. See \code{\link[raster]{adjacent}} for
 #'  details
 #' @param \dots additional arguments to pass to
-#'  \code{\link[gDistance]{transition}}.
+#'  \code{\link[gdistance]{transition}}.
 #'  
 #' @return a matrix, with dimensions \code{nrow(coords), nrow(coords)}
 #'  (If \code{coords2 = NULL}) or dimensions \code{nrow(coords), nrow(coords2)}
