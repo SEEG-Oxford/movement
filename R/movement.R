@@ -2195,30 +2195,51 @@ showcomparisonplot <- function(optimisedmodel, observed) {
   plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
 }
 
-# @export
-as.data.frame.movement_matrix <- function(movement_matrix, location_dataframe) {
+#' @title Convert a movement_matrix object into a data.frame
+#'
+#' @description Convert a \code{movement_matrix} object into a \code{data.frame} with
+#' columns \code{origin}(character), \code{destination}(character) and \code{movement}(numeric).
+#' @note It will print a warning ... TODO
+#' @param movement_matrix A \code{movement_matrix} object
+#' @return A standardised text string.
+#' @export
+as.data.frame.movement_matrix <- function(movement_matrix) {
 
+  print("Call as.data.frame.movement_matrix")
+
+  # check input values
+  if (nrow(movement_matrix) != ncol(movement_matrix)) {
+    stop("Error: expected square matrix.")
+  }
+  
+  if(!is.movement_matrix(movement_matrix)){
+    stop("Error: expected a movement_matrix object.")
+  }
+  
   # TODO Kathrin
   #locations = predictedresult$df_locations
   #mm = predictedresult$movement_matrix 
   
-  # check input values
-  if (nrow(location_dataframe) != nrow(movement_matrix) ||  nrow(movement_matrix) != ncol(movement_matrix)) {
-    stop("Something is wrong with this predicted result. The dimensions of the square matrix should be of the same length as the list of locations")
-  }
+  #TODO print warning when no sensible row / column names available (add to description as note)
   
   result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2),ncol=3))
   
-  for(idx in 1:nrow(movement_matrix)) {
-    for(idx2 in 1:ncol(movement_matrix)) {
-      row <- c(as.vector(location_dataframe[idx,1]),as.vector(location_dataframe[idx2,1]),movement_matrix[idx,idx2])
-      rownum <- ((idx -1) * nrow(movement_matrix)) + idx2
-      result[rownum,] <- row
-    }
-  }
+#   for(idx in 1:nrow(movement_matrix)) {
+#     for(idx2 in 1:ncol(movement_matrix)) {
+#       #row <- c(as.vector(location_dataframe[idx,1]),as.vector(location_dataframe[idx2,1]),movement_matrix[idx,idx2])
+#       # TODO
+#       row <- c(movement_matrix[idx,idx2])
+#       
+#       rownum <- ((idx -1) * nrow(movement_matrix)) + idx2
+#       result[rownum,] <- row
+#     }
+#   }
   
   #head(result)
   colnames(result) <- c("Origin", "Destination", "Movement")
+  print("as.data.frame.movement_matrix: Resulting data.frame")
+  print(result)
+
   return (result)
 }
 
