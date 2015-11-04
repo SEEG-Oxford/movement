@@ -13,8 +13,10 @@ This is a product of the AfriPop project
 An AfriPop raster of the modelled 2010 population in Kenya.
 }
 \examples{
+\dontrun{
 data(kenya)
 sp::plot(kenya)
+}
 }
 \references{
 Linard C., Gilbert, M. Snow, R.W., Noor, A.M. & Tatem, A.J. (2010)

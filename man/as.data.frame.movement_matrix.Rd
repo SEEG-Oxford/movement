@@ -4,10 +4,12 @@
 \alias{as.data.frame.movement_matrix}
 \title{Convert a movement_matrix object into a data.frame}
 \usage{
-\method{as.data.frame}{movement_matrix}(movement_matrix)
+\method{as.data.frame}{movement_matrix}(x, ...)
 }
 \arguments{
-\item{movement_matrix}{A \code{movement_matrix} object.}
+\item{x}{a \code{movement_matrix} object.}
+
+\item{\dots}{additional arguments to be passed to or from methods.}
 }
 \value{
 A \code{data.frame} with columns \code{origin} (character), \code{destination} (character)

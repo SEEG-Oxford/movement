@@ -42,11 +42,15 @@
 #' can be used.
 #' @export
 #' @examples
+#' \dontrun{
 #' # get location data
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' locationData <- data.frame(location = net$locations, 
+#'                            population = net$population, 
+#'                            x = net$coordinate[,1], 
+#'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
@@ -59,6 +63,8 @@
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
 #' plot(predicted_movements)
+#' }
+#' @importFrom stats plogis qlogis
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -221,11 +227,15 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @name predict.movement_model
 #' @method predict movement_model
 #' @examples
+#' \dontrun{
 #' # get location data
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' locationData <- data.frame(location = net$locations, 
+#'                            population = net$population, 
+#'                            x = net$coordinate[,1], 
+#'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
@@ -236,6 +246,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
 #' plot(predicted_movements)
+#' }
 #' @export
 predict.movement_model <- function(object, newdata, ...) {
   m <- object$trainingresults
@@ -336,6 +347,10 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 #' @name plot.movement_model
 #' @method plot movement_model
 #' @export
+#' @importFrom viridis viridis 
+#' @importFrom graphics lines smoothScatter title
+#' @importFrom grDevices grey
+#' @importFrom stats cor density
 plot.movement_model  <- function(x, ...){
   
   #extract the relevant parameters from the movement_model object
@@ -1575,11 +1590,15 @@ show.prediction <- function(network, predicted_movements, ...) {
 #' 
 #' @export
 #' @examples
+#' \dontrun{
 #' # get location data
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' locationData <- data.frame(location = net$locations, 
+#'                            population = net$population, 
+#'                            x = net$coordinate[,1], 
+#'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
@@ -1590,6 +1609,7 @@ show.prediction <- function(network, predicted_movements, ...) {
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
 #' plot(predicted_movements)
+#' }
 plot.movement_predictions  <- function(x, ...){
   # extract the relevant parameters needed
   network <- x$net
@@ -2205,18 +2225,19 @@ showcomparisonplot <- function(optimisedmodel, observed) {
 #' @note If the given matrix does not contain any row or column names, the function will generate
 #' a warning and the origin and destinations will be the row and column numbers of the relevant 
 #' matrix cell. 
-#' @param movement_matrix A \code{movement_matrix} object. 
+#' @param x a \code{movement_matrix} object. 
+#' @param \dots additional arguments to be passed to or from methods.
 #' @return A \code{data.frame} with columns \code{origin} (character), \code{destination} (character) 
 #' and \code{movement} (numeric)
 #' @export
-as.data.frame.movement_matrix <- function(movement_matrix) {
+as.data.frame.movement_matrix <- function(x, ...) {
   
   # check input values
-  if (nrow(movement_matrix) != ncol(movement_matrix)) {
+  if (nrow(x) != ncol(x)) {
     stop("Error: expected square matrix.")
   }
   
-  if(!is.movement_matrix(movement_matrix)){
+  if(!is.movement_matrix(x)){
     stop("Error: expected a movement_matrix object.")
   }
 
@@ -2225,11 +2246,11 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
   missing_row_col_names = FALSE;
   
   # expected number of entries excluding the diagnol entries where origin == destination
-  result <- data.frame(matrix(nrow=(nrow(movement_matrix)^2) - nrow(movement_matrix),ncol=3))
+  result <- data.frame(matrix(nrow=(nrow(x)^2) - nrow(x),ncol=3))
     
   counter  <- 1
-  for(idx in 1:nrow(movement_matrix)) {
-    for(idx2 in 1:ncol(movement_matrix)) {
+  for(idx in 1:nrow(x)) {
+    for(idx2 in 1:ncol(x)) {
       
       # skip over matrix entries where row_number (i.e.'origin') == column_number (i.e. 'destination')
       if(idx == idx2){
@@ -2237,22 +2258,22 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
       }
        
       # if there are row names defined, use them for the origin; otherwise, use the row number
-      if(is.null(rownames(movement_matrix)[idx])){        
+      if(is.null(rownames(x)[idx])){        
         origin  <- idx
         missing_row_col_names  <- TRUE
       }else{
-        origin  <- rownames(movement_matrix)[idx]
+        origin  <- rownames(x)[idx]
       }
       
       # if there are column names defined, use them for the destination; otherwise, use the column number
-      if(is.null(colnames(movement_matrix)[idx2] )){
+      if(is.null(colnames(x)[idx2] )){
         destination  <- idx2
         missing_row_col_names  <- TRUE
       }else{
-        destination  <- colnames(movement_matrix)[idx2] 
+        destination  <- colnames(x)[idx2] 
       }
       
-      row <- c(origin, destination, movement_matrix[idx,idx2])
+      row <- c(origin, destination, x[idx,idx2])
       result[counter,]  <- row
       counter  <- counter + 1
     } 
@@ -2282,8 +2303,10 @@ as.data.frame.movement_matrix <- function(movement_matrix) {
 #' \url{http://www.afripop.org} provided by Professor Andy Tatem.
 #'
 #' @examples
+#' \dontrun{
 #' data(kenya)
 #' sp::plot(kenya)
+#' }
 #'
 #' @references
 #' Linard C., Gilbert, M. Snow, R.W., Noor, A.M. & Tatem, A.J. (2010)
@@ -2447,7 +2470,7 @@ plotComparePredictions <- function (obs, pred, distances) {
 #' @param coords2 an optional two-column matrix or dataframe, or a SpatialPoints
 #'  object, giving coordinates to compute travel time to.
 #' @param directions directions in which cells are connected, can be either 4,
-#'  8, 16 or some other number. See \code{\link[gdistance]{adjacent}} for
+#'  8, 16 or some other number. See \code{\link[raster]{adjacent}} for
 #'  details
 #' @param \dots additional arguments to pass to
 #'  \code{\link[gdistance]{transition}}.

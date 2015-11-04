@@ -19,7 +19,7 @@ of coordinates}
 object, giving coordinates to compute travel time to.}
 
 \item{directions}{directions in which cells are connected, can be either 4,
-8, 16 or some other number. See \code{\link[gdistance]{adjacent}} for
+8, 16 or some other number. See \code{\link[raster]{adjacent}} for
 details}
 
 \item{\dots}{additional arguments to pass to

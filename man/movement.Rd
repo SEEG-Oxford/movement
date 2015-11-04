@@ -42,11 +42,15 @@ the helper functions \code{\link{is.location_dataframe}} and \code{\link{is.move
 can be used.
 }
 \examples{
+\dontrun{
 # get location data
 data(kenya)
 kenya10 <- raster::aggregate(kenya, 10, sum)
 net <- getNetwork(kenya10, min = 50000)
-locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+locationData <- data.frame(location = net$locations,
+                           population = net$population,
+                           x = net$coordinate[,1],
+                           y = net$coordinate[,2])
 locationData  <- as.location_dataframe(locationData)
 # simulate movements (note the values of movementmatrix must be integer)
 predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
@@ -59,6 +63,7 @@ print(movement_model)
 predicted_movements  <- predict(movement_model, kenya10)
 # display the predicted movements
 plot(predicted_movements)
+}
 }
 \seealso{
 \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
