@@ -2104,11 +2104,19 @@ consistencyCheckMovementMatrixLocationDataframe  <- function(movement_matrix, lo
   }
   
   # movement_matrix must have row and column names defined (i.e. not null) to have location information
-  if(is.null(rownames(movement_matrix)[1]) || (is.null(colnames(movement_matrix)[idx]))){
+  if(is.null(rownames(movement_matrix)[1]) || (is.null(colnames(movement_matrix)[1]))){
     consistent  <- FALSE
     return (consistent)
   }
   
+  # check matching locations from location_dataframe with row/columns names of movement_matrix
+  # once a non-matching pair was found, can break the loop and return the result (i.e. 'false')
+  for(idx in 1:nrow(location_dataframe)) {
+    if(!(location_dataframe[idx,1] ==  rownames(movement_matrix)[idx]) | !(location_dataframe[idx,1] ==  colnames(movement_matrix)[idx])){
+      consistent  <- FALSE
+      return (consistent) # can return immediately once a non-matching entry was found
+    }  
+  } # if completed the loop without finding a non-matching pair, the 'consistent' flag will stay as set original (i.e. true)  
   
   return (consistent)
 }
