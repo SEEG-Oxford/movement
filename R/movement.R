@@ -2088,13 +2088,14 @@ simplifytext <- function(string) {
 # Consistency check between movement matrix and location dataframe 
 # 
 # Check that the row & column names of a given movement_matrix are consistent with the
-# location given in the location_dataframe.
+# locations given in the location_dataframe using the location column.
 #
 # @param movement_matrix A movement_matrix object
 # @param location_dataframe A location_dataframe object
 # @return TRUE, if the row & column names are consistent with the locations; FALSE otherwise
-consistencyCheckMovementMatrixLocationDataframe  <- function(movement_matrix, location_dataframe){
+consistencyCheckMovementMatrixLocationDataframe  <- function(movement_matrix = movement_matrix, location_dataframe = location_dataframe){
   
+  # flag to keep track if a mismatch (=inconsistency) was found
   consistent  <- TRUE
   
   # the number of rows for both input structures must be equivalent to be consistent
@@ -2120,10 +2121,6 @@ consistencyCheckMovementMatrixLocationDataframe  <- function(movement_matrix, lo
   
   return (consistent)
 }
-
-
-
-
 
 #' Correlate the regions in a location dataframe with a list of regions which
 #' map to an observed movement dataset.
