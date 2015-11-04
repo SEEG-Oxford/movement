@@ -42,11 +42,15 @@
 #' can be used.
 #' @export
 #' @examples
+#' \dontrun{
 #' # get location data
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' locationData <- data.frame(location = net$locations, 
+#'                            population = net$population, 
+#'                            x = net$coordinate[,1], 
+#'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
@@ -59,6 +63,8 @@
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
 #' plot(predicted_movements)
+#' }
+#' @importFrom stats plogis qlogis
 movement <- function(formula, flux_model = gravity(), ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
@@ -221,11 +227,15 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @name predict.movement_model
 #' @method predict movement_model
 #' @examples
+#' \dontrun{
 #' # get location data
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' locationData <- data.frame(location = net$locations, 
+#'                            population = net$population, 
+#'                            x = net$coordinate[,1], 
+#'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
@@ -236,6 +246,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
 #' plot(predicted_movements)
+#' }
 #' @export
 predict.movement_model <- function(object, newdata, ...) {
   m <- object$trainingresults
@@ -337,6 +348,9 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 #' @method plot movement_model
 #' @export
 #' @importFrom viridis viridis 
+#' @importFrom graphics lines smoothScatter title
+#' @importFrom grDevices grey
+#' @importFrom stats cor density
 plot.movement_model  <- function(x, ...){
   
   #extract the relevant parameters from the movement_model object
@@ -1576,11 +1590,15 @@ show.prediction <- function(network, predicted_movements, ...) {
 #' 
 #' @export
 #' @examples
+#' \dontrun{
 #' # get location data
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, population = net$population, x = net$coordinate[,1], y = net$coordinate[,2])
+#' locationData <- data.frame(location = net$locations, 
+#'                            population = net$population, 
+#'                            x = net$coordinate[,1], 
+#'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
@@ -1591,6 +1609,7 @@ show.prediction <- function(network, predicted_movements, ...) {
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
 #' plot(predicted_movements)
+#' }
 plot.movement_predictions  <- function(x, ...){
   # extract the relevant parameters needed
   network <- x$net
@@ -2394,10 +2413,10 @@ plotComparePredictions <- function (obs, pred, distances) {
 #' @param coords2 an optional two-column matrix or dataframe, or a SpatialPoints
 #'  object, giving coordinates to compute travel time to.
 #' @param directions directions in which cells are connected, can be either 4,
-#'  8, 16 or some other number. See \code{\link[gdistance]{adjacent}} for
+#'  8, 16 or some other number. See \code{\link[gDistance]{adjacent}} for
 #'  details
 #' @param \dots additional arguments to pass to
-#'  \code{\link[gdistance]{transition}}.
+#'  \code{\link[gDistance]{transition}}.
 #'  
 #' @return a matrix, with dimensions \code{nrow(coords), nrow(coords)}
 #'  (If \code{coords2 = NULL}) or dimensions \code{nrow(coords), nrow(coords2)}
