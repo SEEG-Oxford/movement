@@ -1644,15 +1644,14 @@ plot.movement_predictions  <- function(x, ...){
 #' \code{matrix} object (if \code{TRUE}) or as a \code{dist} object (if
 #' \code{FALSE}).
 #' @return A list with four components:
-#'  \item{population }{A vector giving the populations at the cells of
+#'  \item{population}{A vector giving the populations at the cells of
 #' interest}
-#'  \item{distance_matrix} {A distance matrix (either of class \code{matrix} or
+#'  \item{distance_matrix}{A distance matrix (either of class \code{matrix} or
 #' \code{dist}) diving the pairwise euclidean distance between the cells of
 #' interest in the units of \code{raster}}
-#'  \item{coordinate} {A two-column matrix giving the coordinates of the cells
+#'  \item{coordinate}{A two-column matrix giving the coordinates of the cells
 #' of interest in the units of \code{raster}}
-#'  \item{locations} {A vector giving the locations at the cells of
-#' interest}
+#'  \item{locations}{A vector giving the locations at the cells of interest}
 #' @examples
 #' # load kenya raster
 #' data(kenya)
@@ -1719,7 +1718,7 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 # @param matrix Whether the distance matrix should be returned as a
 # \code{matrix} object (if \code{TRUE}) or as a \code{dist} object (if
 # \code{FALSE}).
-# @return A list with three components:
+# @return A list with four components:
 #  \item{population }{A vector giving the populations at the cells of
 # interest}
 #  \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
@@ -1727,6 +1726,7 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 # interest in the units of \code{raster}}
 #  \item{coordinate }{A two-column matrix giving the coordinates of the cells
 # of interest in the units of \code{raster}}
+# \item{locations}{A vector giving the locations at the cells of interest}
 getNetworkFromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   
   dataframe <- dataframe[!duplicated(dataframe$location),]

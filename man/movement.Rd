@@ -53,7 +53,7 @@ locationData <- data.frame(location = net$locations,
                            y = net$coordinate[,2])
 locationData  <- as.location_dataframe(locationData)
 # simulate movements (note the values of movementmatrix must be integer)
-predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+predictedMovement  <- predict(radiationWithSelection(theta = 0.5), locationData, symmetric = TRUE)
 movementMatrix <- round(predictedMovement$movement_matrix)
 # fit a new model to these data
 movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
