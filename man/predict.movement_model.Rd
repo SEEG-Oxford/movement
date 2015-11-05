@@ -42,7 +42,7 @@ locationData  <- as.location_dataframe(locationData)
 predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 movementMatrix <- round(predictedMovement$movement_matrix)
 # fit a new model to these data
-movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+movement_model <- movement(movementMatrix ~ locationData, originalRadiation(theta = 0.1))
 # predict the population movements
 predicted_movements  <- predict(movement_model, kenya10)
 # display the predicted movements

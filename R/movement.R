@@ -53,7 +53,7 @@
 #'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
-#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+#' predictedMovement  <- predict(radiationWithSelection(theta = 0.5), locationData, symmetric = TRUE)
 #' movementMatrix <- round(predictedMovement$movement_matrix)
 #' # fit a new model to these data
 #' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
@@ -246,7 +246,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
 #' movementMatrix <- round(predictedMovement$movement_matrix)
 #' # fit a new model to these data
-#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' movement_model <- movement(movementMatrix ~ locationData, originalRadiation(theta = 0.1))
 #' # predict the population movements
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
@@ -1606,7 +1606,7 @@ show.prediction <- function(network, predicted_movements, ...) {
 #'                            y = net$coordinate[,2])
 #' locationData  <- as.location_dataframe(locationData)
 #' # simulate movements (note the values of movementmatrix must be integer)
-#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
+#' predictedMovement  <- predict(radiationWithSelection(theta = 0.5), locationData, symmetric = TRUE)
 #' movementMatrix <- round(predictedMovement$movement_matrix)
 #' # fit a new model to these data
 #' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
@@ -1643,15 +1643,15 @@ plot.movement_predictions  <- function(x, ...){
 #' @param matrix Whether the distance matrix should be returned as a
 #' \code{matrix} object (if \code{TRUE}) or as a \code{dist} object (if
 #' \code{FALSE}).
-#' @return A list with three components:
-#'  \item{population }{A vector giving the populations at the cells of
+#' @return A list with four components:
+#'  \item{population}{A vector giving the populations at the cells of
 #' interest}
-#'  \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
+#'  \item{distance_matrix}{A distance matrix (either of class \code{matrix} or
 #' \code{dist}) diving the pairwise euclidean distance between the cells of
 #' interest in the units of \code{raster}}
-#'  \item{coordinate }{A two-column matrix giving the coordinates of the cells
+#'  \item{coordinate}{A two-column matrix giving the coordinates of the cells
 #' of interest in the units of \code{raster}}
-#'
+#'  \item{locations}{A vector giving the locations at the cells of interest}
 #' @examples
 #' # load kenya raster
 #' data(kenya)
@@ -1718,7 +1718,7 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 # @param matrix Whether the distance matrix should be returned as a
 # \code{matrix} object (if \code{TRUE}) or as a \code{dist} object (if
 # \code{FALSE}).
-# @return A list with three components:
+# @return A list with four components:
 #  \item{population }{A vector giving the populations at the cells of
 # interest}
 #  \item{distance_matrix }{A distance matrix (either of class \code{matrix} or
@@ -1726,6 +1726,7 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 # interest in the units of \code{raster}}
 #  \item{coordinate }{A two-column matrix giving the coordinates of the cells
 # of interest in the units of \code{raster}}
+# \item{locations}{A vector giving the locations at the cells of interest}
 getNetworkFromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
   
   dataframe <- dataframe[!duplicated(dataframe$location),]
@@ -1805,6 +1806,11 @@ predict.prediction_model <- function(object, newdata = NULL, ...) {
   
   object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
                                        symmetric = object$symmetric, theta = object$flux_model$params, ...)    
+  
+  # locations are stored within 'net$locations' which can be used to assign the row & column names 
+  # of the predicted movement_matrix 
+  rownames(object$prediction) <- net$locations
+  colnames(object$prediction) <- net$locations
   
   return (object)
 }
