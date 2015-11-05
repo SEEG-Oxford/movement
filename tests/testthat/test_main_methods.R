@@ -81,7 +81,7 @@ test_that("movement function throws an error if given an invalid movement matrix
                  "The given observed movement matrix contains non-integer values. Rounding was used to receive a valid movement matrix.")
 })
 
-test_that("test", {
+test_that("movement function correctly round the movement_matrix when containing non-integer values", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movement_matrix_with_non_integer_values))  # check that the data are of correct class  
   with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_data, movement_matrix_with_non_integer_values, progress, hessian, ...) {
@@ -99,6 +99,20 @@ test_that("test", {
   )
 })
 
+test_that("movement function print warning when inconsistency in locations between movement matrix and location data are found", {
+  expect_true(is.location_dataframe(data)) # check that the data are of correct class
+  expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
+  with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_data, movementData, progress, hessian, ...) {
+    return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_data, movement_matrix=movementData, progress=progress, hessian=hessian)))
+  },   
+  `movement:::predict.prediction_model` = function(predictionModel, location_data, progress) {      
+    return (list(prediction=NULL))
+  },		
+  `movement:::analysepredictionusingdpois` = function(x, y) return (1),  
+  expect_warning(movement(movementData ~ data, originalRadiation()), 
+                 "The given movement_matrix and the location_dataframe having non-matching location information.")
+  )
+})
 
 test_that("movement sets correct parameters and bounds for original radiation model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class

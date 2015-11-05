@@ -77,6 +77,11 @@ movement <- function(formula, flux_model = gravity(), ...) {
     stop("Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
   }
   
+  # check if the given movement_matrix and the location_data are consistent within the locations
+  if(!(consistencyCheckMovementMatrixLocationDataframe(movement_matrix, location_data))){
+    warning("The given movement_matrix and the location_dataframe having non-matching location information.")
+  }
+  
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
   nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
@@ -2029,7 +2034,6 @@ is.movement_matrix <- function(x) {
   return(res)
 }
 
-
 #' @title Conversion to location_dataframe
 #' 
 #' @description Convert objects to \code{location_dataframe} objects
@@ -2104,6 +2108,43 @@ is.location_dataframe <- function(x) {
 #' @export
 simplifytext <- function(string) {
   return (gsub("\\s", "_", toupper(iconv(string, from='UTF-8', to='ASCII//TRANSLIT'))))
+}
+
+# Consistency check between movement matrix and location dataframe 
+# 
+# Check that the row & column names of a given movement_matrix are consistent with the
+# locations given in the location_dataframe using the location column.
+#
+# @param movement_matrix A movement_matrix object
+# @param location_dataframe A location_dataframe object
+# @return TRUE, if the row & column names are consistent with the locations; FALSE otherwise
+consistencyCheckMovementMatrixLocationDataframe  <- function(movement_matrix = movement_matrix, location_dataframe = location_dataframe){
+  
+  # flag to keep track if a mismatch (=inconsistency) was found
+  consistent  <- TRUE
+  
+  # the number of rows for both input structures must be equivalent to be consistent
+  if(!(nrow(movement_matrix) == nrow(location_dataframe))){
+    consistent  <- FALSE
+    return (consistent)
+  }
+  
+  # movement_matrix must have row and column names defined (i.e. not null) to have location information
+  if(is.null(rownames(movement_matrix)[1]) || (is.null(colnames(movement_matrix)[1]))){
+    consistent  <- FALSE
+    return (consistent)
+  }
+  
+  # check matching locations from location_dataframe with row/columns names of movement_matrix
+  # once a non-matching pair was found, can break the loop and return the result (i.e. 'false')
+  for(idx in 1:nrow(location_dataframe)) {
+    if(!(location_dataframe[idx,1] ==  rownames(movement_matrix)[idx]) | !(location_dataframe[idx,1] ==  colnames(movement_matrix)[idx])){
+      consistent  <- FALSE
+      return (consistent) # can return immediately once a non-matching entry was found
+    }  
+  } # if completed the loop without finding a non-matching pair, the 'consistent' flag will stay as set original (i.e. true)  
+  
+  return (consistent)
 }
 
 #' Correlate the regions in a location dataframe with a list of regions which

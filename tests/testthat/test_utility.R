@@ -265,3 +265,86 @@ test_that("as.data.frame.movement_matrix print warning when missing row / column
   testmatrix  <- as.movement_matrix(testmatrix)
   expect_warning(as.data.frame.movement_matrix(testmatrix), "The given movement_matrix has no row or column names defined to identify the origins and destinations.")
 })
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns correctly true for correct locationData and movement matrix with character locations", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2, dimnames=list(c("a","b"),c("a","b")))
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c("a","b"), population=c(10,20), x=c(-1,-1), y=c(-5,-5))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_true(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns correctly true for correct locationData and movement matrix with character locations 2", {
+  testMatrix  <- matrix(c(0,1,2,0,3,4,6,2,5,6,3,1,4,5,7,7),nrow=4, dimnames=list(c("UK","DEN", "GER", "FRA"),c("UK","DEN", "GER", "FRA")))
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c("UK","DEN", "GER", "FRA"), population=c(100010,212000, 2810231, 2720903), x=c(-1,-1, 1, 2), y=c(-5,-5, 3, 4))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_true(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns correctly true for correct locationData and movement matrix with numeric locations 2", {
+  testMatrix  <- matrix(c(0,1,2,0,4,5,5,6,7),nrow=3, dimnames=list(c("4335","4426", "4427"),c("4335","4426", "4427")))
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c(4335,4426, 4427), population=c(10,20,19), x=c(-1,-1,-2), y=c(-5,-5,-6))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_true(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns correctly false for locationData with more entries than movement matrix", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2)
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c(1,2,3), population=c(10,20,40), x=c(-1,-1,0), y=c(-5,-5,-4))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns correctly false for movement matrix with missing row/column names", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2)
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c(1,2), population=c(10,20), x=c(-1,-1), y=c(-5,-5))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns correctly false for movement matrix with missing row names", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2)
+  colnames(testMatrix) <- c("a","b")
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c(1,2), population=c(10,20), x=c(-1,-1), y=c(-5,-5))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns correctly false for movement matrix with missing column names", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2)
+  rownames(testMatrix) <- c("a","b")
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c(1,2), population=c(10,20), x=c(-1,-1), y=c(-5,-5))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns false for non-matching locations in column names", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2, dimnames=list(c("a","b"),c("abc","def")))
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c("abc","def"), population=c(10,20), x=c(-1,-1), y=c(-5,-5))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns false for non-matching locations in row names", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2, dimnames=list(c("abc","def"),c("a","b")))
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c("abc","def"), population=c(10,20), x=c(-1,-1), y=c(-5,-5))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
+test_that("consistencyCheckMovementMatrixLocationDataframe returns false for non-matching locations ", {
+  testMatrix  <- matrix(c(0,1,2,0),nrow=2, dimnames=list(c("a","b"),c("a","b")))
+  testMatrix  <- as.movement_matrix(testMatrix)
+  testLocationData <- data.frame(location=c("abc","def"), population=c(10,20), x=c(-1,-1), y=c(-5,-5))
+  testLocationData  <- as.location_dataframe(testLocationData)
+  expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
+})
+
