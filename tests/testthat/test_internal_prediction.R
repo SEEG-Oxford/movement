@@ -86,9 +86,10 @@ test_that("analysepredictionusingdpois using simplest possible matrices returns 
 test_that("predict.prediction_model uses the correct version of getNetwork", {
 	predictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	with_mock(
-    getNetwork = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetwork"),
+	  `movement:::getNetwork` = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetwork"),
     `movement:::getNetworkFromdataframe` = function(x, min) list(distance_matrix = NULL, population = NULL, name = "getNetworkFromdataframe"),
 		`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) NULL,
+		prediction <- predict.prediction_model(predictionModel),
 		expect_equal(predict.prediction_model(predictionModel)$net$name, "getNetwork"),
 		expect_equal(predict.prediction_model(predictionModel, data.frame(c(1,1)))$net$name, "getNetworkFromdataframe")
 	)
@@ -97,7 +98,7 @@ test_that("predict.prediction_model uses the correct version of getNetwork", {
 test_that("predict.prediction_model calls movement.predict with the correct flux method", {
 	gravityPredictionModel = list(flux_model = gravity(), symmetric = FALSE)
 	radiationPredictionModel = list(flux_model = radiationWithSelection(), symmetric = FALSE)
-	with_mock(getNetwork = function(x, min) list(distance_matrix = NULL, population = NULL),
+	with_mock(`movement:::getNetwork` = function(x, min) list(distance_matrix = NULL, population = NULL),
     `movement:::getNetworkFromdataframe` = function(x, min) list(distance_matrix = NULL, population = NULL),
 		`movement:::gravityFlux` = function() return ("gravity"),
 		`movement:::radiationWithSelectionFlux` = function() return("radiation with selection"),
@@ -105,6 +106,17 @@ test_that("predict.prediction_model calls movement.predict with the correct flux
 		expect_equal(predict.prediction_model(gravityPredictionModel)$prediction, "gravity"),
 		expect_equal(predict.prediction_model(radiationPredictionModel)$prediction, "radiation with selection")
 	)
+})
+
+test_that("predict.prediction_model correctly returns movement matrix with is consistent with the location data provided", {
+
+  predictionModel <- list(dataset=NULL, flux_model = gravity(), min_network_pop=50000, symmetric = FALSE)
+  testMatrix  <- as.movement_matrix(matrix(c(0,1,2,0,4,5,5,6,7),nrow=3))
+  testLocationData  <- as.location_dataframe(data.frame(location=c(4335,4426, 4427), population=c(10,20,19), x=c(-1,-1,-2), y=c(-5,-5,-6)))
+  with_mock(`movement:::movement.predict` = function(distance, population, flux, symmetric, theta, ...) return (testMatrix),
+            prediction  <- predict.prediction_model(predictionModel, testLocationData),
+            expect_true(consistencyCheckMovementMatrixLocationDataframe(prediction$prediction, testLocationData))          
+  )
 })
 
 test_that("fittingwrapper calls predictedresults with correct parameters", {
