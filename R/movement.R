@@ -1416,8 +1416,12 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 calculateFlux  <- function(flux, indices, distance, population,  symmetric,...){
   
   # pre-allocate the list storing the results in a internal vector with 
-  commuters  <- list(1:nrow(indices))
-  
+  #calculated  <- list(1:nrow(indices))
+  ncols <- if(symmetric) 3 else 4; 
+  commuters <- matrix(NA,
+                     nrow = nrow(indices),
+                     ncol = ncols)
+    
   for (idx in 1:nrow(indices)) {
     
     # for each array index (given as a row of idx), get the pair of nodes
@@ -1432,12 +1436,33 @@ calculateFlux  <- function(flux, indices, distance, population,  symmetric,...){
                  symmetric = symmetric,		
                  ...)	
     
-    commuters[[idx]]  <- c(i, j, T_ij)
+    if(symmetric){
+      commuters[idx,]  <- c(i, j, T_ij)
+    }else{
+      commuters[idx,]  <- c(i, j, T_ij[1], T_ij[2])
+    }    
   }
   
   return (commuters)
 }
 
+calcFlux  <- function(pair, flux, distance, population, symmetric, ...){
+  
+  i <- pair[1]
+  j <- pair[2]
+  
+  return (c(2*i, 2*j))
+  
+  # calculate the number of commuters between them    
+#   T_ij <- flux(i = i,  	
+#                j = j,		
+#                distance = distance,		
+#                population = population,		
+#                symmetric = symmetric,		
+#                ...)	
+#   
+#   return (T_ij)
+}
 
 # Use a movement model to predict movements across a landscape.
 #
@@ -1600,6 +1625,7 @@ movementNew.predict <- function(distance, population,
                           style = 3)
   }
   
+  # matrix of rows: 1:nrow(indices) and 3 (symmetric= TRUE) or 4 (symmetric = FALSE) columns
   commuters  <- calculateFlux(flux = flux, 
                               indices, 
                               distance = distance,    
@@ -1607,28 +1633,36 @@ movementNew.predict <- function(distance, population,
                               symmetric = symmetric,		
                               ...)
   
-  for(idx in 1:length(commuters)){
-    i <- commuters[[idx]][1]
-    j <- commuters[[idx]][2]
-    T_ij <- commuters[[idx]][3]
-    
-    if (symmetric) {
-      
-      movement[i, j] <- movement[j, i] <- T_ij
-      
-    } else {
-      
-      # otherwise stick one in the upper and one in the the lower
-      # (flux returns two numbers in this case)
-      # i.e. rows are from (i), columns are to (j)
-      movement[i, j] <- T_ij[1]
-      movement[j, i] <- T_ij[2]
-      
-    }
-    
-    if (progress) setTxtProgressBar(bar, idx)
+  if (symmetric) {
+    movement[commuters[, 1:2]] <- movement[commuters[, 2:1]] <- commuters[, 3]
+  } else {
+    movement[commuters[, 1:2]] <- commuters[, 3]
+    movement[commuters[, 2:1]] <- commuters[, 4]
   }
-   
+  
+#   for(idx in 1:length(commuters)){
+#     i <- commuters[[idx]][1]
+#     j <- commuters[[idx]][2]
+#     T_ij <- commuters[[idx]][3]
+#     
+#     if (symmetric) {
+#       
+#       movement[i, j] <- movement[j, i] <- T_ij
+#       
+#     } else {
+#       
+#       # otherwise stick one in the upper and one in the the lower
+#       # (flux returns two numbers in this case)
+#       # i.e. rows are from (i), columns are to (j)
+#       movement[i, j] <- T_ij[1]
+#       movement[j, i] <- T_ij[2]
+#       
+#     }
+#     
+#     
+#   }
+#  if (progress) setTxtProgressBar(bar, idx) 
+  
   if (progress) {
     end <- Sys.time()
     
