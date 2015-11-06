@@ -1422,27 +1422,28 @@ calculateFlux  <- function(flux, indices, distance, population,  symmetric,...){
                      nrow = nrow(indices),
                      ncol = ncols)
     
-  for (idx in 1:nrow(indices)) {
-    
-    # for each array index (given as a row of idx), get the pair of nodes
-    pair <- indices[idx, ]
-    i <- pair[1]
-    j <- pair[2]
-    # calculate the number of commuters between them    
-    T_ij <- flux(i = i,		
-                 j = j,		
-                 distance = distance,		
-                 population = population,		
-                 symmetric = symmetric,		
-                 ...)	
-    
-    if(symmetric){
-      commuters[idx,]  <- c(i, j, T_ij)
-    }else{
-      commuters[idx,]  <- c(i, j, T_ij[1], T_ij[2])
-    }    
-  }
+  # returns a vector with the results from the flux function; 
+  calculatedFlux <- apply(indices, 1, function(x) {flux(x[1], x[2], distance = distance,  	
+                                           population = population,		
+                                           symmetric = symmetric,		
+                                           ...) })
   
+  # note: when non-symmetric (symmetric = FALSE) return of apply function is a [1:2; 1:nrow(indices)] matrix
+  # which is now transposed to [1:nrow(indices); 1:2] where each row represents the results per index pair
+  if(!symmetric){
+    calculatedFlux  <- t(calculatedFlux)
+  }
+
+  # load the indices into the commuter's matrix
+  commuters[,1:2]  <- indices
+  
+  # load the calculated flux results into the commuter's matrix
+  if (symmetric) {
+    commuters[,3]  <- calculatedFlux
+  } else {
+    commuters[,3:4]  <- calculatedFlux
+  }
+
   return (commuters)
 }
 
