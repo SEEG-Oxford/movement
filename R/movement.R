@@ -1413,6 +1413,32 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
+calculateFlux  <- function(flux, indices, distance, population,  symmetric,...){
+  
+  # pre-allocate the list storing the results in a internal vector with 
+  commuters  <- list(1:nrow(indices))
+  
+  for (idx in 1:nrow(indices)) {
+    
+    # for each array index (given as a row of idx), get the pair of nodes
+    pair <- indices[idx, ]
+    i <- pair[1]
+    j <- pair[2]
+    # calculate the number of commuters between them    
+    T_ij <- flux(i = i,		
+                 j = j,		
+                 distance = distance,		
+                 population = population,		
+                 symmetric = symmetric,		
+                 ...)	
+    
+    commuters[[idx]]  <- c(i, j, T_ij)
+  }
+  
+  return (commuters)
+}
+
+
 # Use a movement model to predict movements across a landscape.
 #
 # Given a (dense) distance matrix \code{distance} giving the euclidean
@@ -1544,6 +1570,81 @@ movement.predict <- function(distance, population,
   
   return (movement)
 }
+
+
+movementNew.predict <- function(distance, population,
+                             flux = originalRadiationFlux,
+                             symmetric = FALSE,
+                             progress = TRUE,
+                             ...) {
+  
+  # create a movement matrix in which to store movement numbers
+  movement <- matrix(NA,
+                     nrow = nrow(distance),
+                     ncol = ncol(distance))
+  # set diagonal to 0
+  movement[col(movement) == row(movement)] <- 0
+  
+  # get the all $i, j$ pairs
+  indices <- which(upper.tri(distance), arr.ind = TRUE)
+  
+  # set up optional text progress bar
+  if (progress) {
+    start <- Sys.time()
+    cat(paste('Started processing at',
+              start,
+              '\nProgress:\n\n'))
+    
+    bar <- txtProgressBar(min = 1,
+                          max = nrow(indices),
+                          style = 3)
+  }
+  
+  commuters  <- calculateFlux(flux = flux, 
+                              indices, 
+                              distance = distance,    
+                              population = population,  	
+                              symmetric = symmetric,		
+                              ...)
+  
+  for(idx in 1:length(commuters)){
+    i <- commuters[[idx]][1]
+    j <- commuters[[idx]][2]
+    T_ij <- commuters[[idx]][3]
+    
+    if (symmetric) {
+      
+      movement[i, j] <- movement[j, i] <- T_ij
+      
+    } else {
+      
+      # otherwise stick one in the upper and one in the the lower
+      # (flux returns two numbers in this case)
+      # i.e. rows are from (i), columns are to (j)
+      movement[i, j] <- T_ij[1]
+      movement[j, i] <- T_ij[2]
+      
+    }
+    
+    if (progress) setTxtProgressBar(bar, idx)
+  }
+   
+  if (progress) {
+    end <- Sys.time()
+    
+    cat(paste('\nFinished processing at',
+              end,
+              '\nTime taken:',
+              round(difftime(end,start,units="secs")),
+              'seconds\n'))
+    
+    close(bar)
+  }
+  
+  return (movement)
+}
+
+
 
 ###############################################################################
 # Prediction visualisation methods                                            #
