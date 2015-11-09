@@ -1633,15 +1633,20 @@ movementNew.predict <- function(distance, population,
     
     split <- splitIdx(nrow(indices), cores)
     
-    # matrix of nrow(indices) rows and 3 (symmetric= TRUE) or 4 (symmetric = FALSE) columns
-    # with the calculated flux of 
-    commuters  <- sfLapply(split, function(idx) movement:::calculateFlux(indices = indices[idx[1]:idx[2], ], 
-                                                            flux = flux,
-                                                            distance = distance,    
-                                                            population = population,    
-                                                            symmetric = symmetric,  	
-                                                            ...))
+    # get list of indices matrices
+    indices_batch <- lapply(split,
+                            function(idx) indices[idx[1]:idx[2], ])
     
+    # create batch of indices
+    # commutes is a list of matrices for each of the indices batches calculating the flux
+    commuters  <- sfLapply(indices_batch, 
+                       calculateFlux,
+                       flux = flux,
+                       distance = distance,    
+                       population = population,    
+                       symmetric = symmetric,      
+                       ...)
+
     # TODO Kathrin: wrap this call into its own function such as -> stopParallelSetup() 
     # stop cluster 
     snowfall::sfStop()
