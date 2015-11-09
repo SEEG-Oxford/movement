@@ -1589,11 +1589,12 @@ movement.predict <- function(distance, population,
   return (movement)
 }
 
-
+# NOTE: need to ref some libraries: snowfall, parallel, snow 
 movementNew.predict <- function(distance, population,
                              flux = originalRadiationFlux,
                              symmetric = FALSE,
                              progress = TRUE,
+                             goParallel = TRUE,
                              ...) {
   
   # create a movement matrix in which to store movement numbers
@@ -1617,29 +1618,51 @@ movementNew.predict <- function(distance, population,
                           max = nrow(indices),
                           style = 3)
   }
-  
-  #  in batches of maxn since gBuffer is slow
-  #   # for complex features
-  # TODO Kathrin: number of cores - either use user input or detect them; for now hard-code to 4!
-  cores  <- 4
-  split <- splitIdx(nrow(indices), cores)
-  print("split:")
-  print(str(split))
-  
-  # matrix of nrow(indices) rows and 3 (symmetric= TRUE) or 4 (symmetric = FALSE) columns
-  # with the calculated flux of 
-  commuters  <- lapply(split, function(idx) calculateFlux(indices = indices[idx[1]:idx[2], ], flux = flux,
-                                                          distance = distance,    
-                                                          population = population,    
-                                                          symmetric = symmetric,		
-                                                          ...))
-  # combine the matrices returned in a list from the lapply function
-  if(length(commuters) > 1){
-    commuters  <- do.call(rbind, commuters)
-  } else {
-    commuters  <- commuters[[1]]
+    
+
+  if(goParallel){
+    
+    # TODO Kathrin; Allow user input for number of cores
+    # TODO: combine all parallel set-up in its own function -> startParallelSetup()     
+    # start cluster
+    cores <- parallel::detectCores()
+    snowfall::sfInit(parallel = TRUE, cpus = cores, type = "SOCK")
+    snowfall::sfLibrary(movement)
+    snowfall::sfExport( list = c('indices', 'flux', 'distance', 'population', 'symmetric'))
+    message(sprintf('parallel backend registered on %i cores', cores))
+    
+    split <- splitIdx(nrow(indices), cores)
+    
+    # matrix of nrow(indices) rows and 3 (symmetric= TRUE) or 4 (symmetric = FALSE) columns
+    # with the calculated flux of 
+    commuters  <- sfLapply(split, function(idx) movement:::calculateFlux(indices = indices[idx[1]:idx[2], ], 
+                                                            flux = flux,
+                                                            distance = distance,    
+                                                            population = population,    
+                                                            symmetric = symmetric,  	
+                                                            ...))
+    
+    # TODO Kathrin: wrap this call into its own function such as -> stopParallelSetup() 
+    # stop cluster 
+    snowfall::sfStop()
+    
+    # combine the matrices returned in a list from the lapply function
+    if(length(commuters) > 1){
+      commuters  <- do.call(rbind, commuters)
+    } else {
+      commuters  <- commuters[[1]]
+    }
+    
+  } else{
+    # sequentially run - no need to use the 'lapply' function here
+    commuters  <- calculateFlux(indices = indices, 
+                                flux = flux, 
+                                distance = distance, 
+                                population = population, 
+                                symmetric = symmetric, ...)
   }
   
+  # populate the result movement matrix based on symmetric / non-symmetric calculation
   if (symmetric) {
     movement[commuters[, 1:2]] <- movement[commuters[, 2:1]] <- commuters[, 3]
   } else {
@@ -1647,28 +1670,8 @@ movementNew.predict <- function(distance, population,
     movement[commuters[, 2:1]] <- commuters[, 4]
   }
   
-#   for(idx in 1:length(commuters)){
-#     i <- commuters[[idx]][1]
-#     j <- commuters[[idx]][2]
-#     T_ij <- commuters[[idx]][3]
-#     
-#     if (symmetric) {
-#       
-#       movement[i, j] <- movement[j, i] <- T_ij
-#       
-#     } else {
-#       
-#       # otherwise stick one in the upper and one in the the lower
-#       # (flux returns two numbers in this case)
-#       # i.e. rows are from (i), columns are to (j)
-#       movement[i, j] <- T_ij[1]
-#       movement[j, i] <- T_ij[2]
-#       
-#     }
-#     
-#     
-#   }
-#  if (progress) setTxtProgressBar(bar, idx) 
+  # TODO Kathrin: include progress bar
+  #  if (progress) setTxtProgressBar(bar, idx) 
   
   if (progress) {
     end <- Sys.time()
@@ -1683,6 +1686,16 @@ movementNew.predict <- function(distance, population,
   }
   
   return (movement)
+}
+ 
+
+startParallelSetup <- function(cores = NULL) {
+  # TODO
+}
+
+stopParallelSetup  <- function(){
+  # TODO
+  # sfStop()
 }
 
 
