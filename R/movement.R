@@ -1413,20 +1413,29 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
+# Helper function to calculate the flux for a given set of sites
+#
+# @param flux A flux function
+# @param indices A vector of sites pairs based on the distance matrix for which the 
+#         flux will be calculated/
+# @param distance A distance matrix giving the euclidean distance between
+#         pairs of sites
+# @param population A vector giving the population at all sites
+# @param symmetric Whether to calculate symmetric or asymmetric (summed
+# across both directions) movement
+# @param \dots Arguments to pass to the flux function
+# @return A matrix giving predicted movements between sites stored in the indices vector
 calculateFlux  <- function(flux, indices, distance, population,  symmetric,...){
   
-  # pre-allocate the list storing the results in a internal vector with 
-  #calculated  <- list(1:nrow(indices))
+  # pre-allocate the matrix which will store the calculated flux of the commuters depending 
+  # whether to calculate the movement symmetric or asymmetric
   ncols <- if(symmetric) 3 else 4; 
   commuters <- matrix(NA,
                      nrow = nrow(indices),
                      ncol = ncols)
     
   # returns a vector with the results from the flux function; 
-  calculatedFlux <- apply(indices, 1, function(x) {flux(x[1], x[2], distance = distance,  	
-                                           population = population,		
-                                           symmetric = symmetric,		
-                                           ...) })
+  calculatedFlux <- apply(indices, 1, function(x) {flux(x[1], x[2], distance = distance, population = population, symmetric = symmetric, ...) })
   
   # note: when non-symmetric (symmetric = FALSE) return of apply function is a [1:2; 1:nrow(indices)] matrix
   # which is now transposed to [1:nrow(indices); 1:2] where each row represents the results per index pair
@@ -1447,23 +1456,6 @@ calculateFlux  <- function(flux, indices, distance, population,  symmetric,...){
   return (commuters)
 }
 
-calcFlux  <- function(pair, flux, distance, population, symmetric, ...){
-  
-  i <- pair[1]
-  j <- pair[2]
-  
-  return (c(2*i, 2*j))
-  
-  # calculate the number of commuters between them    
-#   T_ij <- flux(i = i,  	
-#                j = j,		
-#                distance = distance,		
-#                population = population,		
-#                symmetric = symmetric,		
-#                ...)	
-#   
-#   return (T_ij)
-}
 
 # Use a movement model to predict movements across a landscape.
 #
@@ -1602,6 +1594,7 @@ movementNew.predict <- function(distance, population,
                              flux = originalRadiationFlux,
                              symmetric = FALSE,
                              progress = TRUE,
+                             goParallel = TRUE
                              ...) {
   
   # create a movement matrix in which to store movement numbers
@@ -1626,7 +1619,12 @@ movementNew.predict <- function(distance, population,
                           style = 3)
   }
   
-  # matrix of rows: 1:nrow(indices) and 3 (symmetric= TRUE) or 4 (symmetric = FALSE) columns
+  #  in batches of maxn since gBuffer is slow
+  #   # for complex features
+  #   split <- splitIdx(length(feature), maxn)
+  
+  # matrix of nrow(indices) rows and 3 (symmetric= TRUE) or 4 (symmetric = FALSE) columns
+  # with the calculated flux of 
   commuters  <- calculateFlux(flux = flux, 
                               indices, 
                               distance = distance,    
