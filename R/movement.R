@@ -1425,7 +1425,7 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 # across both directions) movement
 # @param \dots Arguments to pass to the flux function
 # @return A matrix giving predicted movements between sites stored in the indices vector
-calculateFlux  <- function(flux, indices, distance, population,  symmetric,...){
+calculateFlux  <- function(indices, flux, distance, population,  symmetric,...){
   
   # pre-allocate the matrix which will store the calculated flux of the commuters depending 
   # whether to calculate the movement symmetric or asymmetric
@@ -1594,7 +1594,6 @@ movementNew.predict <- function(distance, population,
                              flux = originalRadiationFlux,
                              symmetric = FALSE,
                              progress = TRUE,
-                             goParallel = TRUE
                              ...) {
   
   # create a movement matrix in which to store movement numbers
@@ -1621,16 +1620,25 @@ movementNew.predict <- function(distance, population,
   
   #  in batches of maxn since gBuffer is slow
   #   # for complex features
-  #   split <- splitIdx(length(feature), maxn)
+  # TODO Kathrin: number of cores - either use user input or detect them; for now hard-code to 4!
+  cores  <- 4
+  split <- splitIdx(nrow(indices), cores)
+  print("split:")
+  print(str(split))
   
   # matrix of nrow(indices) rows and 3 (symmetric= TRUE) or 4 (symmetric = FALSE) columns
   # with the calculated flux of 
-  commuters  <- calculateFlux(flux = flux, 
-                              indices, 
-                              distance = distance,    
-                              population = population,  	
-                              symmetric = symmetric,		
-                              ...)
+  commuters  <- lapply(split, function(idx) calculateFlux(indices = indices[idx[1]:idx[2], ], flux = flux,
+                                                          distance = distance,    
+                                                          population = population,    
+                                                          symmetric = symmetric,		
+                                                          ...))
+  # combine the matrices returned in a list from the lapply function
+  if(length(commuters) > 1){
+    commuters  <- do.call(rbind, commuters)
+  } else {
+    commuters  <- commuters[[1]]
+  }
   
   if (symmetric) {
     movement[commuters[, 1:2]] <- movement[commuters[, 2:1]] <- commuters[, 3]
@@ -1677,6 +1685,17 @@ movementNew.predict <- function(distance, population,
   return (movement)
 }
 
+
+splitIdx <- function (n, cores) {
+  maxn  <- ceiling(n / cores)
+  print(paste("maxn: ", maxn))
+  # get start and end indices to split a vector into bins of maximum length 'maxn'.
+  names(n) <- NULL
+  bins <- n %/% maxn + ifelse(n %% maxn > 0, 1, 0)
+  start <- 1 + (1:bins - 1) * maxn
+  end <- c(start[-1] - 1, n)
+  lapply(1:bins, function(i) c(start[i], end[i]))
+}
 
 
 ###############################################################################
