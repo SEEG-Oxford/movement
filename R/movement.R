@@ -1425,7 +1425,18 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 # across both directions) movement
 # @param \dots Arguments to pass to the flux function
 # @return A matrix giving predicted movements between sites stored in the indices vector
-calculateFlux  <- function(indices, flux, distance, population,  symmetric,...){
+calculateFlux  <- function(indices, flux, distance, population,  symmetric, progress = FALSE, ...){
+      
+  # set up optional text progress bar which will be shown when running the calculation in serial only 
+  if (progress) {
+    start <- Sys.time()
+    cat(paste('Started processing at',
+              start,
+              '\nProgress:\n\n'))
+    bar <- txtProgressBar(min = 1,
+                          max = nrow(indices),
+                          style = 3)
+  }
   
   # pre-allocate the matrix which will store the calculated flux of the commuters depending 
   # whether to calculate the movement symmetric or asymmetric
@@ -1433,24 +1444,39 @@ calculateFlux  <- function(indices, flux, distance, population,  symmetric,...){
   commuters <- matrix(NA,
                      nrow = nrow(indices),
                      ncol = ncols)
+
+  for (idx in 1:nrow(indices)) {
     
-  # returns a vector with the results from the flux function; 
-  calculatedFlux <- apply(indices, 1, function(x) {flux(x[1], x[2], distance = distance, population = population, symmetric = symmetric, ...) })
-  
-  # note: when non-symmetric (symmetric = FALSE) return of apply function is a [1:2; 1:nrow(indices)] matrix
-  # which is now transposed to [1:nrow(indices); 1:2] where each row represents the results per index pair
-  if(!symmetric){
-    calculatedFlux  <- t(calculatedFlux)
+    # for each array index (given as a row of idx), get the pair of nodes
+    pair <- indices[idx, ]
+    i <- pair[1]
+    j <- pair[2]
+    # calculate the number of commuters between them    
+    T_ij <- flux(i = i,  	
+                 j = j,		
+                 distance = distance,		
+                 population = population,		
+                 symmetric = symmetric,		
+                 ...)	
+    
+    if(symmetric){
+      commuters[idx,]  <- c(i, j, T_ij)
+    }else{
+      commuters[idx,]  <- c(i, j, T_ij[1], T_ij[2])
+    } 
+    
+    if (progress) setTxtProgressBar(bar, idx)
+    
   }
 
-  # load the indices into the commuter's matrix
-  commuters[,1:2]  <- indices
-  
-  # load the calculated flux results into the commuter's matrix
-  if (symmetric) {
-    commuters[,3]  <- calculatedFlux
-  } else {
-    commuters[,3:4]  <- calculatedFlux
+  if (progress) {
+    end <- Sys.time()
+    cat(paste('\nFinished processing at',
+              end,
+              '\nTime taken:',
+              round(difftime(end,start,units="secs")),
+              'seconds\n')) 
+    close(bar)
   }
 
   return (commuters)
@@ -1510,10 +1536,11 @@ calculateFlux  <- function(indices, flux, distance, population,  symmetric,...){
 #            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
 #   }
 # }
+# TODO NOTE: need to ref some libraries: snowfall, parallel, snow 
 movement.predict <- function(distance, population,
                              flux = originalRadiationFlux,
-                             symmetric = FALSE,
-                             progress = TRUE,
+                             symmetric = FALSE,                             
+                             goParallel = FALSE,
                              ...) {
   
   # create a movement matrix in which to store movement numbers
@@ -1525,100 +1552,6 @@ movement.predict <- function(distance, population,
   
   # get the all $i, j$ pairs
   indices <- which(upper.tri(distance), arr.ind = TRUE)
-  
-  # set up optional text progress bar
-  if (progress) {
-    start <- Sys.time()
-    cat(paste('Started processing at',
-              start,
-              '\nProgress:\n\n'))
-    
-    bar <- txtProgressBar(min = 1,
-                          max = nrow(indices),
-                          style = 3)
-  }
-  
-  # This can probably be vectorized which should help speed up the population of the movement matrix
-  for (idx in 1:nrow(indices)) {
-    # for each array index (given as a row of idx), get the pair of nodes
-    pair <- indices[idx, ]
-    i <- pair[1]
-    j <- pair[2]
-    # calculate the number of commuters between them  	
-    T_ij <- flux(i = i,		
-                 j = j,		
-                 distance = distance,		
-                 population = population,		
-                 symmetric = symmetric,		
-                 ...)		
-    
-    # and stick it in the results matrix		
-    
-    # if the symmetric distance was calculated (sum of i to j and j to i)
-    # stick it in both triangles
-    if (symmetric) {
-      
-      movement[i, j] <- movement[j, i] <- T_ij
-      
-    } else {
-      
-      # otherwise stick one in the upper and one in the the lower
-      # (flux returns two numbers in this case)
-      # i.e. rows are from (i), columns are to (j)
-      movement[i, j] <- T_ij[1]
-      movement[j, i] <- T_ij[2]
-      
-    }
-    
-    if (progress) setTxtProgressBar(bar, idx)
-    
-  }
-  
-  if (progress) {
-    end <- Sys.time()
-    
-    cat(paste('\nFinished processing at',
-              end,
-              '\nTime taken:',
-              round(difftime(end,start,units="secs")),
-              'seconds\n'))
-    
-    close(bar)
-  }
-  
-  return (movement)
-}
-
-# NOTE: need to ref some libraries: snowfall, parallel, snow 
-movementNew.predict <- function(distance, population,
-                             flux = originalRadiationFlux,
-                             symmetric = FALSE,
-                             progress = TRUE,
-                             goParallel = TRUE,
-                             ...) {
-  
-  # create a movement matrix in which to store movement numbers
-  movement <- matrix(NA,
-                     nrow = nrow(distance),
-                     ncol = ncol(distance))
-  # set diagonal to 0
-  movement[col(movement) == row(movement)] <- 0
-  
-  # get the all $i, j$ pairs
-  indices <- which(upper.tri(distance), arr.ind = TRUE)
-  
-  # set up optional text progress bar
-  if (progress) {
-    start <- Sys.time()
-    cat(paste('Started processing at',
-              start,
-              '\nProgress:\n\n'))
-    
-    bar <- txtProgressBar(min = 1,
-                          max = nrow(indices),
-                          style = 3)
-  }
-    
 
   if(goParallel){
     
@@ -1632,6 +1565,8 @@ movementNew.predict <- function(distance, population,
     message(sprintf('parallel backend registered on %i cores', cores))
     
     split <- splitIdx(nrow(indices), cores)
+    
+   # print(str(split))
     
     # get list of indices matrices
     indices_batch <- lapply(split,
@@ -1659,12 +1594,13 @@ movementNew.predict <- function(distance, population,
     }
     
   } else{
+    
     # sequentially run - no need to use the 'lapply' function here
     commuters  <- calculateFlux(indices = indices, 
                                 flux = flux, 
                                 distance = distance, 
                                 population = population, 
-                                symmetric = symmetric, ...)
+                                symmetric = symmetric, progress = TRUE, ...)
   }
   
   # populate the result movement matrix based on symmetric / non-symmetric calculation
@@ -1674,25 +1610,11 @@ movementNew.predict <- function(distance, population,
     movement[commuters[, 1:2]] <- commuters[, 3]
     movement[commuters[, 2:1]] <- commuters[, 4]
   }
-  
-  # TODO Kathrin: include progress bar
-  #  if (progress) setTxtProgressBar(bar, idx) 
-  
-  if (progress) {
-    end <- Sys.time()
     
-    cat(paste('\nFinished processing at',
-              end,
-              '\nTime taken:',
-              round(difftime(end,start,units="secs")),
-              'seconds\n'))
-    
-    close(bar)
-  }
-  
   return (movement)
 }
  
+
 
 startParallelSetup <- function(cores = NULL) {
   # TODO
