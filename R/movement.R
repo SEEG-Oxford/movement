@@ -22,6 +22,7 @@
 #' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}},
 #' \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 #' @param \dots Extra parameters to be passed to the prediction code.
+#' 
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. 
 #' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
@@ -169,6 +170,11 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' in order for it to be processed
 #' @param symmetric Optional parameter to define whether to calculate symmetric or 
 #' asymmetric (summed across both directions) movement
+#' @param go_parallel Flag to enable parallel calculations. Parallel programming will only improve the
+#' runtime with larger datasets. 
+#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculation. 
+#' If no value is specified, the program will automatically detect the number of cores available when 
+#' parallel calculations are enabled. 
 #' @param \dots additional arguments affecting the predictions produced.
 #' @return A list containing a location dataframe from the input with columns 
 #' \code{location}, \code{population} and \code{coordinates} and a matrix
@@ -186,12 +192,14 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
-predict.flux <- function(object, location_dataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
+#' @importFrom parallel detectCores
+#' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
+predict.flux <- function(object, location_dataframe, min_network_pop = 50000, symmetric = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   
   if(is(location_dataframe, "RasterLayer")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
-    prediction <- predict.prediction_model(predictionModel)
+    prediction <- predict.prediction_model(predictionModel, go_parallel = go_parallel, number_of_cores = number_of_cores)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)    
     return (list(
@@ -200,7 +208,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
   } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
-    prediction <- predict.prediction_model(predictionModel, location_dataframe)
+    prediction <- predict.prediction_model(predictionModel, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)
     return (list(
@@ -224,6 +232,11 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @param newdata An optional \code{location_dataframe} object or RasterLayer 
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
+#' @param go_parallel Flag to enable parallel calculations. Parallel programming will only improve the
+#' runtime with larger datasets. 
+#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculation. 
+#' If no value is specified, the program will automatically detect the number of cores available when 
+#' parallel calculations are enabled. 
 #' 
 #' @return A \code{movement_predictions} object containing a list with the location 
 #' dataframe from the input, the matrix containing the predicted population movements 
@@ -253,11 +266,11 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' plot(predicted_movements)
 #' }
 #' @export
-predict.movement_model <- function(object, newdata, ...) {
+predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_of_cores = NULL, ...) {
   m <- object$trainingresults
   m$dataset <- newdata
   if(is(newdata, "RasterLayer")) {
-    prediction <- predict.prediction_model(m)
+    prediction <- predict.prediction_model(m, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
       movement_matrix = as.movement_matrix(prediction$prediction),
@@ -265,7 +278,7 @@ predict.movement_model <- function(object, newdata, ...) {
     class(ans) <- "movement_predictions" 
     return(ans)
   } else if (is(newdata, "data.frame")) {
-    prediction <- predict.prediction_model(m, newdata)
+    prediction <- predict.prediction_model(m, newdata, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
       movement_matrix = as.movement_matrix(prediction$prediction),
@@ -1541,7 +1554,8 @@ movement.predict <- function(distance, population,
                              flux = originalRadiationFlux,
                              symmetric = FALSE, 
                              progress = TRUE,
-                             goParallel = FALSE,
+                             go_parallel = FALSE,
+                             number_of_cores = NULL,
                              ...) {  
   # create a movement matrix in which to store movement numbers
   movement <- matrix(NA,
@@ -1553,16 +1567,10 @@ movement.predict <- function(distance, population,
   # get the all $i, j$ pairs
   indices <- which(upper.tri(distance), arr.ind = TRUE)
 
-  if(goParallel){
+  if(go_parallel){
     
-    # TODO Kathrin; Allow user input for number of cores
-    # TODO: combine all parallel set-up in its own function -> startParallelSetup()     
-    # start cluster
-    cores <- parallel::detectCores()
-    snowfall::sfInit(parallel = TRUE, cpus = cores, type = "SOCK")
-    snowfall::sfLibrary(movement)
-    snowfall::sfExport( list = c('indices', 'flux', 'distance', 'population', 'symmetric'))
-    message(sprintf('parallel backend registered on %i cores', cores))
+    # set up for parallel programming
+    startParallelSetup(number_of_cores)
     
     split <- splitIdx(nrow(indices), cores)
         
@@ -1581,9 +1589,8 @@ movement.predict <- function(distance, population,
                        progress = FALSE,
                        ...)
 
-    # TODO Kathrin: wrap this call into its own function such as -> stopParallelSetup() 
     # stop cluster 
-    snowfall::sfStop()
+    stopParallelSetup()
     
     # combine the matrices returned in a list from the lapply function
     if(length(commuters) > 1){
@@ -1627,20 +1634,26 @@ movement.predict <- function(distance, population,
 }
  
 
-
+# helper function to initiate the clusters with the snowfall package
 startParallelSetup <- function(cores = NULL) {
-  # TODO
+  if(is.null(cores)){
+    cores <- parallel::detectCores()
+  }
+  
+  snowfall::sfInit(parallel = TRUE, cpus = cores, type = "SOCK")
+  snowfall::sfLibrary(movement)
+  snowfall::sfExport( list = c('indices', 'flux', 'distance', 'population', 'symmetric'))
+  message(sprintf('parallel backend registered on %i cores', cores))
 }
 
+# helper function to stop the cluster after the parallel runs completed
 stopParallelSetup  <- function(){
-  # TODO
-  # sfStop()
+  snowfall::sfStop()
 }
 
-
+# helper function to split a workload into equal batches for the possible cores available
 splitIdx <- function (n, cores) {
   maxn  <- ceiling(n / cores)
-  print(paste("maxn: ", maxn))
   # get start and end indices to split a vector into bins of maximum length 'maxn'.
   names(n) <- NULL
   bins <- n %/% maxn + ifelse(n %% maxn > 0, 1, 0)
@@ -1895,12 +1908,17 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # @param object A configured prediction model of class \code{prediction_model}
 # @param newdata An optional data.frame or RasterLayer containing population data
 # @param \dots Extra arguments to pass to the flux function
+# @param go_parallel Flag to enable parallel calculations. Parallel programming will only improve the
+# runtime with larger datasets. 
+# @param number_of_cores Optional parameter to specify the number of cores used for parallel calculation. 
+# If no value is specified, the program will automatically detect the number of cores available when 
+# parallel calculations are enabled. 
 # @return A \code{prediction_model} containing a (dense) matrix giving predicted
 # movements between all sites.
 # 
 # @name predict.prediction_model
 # @method predict prediction_model
-predict.prediction_model <- function(object, newdata = NULL, ...) {
+predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE, number_of_cores = NULL, ...) {
   if(is.null(newdata)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
@@ -1909,8 +1927,12 @@ predict.prediction_model <- function(object, newdata = NULL, ...) {
   }
   object$net = net
   
-  object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
-                                       symmetric = object$symmetric, theta = object$flux_model$params, ...)    
+  object$prediction = movement.predict(distance = net$distance_matrix, 
+                                       population = net$population, 
+                                       flux = object$flux_model$flux, 
+                                       symmetric = object$symmetric, 
+                                       theta = object$flux_model$params, 
+                                       go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   
   # locations are stored within 'net$locations' which can be used to assign the row & column names 
   # of the predicted movement_matrix 

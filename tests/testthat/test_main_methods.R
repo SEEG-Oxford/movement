@@ -5,7 +5,7 @@ context("Main Interface Methods")
 test_that("predict.movement_model returns list of correct data when given a RasterLayer", {
 	predictionModel <- list(trainingresults=NULL)
 	dataframe <- raster::raster(nrows=108, ncols=21, xmn=0, xmx=10)
-	with_mock(`movement:::predict.prediction_model` = function(x) {
+	with_mock(`movement:::predict.prediction_model` = function(x, ...) {
               return (list(net=list(locations=1,population=1,coordinates=1),prediction=matrix(2)))
             },
 	          expected_predict_movement_model  <- list(net=list(locations=1,population=1,coordinates=1),movement_matrix = as.movement_matrix(matrix(2)), dataset = dataframe),
@@ -247,7 +247,7 @@ test_that("predict.flux throws an error if given the wrong location_dataframe pa
 test_that("predict.flux returns list of correct data when given a RasterLayer", {
   flux <- originalRadiation()
   raster <- raster::raster(nrows=108, ncols=21, xmn=0, xmx=10)
-  with_mock(`movement:::predict.prediction_model` = function(x) {
+  with_mock(`movement:::predict.prediction_model` = function(x, ...) {
     prediction_matrix  <- matrix(c(0,1,2,0),nrow=2)
     return (list(net=list(locations=1,population=1,coordinates=1),prediction=prediction_matrix))
   },
