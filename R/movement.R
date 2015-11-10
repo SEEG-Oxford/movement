@@ -1426,7 +1426,7 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 # @param \dots Arguments to pass to the flux function
 # @return A matrix giving predicted movements between sites stored in the indices vector
 calculateFlux  <- function(indices, flux, distance, population,  symmetric, progress = FALSE, ...){
-      
+  
   # set up optional text progress bar which will be shown when running the calculation in serial only 
   if (progress) {
     start <- Sys.time()
@@ -1539,10 +1539,10 @@ calculateFlux  <- function(indices, flux, distance, population,  symmetric, prog
 # TODO NOTE: need to ref some libraries: snowfall, parallel, snow 
 movement.predict <- function(distance, population,
                              flux = originalRadiationFlux,
-                             symmetric = FALSE,                             
+                             symmetric = FALSE, 
+                             progress = TRUE,
                              goParallel = FALSE,
-                             ...) {
-  
+                             ...) {  
   # create a movement matrix in which to store movement numbers
   movement <- matrix(NA,
                      nrow = nrow(distance),
@@ -1565,9 +1565,7 @@ movement.predict <- function(distance, population,
     message(sprintf('parallel backend registered on %i cores', cores))
     
     split <- splitIdx(nrow(indices), cores)
-    
-   # print(str(split))
-    
+        
     # get list of indices matrices
     indices_batch <- lapply(split,
                             function(idx) indices[idx[1]:idx[2], ])
@@ -1579,7 +1577,8 @@ movement.predict <- function(distance, population,
                        flux = flux,
                        distance = distance,    
                        population = population,    
-                       symmetric = symmetric,      
+                       symmetric = symmetric,  
+                       progress = FALSE,
                        ...)
 
     # TODO Kathrin: wrap this call into its own function such as -> stopParallelSetup() 
@@ -1600,15 +1599,28 @@ movement.predict <- function(distance, population,
                                 flux = flux, 
                                 distance = distance, 
                                 population = population, 
-                                symmetric = symmetric, progress = TRUE, ...)
+                                symmetric = symmetric, 
+                                progress = progress, 
+                                ...)
   }
   
   # populate the result movement matrix based on symmetric / non-symmetric calculation
   if (symmetric) {
+    if(nrow(commuters) == 1){
+      # special case if the there is only a single entry for the calculated flux
+      movement[commuters[, 1], commuters[, 2]] <- movement[commuters[, 2], commuters[, 1]] <- commuters[, 3]
+    } else {
     movement[commuters[, 1:2]] <- movement[commuters[, 2:1]] <- commuters[, 3]
+    }
   } else {
-    movement[commuters[, 1:2]] <- commuters[, 3]
-    movement[commuters[, 2:1]] <- commuters[, 4]
+    if(nrow(commuters) == 1){
+      # special case if the there is only a single entry for the calculated flux
+      movement[commuters[, 1], commuters[, 2]] <- commuters[, 3]
+      movement[commuters[, 2], commuters[, 1]] <- commuters[, 4]
+    } else{
+      movement[commuters[, 1:2]] <- commuters[, 3]
+      movement[commuters[, 2:1]] <- commuters[, 4]
+    }
   }
     
   return (movement)
