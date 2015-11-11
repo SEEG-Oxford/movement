@@ -104,6 +104,9 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
     warning("The given observed movement matrix contains non-integer values. Rounding was used to receive a valid movement matrix.")
   }
   
+  # set-up the sfClusters if the user enabled parallel calculations
+  # this is a helper flag required to inform other functions if the clusters are already running or if they need to be instantiated before
+  # calling any parallel functions
   parallel_setup  <- FALSE
   if(go_parallel){
     number_of_cores  <- startParallelSetup(number_of_cores)
@@ -1576,7 +1579,6 @@ calculateFlux  <- function(indices, flux, distance, population,  symmetric, prog
 #            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
 #   }
 # }
-# TODO NOTE: need to ref some libraries: snowfall, parallel, snow 
 movement.predict <- function(distance, population,
                              flux = originalRadiationFlux,
                              symmetric = FALSE, 
@@ -1677,7 +1679,6 @@ startParallelSetup <- function(cores = NULL) {
   
   snowfall::sfInit(parallel = TRUE, cpus = cores, type = "SOCK")
   snowfall::sfLibrary(movement)
-  #snowfall::sfExport( list = c('indices', 'flux', 'distance', 'population', 'symmetric'))
   message(sprintf('parallel backend registered on %i cores', cores))
   
   return(cores)
