@@ -18,12 +18,13 @@ in order for it to be processed}
 \item{symmetric}{Optional parameter to define whether to calculate symmetric or
 asymmetric (summed across both directions) movement}
 
-\item{go_parallel}{Flag to enable parallel calculations. Parallel programming will only improve the
-runtime with larger datasets.}
+\item{go_parallel}{Flag to enable parallel calculations (if set to TRUE).
+Note that parallel programming will only improve the performance with larger datasets; for smaller
+datasets the performance will get worse due to the overhead of scheduling the tasks.}
 
-\item{number_of_cores}{Optional parameter to specify the number of cores used for parallel calculation.
-If no value is specified, the program will automatically detect the number of cores available when
-parallel calculations are enabled.}
+\item{number_of_cores}{Optional parameter to specify the number of cores used for parallel calculations.
+If no value is specified, the program will automatically detect the number of cores available on the machine
+when parallel programming is enabled.}
 
 \item{\dots}{additional arguments affecting the predictions produced.}
 }

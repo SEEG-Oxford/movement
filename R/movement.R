@@ -170,11 +170,12 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' in order for it to be processed
 #' @param symmetric Optional parameter to define whether to calculate symmetric or 
 #' asymmetric (summed across both directions) movement
-#' @param go_parallel Flag to enable parallel calculations. Parallel programming will only improve the
-#' runtime with larger datasets. 
-#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculation. 
-#' If no value is specified, the program will automatically detect the number of cores available when 
-#' parallel calculations are enabled. 
+#' @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+#' Note that parallel programming will only improve the performance with larger datasets; for smaller 
+#' datasets the performance will get worse due to the overhead of scheduling the tasks. 
+#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+#' If no value is specified, the program will automatically detect the number of cores available on the machine
+#' when parallel programming is enabled. 
 #' @param \dots additional arguments affecting the predictions produced.
 #' @return A list containing a location dataframe from the input with columns 
 #' \code{location}, \code{population} and \code{coordinates} and a matrix
@@ -232,11 +233,12 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @param newdata An optional \code{location_dataframe} object or RasterLayer 
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
-#' @param go_parallel Flag to enable parallel calculations. Parallel programming will only improve the
-#' runtime with larger datasets. 
-#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculation. 
-#' If no value is specified, the program will automatically detect the number of cores available when 
-#' parallel calculations are enabled. 
+#' @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+#' Note that parallel programming will only improve the performance with larger datasets; for smaller 
+#' datasets the performance will get worse due to the overhead of scheduling the tasks. 
+#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+#' If no value is specified, the program will automatically detect the number of cores available on the machine
+#' when parallel programming is enabled. 
 #' 
 #' @return A \code{movement_predictions} object containing a list with the location 
 #' dataframe from the input, the matrix containing the predicted population movements 
@@ -266,6 +268,8 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' plot(predicted_movements)
 #' }
 #' @export
+#' @importFrom parallel detectCores
+#' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
 predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_of_cores = NULL, ...) {
   m <- object$trainingresults
   m$dataset <- newdata
@@ -1520,6 +1524,12 @@ calculateFlux  <- function(indices, flux, distance, population,  symmetric, prog
 # across both directions) movement
 # @param progress Whether to display a progress bar and start and end times
 # - can be useful for big model runs
+# @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+# Note that parallel programming will only improve the performance with larger datasets; for smaller 
+# datasets the performance will get worse due to the overhead of scheduling the tasks. 
+# @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+# If no value is specified, the program will automatically detect the number of cores available on the machine
+# when parallel programming is enabled. 
 # @param \dots Arguments to pass to the flux function
 # @return A (dense) matrix giving predicted movements between all sites
 #
@@ -1908,16 +1918,19 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # @param object A configured prediction model of class \code{prediction_model}
 # @param newdata An optional data.frame or RasterLayer containing population data
 # @param \dots Extra arguments to pass to the flux function
-# @param go_parallel Flag to enable parallel calculations. Parallel programming will only improve the
-# runtime with larger datasets. 
-# @param number_of_cores Optional parameter to specify the number of cores used for parallel calculation. 
-# If no value is specified, the program will automatically detect the number of cores available when 
-# parallel calculations are enabled. 
+# @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+# Note that parallel programming will only improve the performance with larger datasets; for smaller 
+# datasets the performance will get worse due to the overhead of scheduling the tasks. 
+# @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+# If no value is specified, the program will automatically detect the number of cores available on the machine
+# when parallel programming is enabled. 
 # @return A \code{prediction_model} containing a (dense) matrix giving predicted
 # movements between all sites.
 # 
 # @name predict.prediction_model
 # @method predict prediction_model
+# @importFrom parallel detectCores
+# @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
 predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE, number_of_cores = NULL, ...) {
   if(is.null(newdata)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
