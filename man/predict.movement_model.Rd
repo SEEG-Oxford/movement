@@ -4,13 +4,22 @@
 \alias{predict.movement_model}
 \title{Predict from a movement model object}
 \usage{
-\method{predict}{movement_model}(object, newdata, ...)
+\method{predict}{movement_model}(object, newdata, go_parallel = FALSE,
+  number_of_cores = NULL, ...)
 }
 \arguments{
 \item{object}{A configured prediction model of class \code{movement_model}}
 
 \item{newdata}{An optional \code{location_dataframe} object or RasterLayer
 containing population data}
+
+\item{go_parallel}{Flag to enable parallel calculations (if set to TRUE).
+Note that parallel programming will only improve the performance with larger datasets; for smaller
+datasets the performance will get worse due to the overhead of scheduling the tasks.}
+
+\item{number_of_cores}{Optional parameter to specify the number of cores used for parallel calculations.
+If no value is specified, the program will automatically detect the number of cores available on the machine
+when parallel programming is enabled.}
 
 \item{\dots}{Extra arguments to pass to the flux function}
 }

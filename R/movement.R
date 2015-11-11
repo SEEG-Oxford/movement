@@ -22,6 +22,7 @@
 #' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}},
 #' \code{\link{gravity}} and \code{\link{gravityWithDistance}}
 #' @param \dots Extra parameters to be passed to the prediction code.
+#' 
 #' @return An \code{optimisedmodel} object containing the training results,
 #' and the optimisation results. 
 #' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
@@ -169,6 +170,12 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' in order for it to be processed
 #' @param symmetric Optional parameter to define whether to calculate symmetric or 
 #' asymmetric (summed across both directions) movement
+#' @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+#' Note that parallel programming will only improve the performance with larger datasets; for smaller 
+#' datasets the performance will get worse due to the overhead of scheduling the tasks. 
+#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+#' If no value is specified, the program will automatically detect the number of cores available on the machine
+#' when parallel programming is enabled. 
 #' @param \dots additional arguments affecting the predictions produced.
 #' @return A list containing a location dataframe from the input with columns 
 #' \code{location}, \code{population} and \code{coordinates} and a matrix
@@ -186,12 +193,14 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # run the prediction for the theoretical model
 #' predictedMovement  <- predict(flux, kenya10)
 #' @export
-predict.flux <- function(object, location_dataframe, min_network_pop = 50000, symmetric = FALSE, ...) {
+#' @importFrom parallel detectCores
+#' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
+predict.flux <- function(object, location_dataframe, min_network_pop = 50000, symmetric = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   
   if(is(location_dataframe, "RasterLayer")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
-    prediction <- predict.prediction_model(predictionModel)
+    prediction <- predict.prediction_model(predictionModel, go_parallel = go_parallel, number_of_cores = number_of_cores)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)    
     return (list(
@@ -200,7 +209,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
   } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
-    prediction <- predict.prediction_model(predictionModel, location_dataframe)
+    prediction <- predict.prediction_model(predictionModel, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)
     return (list(
@@ -224,6 +233,12 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @param newdata An optional \code{location_dataframe} object or RasterLayer 
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
+#' @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+#' Note that parallel programming will only improve the performance with larger datasets; for smaller 
+#' datasets the performance will get worse due to the overhead of scheduling the tasks. 
+#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+#' If no value is specified, the program will automatically detect the number of cores available on the machine
+#' when parallel programming is enabled. 
 #' 
 #' @return A \code{movement_predictions} object containing a list with the location 
 #' dataframe from the input, the matrix containing the predicted population movements 
@@ -253,11 +268,13 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' plot(predicted_movements)
 #' }
 #' @export
-predict.movement_model <- function(object, newdata, ...) {
+#' @importFrom parallel detectCores
+#' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
+predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_of_cores = NULL, ...) {
   m <- object$trainingresults
   m$dataset <- newdata
   if(is(newdata, "RasterLayer")) {
-    prediction <- predict.prediction_model(m)
+    prediction <- predict.prediction_model(m, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
       movement_matrix = as.movement_matrix(prediction$prediction),
@@ -265,7 +282,7 @@ predict.movement_model <- function(object, newdata, ...) {
     class(ans) <- "movement_predictions" 
     return(ans)
   } else if (is(newdata, "data.frame")) {
-    prediction <- predict.prediction_model(m, newdata)
+    prediction <- predict.prediction_model(m, newdata, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
       movement_matrix = as.movement_matrix(prediction$prediction),
@@ -1413,6 +1430,76 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
   else return (c(T_ij, T_ji))
 }
 
+# Helper function to calculate the flux for a given set of sites
+#
+# @param flux A flux function
+# @param indices A vector of sites pairs based on the distance matrix for which the 
+#         flux will be calculated/
+# @param distance A distance matrix giving the euclidean distance between
+#         pairs of sites
+# @param population A vector giving the population at all sites
+# @param symmetric Whether to calculate symmetric or asymmetric (summed
+# across both directions) movement
+# @param \dots Arguments to pass to the flux function
+# @return A matrix giving predicted movements between sites stored in the indices vector
+calculateFlux  <- function(indices, flux, distance, population,  symmetric, progress = FALSE, ...){
+  
+  # set up optional text progress bar which will be shown when running the calculation in serial only 
+  if (progress) {
+    start <- Sys.time()
+    cat(paste('Started processing at',
+              start,
+              '\nProgress:\n\n'))
+    bar <- txtProgressBar(min = 1,
+                          max = nrow(indices),
+                          style = 3)
+  }
+  
+  # pre-allocate the matrix which will store the calculated flux of the commuters depending 
+  # whether to calculate the movement symmetric or asymmetric
+  ncols <- if(symmetric) 3 else 4; 
+  commuters <- matrix(NA,
+                     nrow = nrow(indices),
+                     ncol = ncols)
+
+  for (idx in 1:nrow(indices)) {
+    
+    # for each array index (given as a row of idx), get the pair of nodes
+    pair <- indices[idx, ]
+    i <- pair[1]
+    j <- pair[2]
+    # calculate the number of commuters between them    
+    T_ij <- flux(i = i,  	
+                 j = j,		
+                 distance = distance,		
+                 population = population,		
+                 symmetric = symmetric,		
+                 ...)	
+    
+    if(symmetric){
+      commuters[idx,]  <- c(i, j, T_ij)
+    }else{
+      commuters[idx,]  <- c(i, j, T_ij[1], T_ij[2])
+    } 
+    
+    if (progress) setTxtProgressBar(bar, idx)
+    
+  }
+
+  if (progress) {
+    end <- Sys.time()
+    cat(paste('\nFinished processing at',
+              end,
+              '\nTime taken:',
+              round(difftime(end,start,units="secs")),
+              'seconds\n')) 
+    close(bar)
+  }
+
+  return (commuters)
+}
+
+
 # Use a movement model to predict movements across a landscape.
 #
 # Given a (dense) distance matrix \code{distance} giving the euclidean
@@ -1437,6 +1524,12 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 # across both directions) movement
 # @param progress Whether to display a progress bar and start and end times
 # - can be useful for big model runs
+# @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+# Note that parallel programming will only improve the performance with larger datasets; for smaller 
+# datasets the performance will get worse due to the overhead of scheduling the tasks. 
+# @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+# If no value is specified, the program will automatically detect the number of cores available on the machine
+# when parallel programming is enabled. 
 # @param \dots Arguments to pass to the flux function
 # @return A (dense) matrix giving predicted movements between all sites
 #
@@ -1466,12 +1559,14 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 #            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
 #   }
 # }
+# TODO NOTE: need to ref some libraries: snowfall, parallel, snow 
 movement.predict <- function(distance, population,
                              flux = originalRadiationFlux,
-                             symmetric = FALSE,
+                             symmetric = FALSE, 
                              progress = TRUE,
-                             ...) {
-  
+                             go_parallel = FALSE,
+                             number_of_cores = NULL,
+                             ...) {  
   # create a movement matrix in which to store movement numbers
   movement <- matrix(NA,
                      nrow = nrow(distance),
@@ -1481,69 +1576,102 @@ movement.predict <- function(distance, population,
   
   # get the all $i, j$ pairs
   indices <- which(upper.tri(distance), arr.ind = TRUE)
-  
-  # set up optional text progress bar
-  if (progress) {
-    start <- Sys.time()
-    cat(paste('Started processing at',
-              start,
-              '\nProgress:\n\n'))
+
+  if(go_parallel){
     
-    bar <- txtProgressBar(min = 1,
-                          max = nrow(indices),
-                          style = 3)
-  }
-  
-  # This can probably be vectorized which should help speed up the population of the movement matrix
-  for (idx in 1:nrow(indices)) {
-    # for each array index (given as a row of idx), get the pair of nodes
-    pair <- indices[idx, ]
-    i <- pair[1]
-    j <- pair[2]
-    # calculate the number of commuters between them  	
-    T_ij <- flux(i = i,		
-                 j = j,		
-                 distance = distance,		
-                 population = population,		
-                 symmetric = symmetric,		
-                 ...)		
+    # set up for parallel programming
+    startParallelSetup(number_of_cores)
     
-    # and stick it in the results matrix		
+    split <- splitIdx(nrow(indices), number_of_cores)
+        
+    # get list of indices matrices
+    indices_batch <- lapply(split,
+                            function(idx) indices[idx[1]:idx[2], ])
     
-    # if the symmetric distance was calculated (sum of i to j and j to i)
-    # stick it in both triangles
-    if (symmetric) {
-      
-      movement[i, j] <- movement[j, i] <- T_ij
-      
+    # create batch of indices
+    # commutes is a list of matrices for each of the indices batches calculating the flux
+    commuters  <- sfLapply(indices_batch, 
+                       calculateFlux,
+                       flux = flux,
+                       distance = distance,    
+                       population = population,    
+                       symmetric = symmetric,  
+                       progress = FALSE,
+                       ...)
+
+    # stop cluster 
+    stopParallelSetup()
+    
+    # combine the matrices returned in a list from the lapply function
+    if(length(commuters) > 1){
+      commuters  <- do.call(rbind, commuters)
     } else {
-      
-      # otherwise stick one in the upper and one in the the lower
-      # (flux returns two numbers in this case)
-      # i.e. rows are from (i), columns are to (j)
-      movement[i, j] <- T_ij[1]
-      movement[j, i] <- T_ij[2]
-      
+      commuters  <- commuters[[1]]
     }
     
-    if (progress) setTxtProgressBar(bar, idx)
+  } else{
     
+    # sequentially run - no need to use the 'lapply' function here
+    commuters  <- calculateFlux(indices = indices, 
+                                flux = flux, 
+                                distance = distance, 
+                                population = population, 
+                                symmetric = symmetric, 
+                                progress = progress, 
+                                ...)
   }
   
-  if (progress) {
-    end <- Sys.time()
-    
-    cat(paste('\nFinished processing at',
-              end,
-              '\nTime taken:',
-              round(difftime(end,start,units="secs")),
-              'seconds\n'))
-    
-    close(bar)
+  # populate the result movement matrix based on symmetric / non-symmetric calculation
+  if (symmetric) {
+    if(nrow(commuters) == 1){
+      # special case if the there is only a single entry for the calculated flux
+      movement[commuters[, 1], commuters[, 2]] <- movement[commuters[, 2], commuters[, 1]] <- commuters[, 3]
+    } else {
+    movement[commuters[, 1:2]] <- movement[commuters[, 2:1]] <- commuters[, 3]
+    }
+  } else {
+    if(nrow(commuters) == 1){
+      # special case if the there is only a single entry for the calculated flux
+      movement[commuters[, 1], commuters[, 2]] <- commuters[, 3]
+      movement[commuters[, 2], commuters[, 1]] <- commuters[, 4]
+    } else{
+      movement[commuters[, 1:2]] <- commuters[, 3]
+      movement[commuters[, 2:1]] <- commuters[, 4]
+    }
   }
-  
+    
   return (movement)
 }
+ 
+
+# helper function to initiate the clusters with the snowfall package
+startParallelSetup <- function(cores = NULL) {
+  if(is.null(cores)){
+    cores <- parallel::detectCores()
+  }
+  
+  snowfall::sfInit(parallel = TRUE, cpus = cores, type = "SOCK")
+  snowfall::sfLibrary(movement)
+  snowfall::sfExport( list = c('indices', 'flux', 'distance', 'population', 'symmetric'))
+  message(sprintf('parallel backend registered on %i cores', cores))
+}
+
+# helper function to stop the cluster after the parallel runs completed
+stopParallelSetup  <- function(){
+  snowfall::sfStop()
+}
+
+# helper function to split a workload into equal batches for the possible cores available
+splitIdx <- function (n, cores) {
+  maxn  <- ceiling(n / cores)
+  # get start and end indices to split a vector into bins of maximum length 'maxn'.
+  names(n) <- NULL
+  bins <- n %/% maxn + ifelse(n %% maxn > 0, 1, 0)
+  start <- 1 + (1:bins - 1) * maxn
+  end <- c(start[-1] - 1, n)
+  lapply(1:bins, function(i) c(start[i], end[i]))
+}
+
 
 ###############################################################################
 # Prediction visualisation methods                                            #
@@ -1790,12 +1918,20 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # @param object A configured prediction model of class \code{prediction_model}
 # @param newdata An optional data.frame or RasterLayer containing population data
 # @param \dots Extra arguments to pass to the flux function
+# @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+# Note that parallel programming will only improve the performance with larger datasets; for smaller 
+# datasets the performance will get worse due to the overhead of scheduling the tasks. 
+# @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+# If no value is specified, the program will automatically detect the number of cores available on the machine
+# when parallel programming is enabled. 
 # @return A \code{prediction_model} containing a (dense) matrix giving predicted
 # movements between all sites.
 # 
 # @name predict.prediction_model
 # @method predict prediction_model
-predict.prediction_model <- function(object, newdata = NULL, ...) {
+# @importFrom parallel detectCores
+# @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
+predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE, number_of_cores = NULL, ...) {
   if(is.null(newdata)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
@@ -1804,8 +1940,12 @@ predict.prediction_model <- function(object, newdata = NULL, ...) {
   }
   object$net = net
   
-  object$prediction = movement.predict(distance = net$distance_matrix, population = net$population, flux = object$flux_model$flux, 
-                                       symmetric = object$symmetric, theta = object$flux_model$params, ...)    
+  object$prediction = movement.predict(distance = net$distance_matrix, 
+                                       population = net$population, 
+                                       flux = object$flux_model$flux, 
+                                       symmetric = object$symmetric, 
+                                       theta = object$flux_model$params, 
+                                       go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   
   # locations are stored within 'net$locations' which can be used to assign the row & column names 
   # of the predicted movement_matrix 

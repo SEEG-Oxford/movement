@@ -5,7 +5,7 @@
 \title{Predict from theoretical flux object}
 \usage{
 \method{predict}{flux}(object, location_dataframe, min_network_pop = 50000,
-  symmetric = FALSE, ...)
+  symmetric = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...)
 }
 \arguments{
 \item{object}{A theoretical model of type \code{flux} object}
@@ -17,6 +17,14 @@ in order for it to be processed}
 
 \item{symmetric}{Optional parameter to define whether to calculate symmetric or
 asymmetric (summed across both directions) movement}
+
+\item{go_parallel}{Flag to enable parallel calculations (if set to TRUE).
+Note that parallel programming will only improve the performance with larger datasets; for smaller
+datasets the performance will get worse due to the overhead of scheduling the tasks.}
+
+\item{number_of_cores}{Optional parameter to specify the number of cores used for parallel calculations.
+If no value is specified, the program will automatically detect the number of cores available on the machine
+when parallel programming is enabled.}
 
 \item{\dots}{additional arguments affecting the predictions produced.}
 }

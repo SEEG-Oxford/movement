@@ -8,5 +8,5 @@ Maintainer: Nick Golding <nick.golding.research@gmail.com>
 Description: Human and animal movements have a crucial role in the epidemiology of a number of diseases. Movement data is increasingly available to epidemiologists and its incorporation in models and maps of disease is increasingly popular. This package is a collaborative effort to improve our ability to analyses movement data and to build and apply epidemiological movement models.
 License: GPL(>=2)
 Depends: R (>= 2.10)
-Imports: raster, rgdal, tools, sp, methods, gdistance, viridis
+Imports: raster, rgdal, tools, sp, methods, gdistance, viridis, snowfall
 Suggests: testthat

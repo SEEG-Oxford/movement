@@ -1,4 +1,6 @@
 library(movement)
+library(snow)
+library(snowfall)
 context("Model Prediction")
 
 test_that("gravityWithDistanceFlux gives expected results with default parameters", {
@@ -116,15 +118,69 @@ test_that("movement.predict produces correct result for simple case", {
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
 	mock_flux <- function(i, j, distance, population, symmetric) return (1)
-	actual <- movement.predict(distance, population, flux=mock_flux, progress=FALSE)
+	actual <- movement.predict(distance, population, flux=mock_flux, progress = FALSE)
 	expect_equal(actual, matrix(c(0,NA,1,0), nrow=2))
 })
+
+test_that("movement.predict produces correct result for simple case 2 with non-symmetric distances", {
+  distance <- matrix(c(0,1,2,1,2,0,2,0,1),nrow=3)
+  population <- c(500, 1000,2000)
+  mock_flux <- function(i, j, distance, population, symmetric) return (5)
+  actual <- movement.predict(distance, population, flux=mock_flux, progress = FALSE)
+  expected_matrix  <- matrix(c(0,NA,NA,5,0,NA,5,5,0), nrow = 3)
+  expect_equal(actual, expected_matrix)
+})
+
+# test_that("movement.predict produces correct result for simple case with non-symmetric distances running parallel on 1 cores", {
+#   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
+#   population <- c(500, 1000,2000, 5000)
+#   mock_flux <- function(i, j, distance, population, symmetric) return (5)
+#   actual <- movement.predict(distance, population, flux=mock_flux, progress = FALSE, go_parallel = TRUE, number_of_cores = 1)
+#   expected_matrix  <- matrix(c(0,NA,NA,NA,5,0,NA,NA,5,5,0,NA, 5,5,5,0), nrow = 4)
+#   expect_equal(actual, expected_matrix)
+# })
+
+# test_that("movement.predict produces correct result for simple case with non-symmetric distances running parallel on 2 cores", {
+#   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
+#   population <- c(500, 1000,2000, 5000)
+#   mock_flux <- function(i, j, distance, population, symmetric) return (5)
+#   actual <- movement.predict(distance, population, flux=mock_flux, progress = FALSE, go_parallel = TRUE, number_of_cores = 2)
+#   expected_matrix  <- matrix(c(0,NA,NA,NA,5,0,NA,NA,5,5,0,NA, 5,5,5,0), nrow = 4)
+#   expect_equal(actual, expected_matrix)
+# })
 
 test_that("movement.predict produces correct result for simple case with symmetric distances", {
 	distance <- matrix(c(0,1,1,0),nrow=2)
 	population <- c(1000,2000)
-	mock_flux <- function(i, j, distance, population, symmetric) return (1)
-	actual <- movement.predict(distance, population, flux=mock_flux, progress=FALSE, symmetric=TRUE)
-	expect_equal(actual, matrix(c(0,1,1,0), nrow=2))
+	mock_flux <- function(i, j, distance, population, symmetric) return (5)
+	actual <- movement.predict(distance, population, flux=mock_flux, symmetric=TRUE, progress = FALSE)
+	expect_equal(actual, matrix(c(0,5,5,0), nrow=2))
 })
+
+test_that("movement.predict produces correct result for simple case 2 with symmetric distances", {
+  distance <- matrix(c(0,1,2,1,2,0,2,0,1),nrow=3)
+  population <- c(500, 1000,2000)
+  mock_flux <- function(i, j, distance, population, symmetric) return (5)
+  actual <- movement.predict(distance, population, flux=mock_flux, symmetric=TRUE, progress = FALSE)
+  expected_matrix  <- matrix(c(0,5,5,5,0,5,5,5,0), nrow = 3)
+  expect_equal(actual, expected_matrix)
+})
+
+# test_that("movement.predict produces correct result for simple case with symmetric distances running parallel on 1 cores", {
+#   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
+#   population <- c(500, 1000,2000, 5000)
+#   mock_flux <- function(i, j, distance, population, symmetric) return (5)
+#   actual <- movement.predict(distance, population, flux=mock_flux, symmetric=TRUE, progress = FALSE, go_parallel = TRUE, number_of_cores = 1)
+#   expected_matrix  <- matrix(c(0,5,5,5,5,0,5,5,5,5,0, 5, 5,5,5,0), nrow = 4)
+#   expect_equal(actual, expected_matrix)
+# })
+
+# test_that("movement.predict produces correct result for simple case with symmetric distances running parallel on 2 cores", {
+#   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
+#   population <- c(500, 1000,2000, 5000)
+#   mock_flux <- function(i, j, distance, population, symmetric) return (5)
+#   actual <- movement.predict(distance, population, flux=mock_flux, symmetric=TRUE, progress = FALSE, go_parallel = TRUE, number_of_cores = 2)
+#   expected_matrix  <- matrix(c(0,5,5,5,5,0,5,5,5,5,0, 5, 5,5,5,0), nrow = 4)
+#   expect_equal(actual, expected_matrix)
+# })
 
