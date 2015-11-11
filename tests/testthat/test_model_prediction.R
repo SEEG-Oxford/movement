@@ -132,7 +132,7 @@ test_that("movement.predict produces correct result for simple case 2 with non-s
 })
 
 test_that("movement.predict produces correct result for simple case with non-symmetric distances running parallel on 1 cores", {
-  testthat::skip_on_cran()
+  #testthat::skip_on_cran()
   testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
@@ -143,7 +143,7 @@ test_that("movement.predict produces correct result for simple case with non-sym
 })
 
 test_that("movement.predict produces correct result for simple case with non-symmetric distances running parallel on 2 cores", {
-  testthat::skip_on_cran()
+  #testthat::skip_on_cran()
   testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
@@ -171,7 +171,7 @@ test_that("movement.predict produces correct result for simple case 2 with symme
 })
 
 test_that("movement.predict produces correct result for simple case with symmetric distances running parallel on 1 cores", {
-  testthat::skip_on_cran()
+  #testthat::skip_on_cran()
   testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
@@ -182,7 +182,7 @@ test_that("movement.predict produces correct result for simple case with symmetr
 })
 
 test_that("movement.predict produces correct result for simple case with symmetric distances running parallel on 2 cores", {
-  testthat::skip_on_cran()
+  #testthat::skip_on_cran()
   testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
