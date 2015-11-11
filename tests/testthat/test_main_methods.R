@@ -84,13 +84,13 @@ test_that("movement function throws an error if given an invalid movement matrix
 test_that("movement function correctly round the movement_matrix when containing non-integer values", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movement_matrix_with_non_integer_values))  # check that the data are of correct class  
-  with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_data, movement_matrix_with_non_integer_values, progress, hessian, ...) {
+  with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_data, movement_matrix_with_non_integer_values, progress, hessian, ...) {
     return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_data, movement_matrix=movement_matrix_with_non_integer_values, progress=progress, hessian=hessian)))
   },   
   `movement:::predict.prediction_model` = function(predictionModel, location_data, progress) {      
     return (list(prediction=NULL))
   },		
-  `movement:::analysepredictionusingdpois` = function(x, y) return (1),
+  `movement:::analysePredictionUsingdPois` = function(x, y) return (1),
   actual_movement_object <- movement(movement_matrix_with_non_integer_values ~ data, originalRadiation()),
   expected_rounded_matrix  <- matrix(c(0,1,2,3,0,5,5,6,0),nrow=3),
   class(expected_rounded_matrix)  <- c('movement_matrix', 'matrix'),
@@ -102,13 +102,13 @@ test_that("movement function correctly round the movement_matrix when containing
 test_that("movement function print warning when inconsistency in locations between movement matrix and location data are found", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-  with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_data, movementData, progress, hessian, ...) {
+  with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_data, movementData, progress, hessian, ...) {
     return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_data, movement_matrix=movementData, progress=progress, hessian=hessian)))
   },   
   `movement:::predict.prediction_model` = function(predictionModel, location_data, progress) {      
     return (list(prediction=NULL))
   },		
-  `movement:::analysepredictionusingdpois` = function(x, y) return (1),  
+  `movement:::analysePredictionUsingdPois` = function(x, y) return (1),  
   expect_warning(movement(movementData ~ data, originalRadiation()), 
                  "The given movement_matrix and the location_dataframe having non-matching location information.")
   )
@@ -117,13 +117,13 @@ test_that("movement function print warning when inconsistency in locations betwe
 test_that("movement sets correct parameters and bounds for original radiation model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_data, movementData, progress, hessian, ...) {
+	with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_data, movementData, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_data, movement_matrix=movementData, progress=progress, hessian=hessian)))
 		},   
 		`movement:::predict.prediction_model` = function(predictionModel, location_data, progress) {      
 			return (list(prediction=NULL))
 		},		
-		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
+		`movement:::analysePredictionUsingdPois` = function(x, y) return (1),
     actual_movement_object <- movement(movementData ~ data, originalRadiation()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.9))
 	)
@@ -132,13 +132,13 @@ test_that("movement sets correct parameters and bounds for original radiation mo
 test_that("movement sets correct parameters and bounds for uniform selection model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
+	with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
 		},
 		`movement:::predict.prediction_model` = function(predictionModel, location_dataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
-		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
+		`movement:::analysePredictionUsingdPois` = function(x, y) return (1),
 		actual_movement_object <- movement(movementData ~ data, uniformSelection()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.9))
 	)
@@ -147,13 +147,13 @@ test_that("movement sets correct parameters and bounds for uniform selection mod
 test_that("movement sets correct parameters and bounds for radiation with selection model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
+	with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
 		},
 		`movement:::predict.prediction_model` = function(predictionModel, location_dataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
-		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
+		`movement:::analysePredictionUsingdPois` = function(x, y) return (1),
 		actual_movement_object <- movement(movementData ~ data, radiationWithSelection()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.1,lambda=0.2))
 	)
@@ -162,13 +162,13 @@ test_that("movement sets correct parameters and bounds for radiation with select
 test_that("movement sets correct parameters and bounds for intervening opportunities model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
+	with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
 		},
 		`movement:::predict.prediction_model` = function(predictionModel, location_dataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
-		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
+		`movement:::analysePredictionUsingdPois` = function(x, y) return (1),
 		actual_movement_object <- movement(movementData ~ data, interveningOpportunities()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.001,L=0.00001))
 	)
@@ -177,13 +177,13 @@ test_that("movement sets correct parameters and bounds for intervening opportuni
 test_that("movement sets correct parameters and bounds for gravity model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
+	with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
 		},
 		`movement:::predict.prediction_model` = function(predictionModel, location_dataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
-		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
+		`movement:::analysePredictionUsingdPois` = function(x, y) return (1),
 		actual_movement_object <- movement(movementData ~ data, gravity()),
 		expect_equal(actual_movement_object$optimisationresults$par, c(theta=0.01, alpha=0.06, beta=0.03, gamma=0.01))
 	)
@@ -192,13 +192,13 @@ test_that("movement sets correct parameters and bounds for gravity model", {
 test_that("movement sets correct parameters and bounds for gravity with distance model", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-  with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
+  with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
     return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
   },
   `movement:::predict.prediction_model` = function(predictionModel, location_dataframe_origin, progress) {
     return (list(modelparams=NULL,prediction=NULL))
   },
-  `movement:::analysepredictionusingdpois` = function(x, y) return (1),
+  `movement:::analysePredictionUsingdPois` = function(x, y) return (1),
   actual_movement_object <- movement(movementData ~ data, gravityWithDistance()),
   expect_equal(actual_movement_object$optimisationresults$par, c(theta1=0.01, alpha1=0.06, beta1=0.03, gamma1=0.01, delta=0.5, theta2=0.01, alpha2=0.06, beta2=0.03, gamma2=0.01))
   )
@@ -207,13 +207,13 @@ test_that("movement sets correct parameters and bounds for gravity with distance
 test_that("movement creates population_data correctly", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-	with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
+	with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
 			return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
 		},
 		`movement:::predict.prediction_model` = function(predictionModel, location_dataframe_origin, progress) {
 			return (list(modelparams=NULL,prediction=NULL))
 		},
-		`movement:::analysepredictionusingdpois` = function(x, y) return (1),
+		`movement:::analysePredictionUsingdPois` = function(x, y) return (1),
 		actual_movement_object <- movement(movementData ~ data, gravity()),
 		expected_population_data  <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]),
     class(expected_population_data)  <- c('location_dataframe', 'data.frame'),
@@ -224,13 +224,13 @@ test_that("movement creates population_data correctly", {
 test_that("movement creates trainingresults correctly", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
-  with_mock(`movement:::attemptoptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
+  with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_dataframe_origin, movementData, progress, hessian, ...) {
     return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_dataframe_origin, movement_matrix=movementData, progress=progress, hessian=hessian)))
   },
   `movement:::predict.prediction_model` = function(predictionModel, location_dataframe_origin, progress) {
     return (list(modelparams=NULL,prediction=NULL))
   },
-  `movement:::analysepredictionusingdpois` = function(x, y) return (1),
+  `movement:::analysePredictionUsingdPois` = function(x, y) return (1),
   actual_movement_object <- movement(movementData ~ data, gravity()),
   expect_equal(actual_movement_object$trainingresults$dataset$movement_matrix, movementData),
   expect_equal(actual_movement_object$trainingresults$dataset$location_dataframe, data),

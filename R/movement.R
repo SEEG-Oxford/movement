@@ -117,7 +117,7 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   predictionModel <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) #, upper=upper, lower=lower
+  optimresults <- attemptOptimisation(predictionModel, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) #, upper=upper, lower=lower
   
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
@@ -135,7 +135,7 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
              coefficients = optimresults$par,
              df.null = nulldf, # not checked
              df.residual = nulldf - length(optimresults$value), # not checked
-             null.deviance = analysepredictionusingdpois(training_results, c(0,0)), # intercept only model, this is clearly wrong
+             null.deviance = analysePredictionUsingdPois(training_results, c(0,0)), # intercept only model, this is clearly wrong
              deviance = optimresults$value, # -2* log likelihood, which is what we are optimising on anyway
              aic = optimresults$value + 2 * length(optimresults$value)) # deviance + (2* number of params)
   class(me) <- "movement_model"
@@ -1883,7 +1883,7 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 #  \item{coordinate }{A two-column matrix giving the coordinates of the cells
 # of interest in the units of \code{raster}}
 # \item{locations}{A vector giving the locations at the cells of interest}
-getNetworkFromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
+getNetworkFromDataframe <- function(dataframe, min = 1, matrix = TRUE) {
   
   dataframe <- dataframe[!duplicated(dataframe$location),]
   pop <- as.numeric(dataframe["population"]$population)
@@ -1964,7 +1964,7 @@ predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
   else {
-    net <- getNetworkFromdataframe(newdata, min = object$min_network_pop)
+    net <- getNetworkFromDataframe(newdata, min = object$min_network_pop)
   }
   object$net = net
   
@@ -1992,7 +1992,7 @@ predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE
 # @param prediction A square matrix containing the predicted movements between location IDs
 # @param observed A square matrix containing the observed movements between location IDs
 # @return The log likelihood
-analysepredictionusingdpois <- function(prediction, observed) {	
+analysePredictionUsingdPois <- function(prediction, observed) {	
   observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
   predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
   
@@ -2016,13 +2016,13 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # @param populationdata A dataframe containing population coordinate data
 # @param \dots Parameters passed to \code{\link{ict}}
 # @return The log likelihood of the prediction given the observed data.
-fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
+fittingWrapper <- function(par, predictionModel, observedmatrix, populationdata, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   # the flux function requires the untransformed (i.e. original, constraint) parameters and therefore, need to perform 
   # the inverse transformation here 
   originalParams  <- transformFluxObjectParameters(par, predictionModel$flux_model$transform, inverse = TRUE)
   predictionModel$flux_model$params <- originalParams
   predictedResults <- predict.prediction_model(predictionModel, populationdata, parallel_setup, go_parallel, number_of_cores, ...)
-  loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
+  loglikelihood <- analysePredictionUsingdPois(predictedResults, observedmatrix)
   return (loglikelihood)
 }
 
@@ -2043,8 +2043,8 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # @param \dots Parameters passed to \code{movement.predict}
 # @return See \code{\link{optim}}
 #
-# @seealso \code{\link{createobservedmatrixfromcsv}}
-attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
+# @seealso \code{\link{createObservedMatrixFromCsv}}
+attemptOptimisation <- function(predictionModel, populationdata, observedmatrix, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   
   # transform the flux object parameters to unconstraint values using the helper function
   transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
@@ -2052,7 +2052,7 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
   # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
   optimresults <- tryCatch({
-    optimresults <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
+    optimresults <- optim(transformedParams, fittingWrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   }, error = function(err) {
     message(paste("ERROR: optimiser failed: ", err))
     return(NULL) 
@@ -2123,7 +2123,7 @@ rasterizeShapeFile <- function(filename, keeplist,n=5)  {
 #' numbers correspond to the indexes of a sorted list of the origins found in
 #' the csv file. Values are the actual population movements.
 #' @export
-createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
+createObservedMatrixFromCsv <- function(filename, origincolname, destcolname, valcolname) {
   data <- read.csv(file=filename,header=TRUE,sep=",")
   nrows = length(unique(data[origincolname])[,1])
   ncols = length(unique(data[destcolname])[,1])
