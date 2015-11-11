@@ -21,6 +21,13 @@
 #' models are \code{\link{originalRadiation}}, \code{\link{radiationWithSelection}},
 #' \code{\link{uniformSelection}}, \code{\link{interveningOpportunities}},
 #' \code{\link{gravity}} and \code{\link{gravityWithDistance}}
+#' @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
+#' Note that parallel programming will only improve the performance with larger datasets; for smaller 
+#' datasets the performance will get worse due to the overhead of scheduling the tasks. 
+#' @param number_of_cores Optional parameter to specify the number of cores used for parallel calculations. 
+#' If no value is specified, the program will automatically detect the number of cores available on the machine
+#' when parallel programming is enabled. 
+
 #' @param \dots Extra parameters to be passed to the prediction code.
 #' 
 #' @return An \code{optimisedmodel} object containing the training results,
@@ -66,7 +73,7 @@
 #' plot(predicted_movements)
 #' }
 #' @importFrom stats plogis qlogis
-movement <- function(formula, flux_model = gravity(), ...) {
+movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, number_of_cores = NULL, ...) {
   
   # receive the movement_matrix and the location_dataframe from the formula
   args  <- extractArgumentsFromFormula(formula)
@@ -97,16 +104,29 @@ movement <- function(formula, flux_model = gravity(), ...) {
     warning("The given observed movement matrix contains non-integer values. Rounding was used to receive a valid movement matrix.")
   }
   
+  # set-up the sfClusters if the user enabled parallel calculations
+  # this is a helper flag required to inform other functions if the clusters are already running or if they need to be instantiated before
+  # calling any parallel functions
+  parallel_setup  <- FALSE
+  if(go_parallel){
+    number_of_cores  <- startParallelSetup(number_of_cores)
+    parallel_setup  <- TRUE
+  }
+  
   # create the prediction model which is an internal used prediction_model object (not exported to end user!)
   predictionModel <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, ...) #, upper=upper, lower=lower
+  optimresults <- attemptoptimisation(predictionModel, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) #, upper=upper, lower=lower
   
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   training_results$dataset  <- list(movement_matrix = rounded_matrix, location_dataframe = location_data)
+  
+  if(go_parallel){
+    stopParallelSetup()
+  }
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
@@ -200,7 +220,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
   if(is(location_dataframe, "RasterLayer")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
-    prediction <- predict.prediction_model(predictionModel, go_parallel = go_parallel, number_of_cores = number_of_cores)
+    prediction <- predict.prediction_model(predictionModel, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)    
     return (list(
@@ -209,7 +229,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
   } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model object
     predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
-    prediction <- predict.prediction_model(predictionModel, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores)
+    prediction <- predict.prediction_model(predictionModel, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)
     return (list(
@@ -1559,11 +1579,11 @@ calculateFlux  <- function(indices, flux, distance, population,  symmetric, prog
 #            col = rgb(0, 0, 1, move[i, j] / (max(move) + 1)))
 #   }
 # }
-# TODO NOTE: need to ref some libraries: snowfall, parallel, snow 
 movement.predict <- function(distance, population,
                              flux = originalRadiationFlux,
                              symmetric = FALSE, 
                              progress = TRUE,
+                             parallel_setup = FALSE,
                              go_parallel = FALSE,
                              number_of_cores = NULL,
                              ...) {  
@@ -1578,9 +1598,14 @@ movement.predict <- function(distance, population,
   indices <- which(upper.tri(distance), arr.ind = TRUE)
 
   if(go_parallel){
+        
+    if(!parallel_setup){
+      # set up for parallel programming
+      number_of_cores  <- startParallelSetup(number_of_cores)
+    }
     
-    # set up for parallel programming
-    startParallelSetup(number_of_cores)
+    # export the variables to the cluster 
+    snowfall::sfExport( list = c('indices', 'flux', 'distance', 'population', 'symmetric'))
     
     split <- splitIdx(nrow(indices), number_of_cores)
         
@@ -1599,9 +1624,11 @@ movement.predict <- function(distance, population,
                        progress = FALSE,
                        ...)
 
-    # stop cluster 
-    stopParallelSetup()
     
+    if(!parallel_setup){
+      # stop cluster 
+      stopParallelSetup()
+    }
     # combine the matrices returned in a list from the lapply function
     if(length(commuters) > 1){
       commuters  <- do.call(rbind, commuters)
@@ -1652,8 +1679,9 @@ startParallelSetup <- function(cores = NULL) {
   
   snowfall::sfInit(parallel = TRUE, cpus = cores, type = "SOCK")
   snowfall::sfLibrary(movement)
-  snowfall::sfExport( list = c('indices', 'flux', 'distance', 'population', 'symmetric'))
   message(sprintf('parallel backend registered on %i cores', cores))
+  
+  return(cores)
 }
 
 # helper function to stop the cluster after the parallel runs completed
@@ -1931,7 +1959,7 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # @method predict prediction_model
 # @importFrom parallel detectCores
 # @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
-predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE, number_of_cores = NULL, ...) {
+predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE, number_of_cores = NULL, parallel_setup = FALSE, ...) {
   if(is.null(newdata)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
@@ -1945,6 +1973,7 @@ predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE
                                        flux = object$flux_model$flux, 
                                        symmetric = object$symmetric, 
                                        theta = object$flux_model$params, 
+                                       parallel_setup = parallel_setup, 
                                        go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   
   # locations are stored within 'net$locations' which can be used to assign the row & column names 
@@ -1987,12 +2016,12 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # @param populationdata A dataframe containing population coordinate data
 # @param \dots Parameters passed to \code{\link{ict}}
 # @return The log likelihood of the prediction given the observed data.
-fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, ...) {
+fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   # the flux function requires the untransformed (i.e. original, constraint) parameters and therefore, need to perform 
   # the inverse transformation here 
   originalParams  <- transformFluxObjectParameters(par, predictionModel$flux_model$transform, inverse = TRUE)
   predictionModel$flux_model$params <- originalParams
-  predictedResults <- predict.prediction_model(predictionModel, populationdata, ...)
+  predictedResults <- predict.prediction_model(predictionModel, populationdata, parallel_setup, go_parallel, number_of_cores, ...)
   loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
   return (loglikelihood)
 }
@@ -2015,7 +2044,7 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # @return See \code{\link{optim}}
 #
 # @seealso \code{\link{createobservedmatrixfromcsv}}
-attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, ...) {
+attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   
   # transform the flux object parameters to unconstraint values using the helper function
   transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
@@ -2023,7 +2052,7 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
   # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
   optimresults <- tryCatch({
-    optimresults <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, ...)    
+    optimresults <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   }, error = function(err) {
     message(paste("ERROR: optimiser failed: ", err))
     return(NULL) 
