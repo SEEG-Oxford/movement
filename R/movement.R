@@ -1572,7 +1572,7 @@ movement.predict <- function(distance, population,
     # set up for parallel programming
     startParallelSetup(number_of_cores)
     
-    split <- splitIdx(nrow(indices), cores)
+    split <- splitIdx(nrow(indices), number_of_cores)
         
     # get list of indices matrices
     indices_batch <- lapply(split,
