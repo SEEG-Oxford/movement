@@ -117,11 +117,11 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   prediction_model <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptOptimisation(prediction_model, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) #, upper=upper, lower=lower
+  optim_results <- attemptOptimisation(prediction_model, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) 
   
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(prediction_model, location_data, progress=FALSE)
-  training_results$flux_model$params <- optimresults$par
+  training_results$flux_model$params <- optim_results$par
   training_results$dataset  <- list(movement_matrix = rounded_matrix, location_dataframe = location_data)
   
   if(go_parallel){
@@ -130,14 +130,14 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
-  me <- list(optimisationresults = optimresults,
-             trainingresults = training_results,
-             coefficients = optimresults$par,
+  me <- list(optimisation_results = optim_results,
+             training_results = training_results,
+             coefficients = optim_results$par,
              df.null = nulldf, # not checked
-             df.residual = nulldf - length(optimresults$value), # not checked
+             df.residual = nulldf - length(optim_results$value), # not checked
              null.deviance = analysePredictionUsingdPois(training_results, c(0,0)), # intercept only model, this is clearly wrong
-             deviance = optimresults$value, # -2* log likelihood, which is what we are optimising on anyway
-             aic = optimresults$value + 2 * length(optimresults$value)) # deviance + (2* number of params)
+             deviance = optim_results$value, # -2* log likelihood, which is what we are optimising on anyway
+             aic = optim_results$value + 2 * length(optim_results$value)) # deviance + (2* number of params)
   class(me) <- "movement_model"
   return (me)
 }
@@ -291,7 +291,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @importFrom parallel detectCores
 #' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
 predict.movement_model <- function(object, new_data, go_parallel = FALSE, number_of_cores = NULL, ...) {
-  m <- object$trainingresults
+  m <- object$training_results
   m$dataset <- new_data
   if(is(new_data, "RasterLayer")) {
     prediction <- predict.prediction_model(m, go_parallel = go_parallel, number_of_cores = number_of_cores)
@@ -323,7 +323,7 @@ predict.movement_model <- function(object, new_data, go_parallel = FALSE, number
 #' @name print.movement_model
 #' @method print movement_model
 print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
+  cat(paste('Model:  ', x$training_results$predictionmodel, '\n\n'))
   if(length(coef(x))) {
     cat("Coefficients")
     cat(":\n")
@@ -342,26 +342,26 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 
 #' @title Summarize a movement model object
 #' @description Print a summary of a optimised movement model
-#' @param object an \code{movement_model} object
+#' @param object a \code{movement_model} object
 #' @param \dots additional arguments affecting the summary produced.
 #' 
 #' @name summary.movement_model
 #' @method summary movement_model
 #' @export
 summary.movement_model <- function(object, ...) {
-  coef.p <- object$trainingresults$modelparams
+  coef_params <- object$training_results$modelparams
   dn <- c("Estimate", "Std. Error")
-  stderrors <- sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
+  std_errors <- sqrt(abs(diag(solve(object$optimisation_results$hessian)))) # need to plug this into the coef table
   ans <- list(
-    model = object$trainingresults$predictionmodel,
-    deviance.resid = 1,
-    coefficients = coef.p,
+    model = object$training_results$predictionmodel,
+    deviance_resid = 1,
+    coefficients = coef_params,
     nulldeviance = object$null.deviance,
     residdeviance = object$deviance,
     aic = object$aic,
     df.null = object$df.null,
     df.residual = object$df.residual,
-    stderrors = stderrors)
+    std_errors = std_errors)
   class(ans) <- "summary.movement_model"
   return (ans)
 }
@@ -370,7 +370,7 @@ summary.movement_model <- function(object, ...) {
 #' @method print summary.movement_model
 print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   cat(paste('Model:  ', x$model, '\n\n'))
-  cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
+  cat(paste('Deviance Residuals:  ', x$deviance_resid, '\n\n'))
   if(length(coef(x))) {
     cat("Coefficients")
     cat(":\n")
@@ -396,9 +396,9 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 plot.movement_model  <- function(x, ...){
   
   #extract the relevant parameters from the movement_model object
-  obs <- x$trainingresults$dataset$movement_matrix # observed movemenent
-  pred <- x$trainingresults$prediction # predicted movements
-  distances <- x$trainingresults$net$distance_matrix # distances  
+  obs <- x$training_results$dataset$movement_matrix # observed movemenent
+  pred <- x$training_results$prediction # predicted movements
+  distances <- x$training_results$net$distance_matrix # distances  
   
   # convert to vectors
   obs <- as.vector(obs)
@@ -2427,8 +2427,8 @@ correlateregions <- function(location, regionlist, movementdata) {
 showcomparisonplot <- function(optimisedmodel, observed) {
   par(mfrow=c(2,2))
   plot(raster::raster(observed), main="Observed movement matrix")
-  plot(raster::raster(optimisedmodel$trainingresults$prediction), main="Predicted movement matrix")
-  plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
+  plot(raster::raster(optimisedmodel$training_results$prediction), main="Predicted movement matrix")
+  plot(raster::raster(observed - optimisedmodel$training_results$prediction), main="Difference")
 }
 
 #' @title Convert a movement_matrix object into a data.frame
