@@ -131,10 +131,9 @@ test_that("movement.predict produces correct result for simple case 2 with non-s
   expect_equal(actual, expected_matrix)
 })
 
-if (!isTRUE(Sys.getenv('TRAVIS'))) {
 test_that("movement.predict produces correct result for simple case with non-symmetric distances running parallel on 1 cores", {
+  testthat::skip_on_travis()
   testthat::skip_on_cran()
-  #testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
   mock_flux <- function(i, j, distance, population, symmetric) return (5)
@@ -142,12 +141,10 @@ test_that("movement.predict produces correct result for simple case with non-sym
   expected_matrix  <- matrix(c(0,NA,NA,NA,5,0,NA,NA,5,5,0,NA, 5,5,5,0), nrow = 4)
   expect_equal(actual, expected_matrix)
 })
-}
 
-if (!isTRUE(Sys.getenv('TRAVIS'))) {
 test_that("movement.predict produces correct result for simple case with non-symmetric distances running parallel on 2 cores", {
+  testthat::skip_on_travis()
   testthat::skip_on_cran()
-  #testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
   mock_flux <- function(i, j, distance, population, symmetric) return (5)
@@ -155,7 +152,6 @@ test_that("movement.predict produces correct result for simple case with non-sym
   expected_matrix  <- matrix(c(0,NA,NA,NA,5,0,NA,NA,5,5,0,NA, 5,5,5,0), nrow = 4)
   expect_equal(actual, expected_matrix)
 })
-}
 
 test_that("movement.predict produces correct result for simple case with symmetric distances", {
 	distance <- matrix(c(0,1,1,0),nrow=2)
@@ -174,10 +170,9 @@ test_that("movement.predict produces correct result for simple case 2 with symme
   expect_equal(actual, expected_matrix)
 })
 
-if (!isTRUE(Sys.getenv('TRAVIS'))) {
 test_that("movement.predict produces correct result for simple case with symmetric distances running parallel on 1 cores", {
+  testthat::skip_on_travis()
   testthat::skip_on_cran()
-  #testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
   mock_flux <- function(i, j, distance, population, symmetric) return (5)
@@ -185,12 +180,11 @@ test_that("movement.predict produces correct result for simple case with symmetr
   expected_matrix  <- matrix(c(0,5,5,5,5,0,5,5,5,5,0, 5, 5,5,5,0), nrow = 4)
   expect_equal(actual, expected_matrix)
 })
-}
 
-if (!isTRUE(Sys.getenv('TRAVIS'))) {
+
 test_that("movement.predict produces correct result for simple case with symmetric distances running parallel on 2 cores", {
+  testthat::skip_on_travis()
   testthat::skip_on_cran()
-  #testthat::skip_on_travis()
   distance <- matrix(c(0,1,2,3, 1,2,3, 0,2,3, 0,1, 3, 0, 1, 2),nrow=4)
   population <- c(500, 1000,2000, 5000)
   mock_flux <- function(i, j, distance, population, symmetric) return (5)
@@ -198,4 +192,3 @@ test_that("movement.predict produces correct result for simple case with symmetr
   expected_matrix  <- matrix(c(0,5,5,5,5,0,5,5,5,5,0, 5, 5,5,5,0), nrow = 4)
   expect_equal(actual, expected_matrix)
 })
-}
