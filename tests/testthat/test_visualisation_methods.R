@@ -8,3 +8,84 @@ test_that("plot.prediction_model passes correct parameters to show.prediction", 
             actual_predictions  <- plot(movement_predictions),
             expect_equal(actual_predictions, "network,move,,"))
 })
+
+test_that("summary.movement_model returns a summary.movement_model object", {
+  dummy_training_results  <- list(modelparams = "modelparams")
+  dummy_optimisation_results  <- list(hessian = matrix(c(1,2,3,4), nrow = 2))
+  dummy_movement_model <- list(optimisationresults = dummy_optimisation_results,
+                              trainingresults = dummy_training_results,
+                              coefficients = "coefficients",
+                              df.null = "df.null",
+                              df.residual = "df.residual", 
+                              null.deviance = "null.deviance",
+                              deviance = "deviance",
+                              aic = "aic") 
+  class(dummy_movement_model)  <- 'movement_model' 
+  actual_summary_model  <- summary(dummy_movement_model)
+  expect_is(actual_summary_model, "summary.movement_model")  
+})
+
+test_that("summary.movement_model returns a correct summary.movement_model obejct", {
+  dummy_training_results  <- list(modelparams = "model_params", predictionmodel = "prediction_model")
+  dummy_hessian_matrix  <- matrix(c(1,2,3,4), nrow = 2)
+  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix)
+  dummy_movement_model <- list(optimisationresults = dummy_optimisation_results,
+                               trainingresults = dummy_training_results,
+                               coefficients = "coefficients",
+                               df.null = "df.null",
+                               df.residual = "df.residual", 
+                               null.deviance = "null.deviance",
+                               deviance = "deviance",
+                               aic = "aic") 
+  class(dummy_movement_model)  <- 'movement_model'   
+  
+  expected_summary_model = list(model = "prediction_model",
+                                deviance.resid = 1,
+                                coefficients = "model_params",
+                                nulldeviance = "null.deviance",
+                                residdeviance = "deviance",
+                                aic = "aic",
+                                df.null = "df.null",
+                                df.residual = "df.residual", 
+                                stderrors = sqrt(abs(diag(solve(dummy_hessian_matrix))))
+                                )
+  class(expected_summary_model)  <- 'summary.movement_model'
+
+  actual_summary_model  <- summary(dummy_movement_model)
+  expect_equal(actual_summary_model, expected_summary_model)  
+})
+
+test_that("summary.movement_model returns NA value for stderror is hessian cannot be used to calculate a std error", {
+  dummy_training_results  <- list(modelparams = "model_params", predictionmodel = "prediction_model")
+  dummy_hessian_matrix  <- matrix(c(1,1,1,1), nrow = 2)
+  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix)
+  dummy_movement_model <- list(optimisationresults = dummy_optimisation_results,
+                               trainingresults = dummy_training_results,
+                               coefficients = "coefficients",
+                               df.null = "df.null",
+                               df.residual = "df.residual", 
+                               null.deviance = "null.deviance",
+                               deviance = "deviance",
+                               aic = "aic") 
+  class(dummy_movement_model)  <- 'movement_model'   
+  
+  actual_summary_model  <- summary(dummy_movement_model)
+  expect_true(is.na(actual_summary_model$stderror))
+})
+
+test_that("summary.movement_model prints a message to the user of function cannot calculate a std error", {
+  dummy_training_results  <- list(modelparams = "model_params", predictionmodel = "prediction_model")
+  dummy_hessian_matrix  <- matrix(c(1,1,1,1), nrow = 2)
+  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix)
+  dummy_movement_model <- list(optimisationresults = dummy_optimisation_results,
+                               trainingresults = dummy_training_results,
+                               coefficients = "coefficients",
+                               df.null = "df.null",
+                               df.residual = "df.residual", 
+                               null.deviance = "null.deviance",
+                               deviance = "deviance",
+                               aic = "aic") 
+  class(dummy_movement_model)  <- 'movement_model'   
+  
+  expect_warning(summary(dummy_movement_model), "ERROR while calculating the standard error:")
+})
