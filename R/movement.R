@@ -656,7 +656,7 @@ print.flux  <- function(x, ...){
   cat(paste('flux object for a', x$name, 'model with parameters\n\n'))
   cat(" with model parameters:\n")
   print.default(format(x$params),
-                print.gap = 2, quote = FALSE, digits = digits)
+                print.gap = 2, quote = FALSE, digits = 3)
   cat('\n')
   cat('See ?')
   help_phrase  <- toCamelCase(x$name, " ")
