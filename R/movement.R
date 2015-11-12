@@ -654,7 +654,7 @@ gravityWithDistance  <- function(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03, gam
 #' @export
 print.flux  <- function(x, digits = 3, ...){
   cat(paste('flux object for a', x$name, 'model with parameters\n\n'))
-  cat(" with model Paramaters:\n")
+  cat(" with model parameters:\n")
   print.default(format(x$params),
                 print.gap = 2, quote = FALSE, digits = digits)
   cat('\n')
@@ -2809,21 +2809,19 @@ identityTransform  <- function(x, inverse = FALSE){
   return (x) 
 }
 
-#' @title Function to convert a string phrase into a camelCase notation
-#' 
-#' @description Convert a given string phrase into the camelCase notation using the \code{\link{strsplit}}
-#' function.
-#' 
-#' @name toCamelCase 
-#' @param phrase Character vector, each element of which is to be split. Other inputs, including a factor, 
-#' will give an error.
-#' @param split Character vector (or object which can be coerced to such) containing regular expression(s) 
-#' (unless fixed = TRUE) to use for splitting. If empty matches occur, in particular if split has length 0, 
-#' phrase is split into single characters. If split has length greater than 1, it is re-cycled along phrase 
-#' @param \dots additional parameters which are passed to the \code{\link{strsplit}} function.
-#' @return A string in camelCase notation. 
-#' @export
-#' @seealso \code{\link{strsplit}}
+# Function to convert a string phrase into a camelCase notation
+# 
+# Convert a given string phrase into the camelCase notation using the \code{\link{strsplit}}
+# function.
+# 
+# @param phrase Character vector, each element of which is to be split. Other inputs, including a factor, 
+# will give an error.
+# @param split Character vector (or object which can be coerced to such) containing regular expression(s) 
+# (unless fixed = TRUE) to use for splitting. If empty matches occur, in particular if split has length 0, 
+# phrase is split into single characters. If split has length greater than 1, it is re-cycled along phrase 
+# @param \dots additional parameters which are passed to the \code{\link{strsplit}} function.
+# @return A string in camelCase notation. 
+# @seealso \code{\link{strsplit}}
 toCamelCase  <- function(phrase, split, ...){
   
   # convert the entire phrase to lower case
