@@ -61,8 +61,8 @@
 #'                            y = net$coordinate[,2])
 #' location_data  <- as.location_dataframe(location_data)
 #' # simulate movements (note the values of movementmatrix must be integer)
-#' predicted_movement  <- predict(radiationWithSelection(theta = 0.5), location_data, symmetric = TRUE)
-#' movement_matrix <- round(predicted_movement$movement_matrix)
+#' predicted_flux  <- predict(radiationWithSelection(theta = 0.5), location_data, symmetric = TRUE)
+#' movement_matrix <- round(predicted_flux$movement_matrix)
 #' # fit a new model to these data
 #' movement_model <- movement(movement_matrix ~ location_data, radiationWithSelection(theta = 0.5))
 #' # print movement_model
@@ -211,7 +211,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # generate a flux object
 #' flux <- radiationWithSelection()
 #' # run the prediction for the theoretical model
-#' predictedMovement  <- predict(flux, kenya10)
+#' predicted_movement  <- predict(flux, kenya10)
 #' @export
 #' @importFrom parallel detectCores
 #' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
@@ -219,8 +219,8 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
   
   if(is(location_dataframe, "RasterLayer")) {
     # create the prediction model object
-    predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
-    prediction <- predict.prediction_model(predictionModel, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
+    prediction_model <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
+    prediction <- predict.prediction_model(prediction_model, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)    
     return (list(
@@ -228,8 +228,8 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
       movement_matrix = movement_matrix))
   } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model object
-    predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
-    prediction <- predict.prediction_model(predictionModel, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
+    prediction_model <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
+    prediction <- predict.prediction_model(prediction_model, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)
     return (list(
@@ -250,7 +250,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' \code{x} (numeric) and \code{y} (numeric).
 #' 
 #' @param object A configured prediction model of class \code{movement_model}
-#' @param newdata An optional \code{location_dataframe} object or RasterLayer 
+#' @param new_data An optional \code{location_dataframe} object or RasterLayer 
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
@@ -272,16 +272,16 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, 
+#' location_data <- data.frame(location = net$locations, 
 #'                            population = net$population, 
 #'                            x = net$coordinate[,1], 
 #'                            y = net$coordinate[,2])
-#' locationData  <- as.location_dataframe(locationData)
+#' location_data  <- as.location_dataframe(location_data)
 #' # simulate movements (note the values of movementmatrix must be integer)
-#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-#' movementMatrix <- round(predictedMovement$movement_matrix)
+#' predicted_flux  <- predict(originalRadiation(theta = 0.1), location_data, symmetric = TRUE)
+#' movement_matrix <- round(predicted_flux$movement_matrix)
 #' # fit a new model to these data
-#' movement_model <- movement(movementMatrix ~ locationData, originalRadiation(theta = 0.1))
+#' movement_model <- movement(movement_matrix ~ location_data, originalRadiation(theta = 0.1))
 #' # predict the population movements
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
@@ -290,10 +290,10 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @export
 #' @importFrom parallel detectCores
 #' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
-predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_of_cores = NULL, ...) {
+predict.movement_model <- function(object, new_data, go_parallel = FALSE, number_of_cores = NULL, ...) {
   m <- object$trainingresults
-  m$dataset <- newdata
-  if(is(newdata, "RasterLayer")) {
+  m$dataset <- new_data
+  if(is(new_data, "RasterLayer")) {
     prediction <- predict.prediction_model(m, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
@@ -301,8 +301,8 @@ predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_
       dataset = m$dataset)
     class(ans) <- "movement_predictions" 
     return(ans)
-  } else if (is(newdata, "data.frame")) {
-    prediction <- predict.prediction_model(m, newdata, go_parallel = go_parallel, number_of_cores = number_of_cores)
+  } else if (is(new_data, "data.frame")) {
+    prediction <- predict.prediction_model(m, new_data, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
       movement_matrix = as.movement_matrix(prediction$prediction),
@@ -310,7 +310,7 @@ predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_
     class(ans) <- "movement_predictions" 
     return(ans)
   } else {
-    stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
+    stop('Error: Expected parameter `new_data` to be either a RasterLayer or a data.frame')
   }  
 }
 
@@ -1944,7 +1944,7 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # \code{dots} argument.
 # 
 # @param object A configured prediction model of class \code{prediction_model}
-# @param newdata An optional data.frame or RasterLayer containing population data
+# @param new_data An optional data.frame or RasterLayer containing population data
 # @param \dots Extra arguments to pass to the flux function
 # @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
 # Note that parallel programming will only improve the performance with larger datasets; for smaller 
@@ -1959,12 +1959,12 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # @method predict prediction_model
 # @importFrom parallel detectCores
 # @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
-predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE, number_of_cores = NULL, parallel_setup = FALSE, ...) {
-  if(is.null(newdata)) {
+predict.prediction_model <- function(object, new_data = NULL, go_parallel = FALSE, number_of_cores = NULL, parallel_setup = FALSE, ...) {
+  if(is.null(new_data)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
   else {
-    net <- getNetworkFromDataframe(newdata, min = object$min_network_pop)
+    net <- getNetworkFromDataframe(new_data, min = object$min_network_pop)
   }
   object$net = net
   

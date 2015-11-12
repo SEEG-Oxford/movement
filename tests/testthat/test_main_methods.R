@@ -35,7 +35,7 @@ test_that("predict.movement_model throws an error if given the wrong type", {
 	predictionModel <- list(trainingresults=NULL)
 	class(predictionModel) <- 'movement_model'
 	dataframe <- 1
-	expect_error(predict(predictionModel,dataframe),"Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame")
+	expect_error(predict(predictionModel,dataframe),"Error: Expected parameter `new_data` to be either a RasterLayer or a data.frame")
 })
 
 locations <- c("a","b","c")
