@@ -323,7 +323,7 @@ predict.movement_model <- function(object, new_data, go_parallel = FALSE, number
 #' @name print.movement_model
 #' @method print movement_model
 print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  flux_model  <- x$trainingresults$flux_model
+  flux_model  <- x$training_results$flux_model
   cat('Model:  ')
   print(flux_model)
   cat('\n')
@@ -352,19 +352,20 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 #' @method summary movement_model
 #' @export
 summary.movement_model <- function(object, ...) {
+  
   coef_params <- object$training_results$modelparams
   dn <- c("Estimate", "Std. Error")
   
   # in some test cases, the std error cannot be calculated using the hessian; in this case return NA and print a message to the user
-  stderrors <- tryCatch({
-    sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
+  std_errors <- tryCatch({
+    sqrt(abs(diag(solve(object$optimisation_results$hessian)))) # need to plug this into the coef table
   } , error = function(err) {
     warning(paste("ERROR while calculating the standard error: ", err))
     return(NA) 
   } )
 
   ans <- list(
-    model = object$trainingresults$flux_model,
+    model = object$training_results$flux_model,
     deviance.resid = 1,
     coefficients = coef_params,
     nulldeviance = object$null.deviance,

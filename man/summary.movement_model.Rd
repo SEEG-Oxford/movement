@@ -7,7 +7,7 @@
 \method{summary}{movement_model}(object, ...)
 }
 \arguments{
-\item{object}{an \code{movement_model} object}
+\item{object}{a \code{movement_model} object}
 
 \item{\dots}{additional arguments affecting the summary produced.}
 }

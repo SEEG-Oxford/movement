@@ -4,13 +4,13 @@
 \alias{predict.movement_model}
 \title{Predict from a movement model object}
 \usage{
-\method{predict}{movement_model}(object, newdata, go_parallel = FALSE,
+\method{predict}{movement_model}(object, new_data, go_parallel = FALSE,
   number_of_cores = NULL, ...)
 }
 \arguments{
 \item{object}{A configured prediction model of class \code{movement_model}}
 
-\item{newdata}{An optional \code{location_dataframe} object or RasterLayer
+\item{new_data}{An optional \code{location_dataframe} object or RasterLayer
 containing population data}
 
 \item{go_parallel}{Flag to enable parallel calculations (if set to TRUE).
@@ -42,16 +42,16 @@ with the columns \code{location} (character), \code{population} (numeric),
 data(kenya)
 kenya10 <- raster::aggregate(kenya, 10, sum)
 net <- getNetwork(kenya10, min = 50000)
-locationData <- data.frame(location = net$locations,
+location_data <- data.frame(location = net$locations,
                            population = net$population,
                            x = net$coordinate[,1],
                            y = net$coordinate[,2])
-locationData  <- as.location_dataframe(locationData)
+location_data  <- as.location_dataframe(location_data)
 # simulate movements (note the values of movementmatrix must be integer)
-predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-movementMatrix <- round(predictedMovement$movement_matrix)
+predicted_flux  <- predict(originalRadiation(theta = 0.1), location_data, symmetric = TRUE)
+movement_matrix <- round(predicted_flux$movement_matrix)
 # fit a new model to these data
-movement_model <- movement(movementMatrix ~ locationData, originalRadiation(theta = 0.1))
+movement_model <- movement(movement_matrix ~ location_data, originalRadiation(theta = 0.1))
 # predict the population movements
 predicted_movements  <- predict(movement_model, kenya10)
 # display the predicted movements
