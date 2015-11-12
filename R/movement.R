@@ -652,7 +652,7 @@ gravityWithDistance  <- function(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03, gam
 #' flux <- gravity(theta = 0.1, alpha = 0.5, beta = 0.1, gamma = 0.1)
 #' print(flux)
 #' @export
-print.flux  <- function(x, digits = 3, ...){
+print.flux  <- function(x, ...){
   cat(paste('flux object for a', x$name, 'model with parameters\n\n'))
   cat(" with model parameters:\n")
   print.default(format(x$params),
