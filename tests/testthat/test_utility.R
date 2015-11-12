@@ -348,3 +348,51 @@ test_that("consistencyCheckMovementMatrixLocationDataframe returns false for non
   expect_false(consistencyCheckMovementMatrixLocationDataframe(testMatrix, testLocationData))
 })
 
+test_that("toCamelCase correctly returns phrase when split by dot",{
+  test_string  <- "this.text"
+  expected_return  <- "thisText"
+  actual_return  <- toCamelCase(test_string, "\\.")
+  expect_equal(expected_return, actual_return)  
+})
+
+test_that("toCamelCase correctly returns phrase when split by space",{
+  test_string  <- "this text"
+  expected_return  <- "thisText"
+  actual_return  <- toCamelCase(test_string, " ")
+  expect_equal(expected_return, actual_return)  
+})
+
+test_that("toCamelCase correctly returns phrase when split by space with multiple words",{
+  test_string  <- "this text is a dummy test for testing"
+  expected_return  <- "thisTextIsADummyTestForTesting"
+  actual_return  <- toCamelCase(test_string, " ")
+  expect_equal(expected_return, actual_return)  
+})
+
+test_that("toCamelCase correctly returns phrase when split by underscore",{
+  test_string  <- "this_text"
+  expected_return  <- "thisText"
+  actual_return  <- toCamelCase(test_string, "_")
+  expect_equal(expected_return, actual_return)  
+})
+
+test_that("toCamelCase correctly returns phrase when split by underscore",{
+  test_string  <- "this_text"
+  expected_return  <- "thisText"
+  actual_return  <- toCamelCase(test_string, "_")
+  expect_equal(expected_return, actual_return)  
+})
+
+test_that("toCamelCase correctly returns phrase when split by dot using fixed option for split function",{
+  test_string  <- "this.text"
+  expected_return  <- "thisText"
+  actual_return  <- toCamelCase(test_string, ".", fixed = TRUE)
+  expect_equal(expected_return, actual_return)  
+})
+
+test_that("toCamelCase correctly returns phrase even when used by capital lettes",{
+  test_string  <- "THIS TEXT"
+  expected_return  <- "thisText"
+  actual_return  <- toCamelCase(test_string, " ")
+  expect_equal(expected_return, actual_return)  
+})

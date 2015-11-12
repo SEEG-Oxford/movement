@@ -25,8 +25,8 @@ test_that("summary.movement_model returns a summary.movement_model object", {
   expect_is(actual_summary_model, "summary.movement_model")  
 })
 
-test_that("summary.movement_model returns a correct summary.movement_model obejct", {
-  dummy_training_results  <- list(modelparams = "model_params", predictionmodel = "prediction_model")
+test_that("summary.movement_model returns a correct summary.movement_model object", {
+  dummy_training_results  <- list(modelparams = "model_params", flux_model = "flux model")
   dummy_hessian_matrix  <- matrix(c(1,2,3,4), nrow = 2)
   dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix)
   dummy_movement_model <- list(optimisationresults = dummy_optimisation_results,
@@ -39,7 +39,7 @@ test_that("summary.movement_model returns a correct summary.movement_model obejc
                                aic = "aic") 
   class(dummy_movement_model)  <- 'movement_model'   
   
-  expected_summary_model = list(model = "prediction_model",
+  expected_summary_model = list(model = "flux model",
                                 deviance.resid = 1,
                                 coefficients = "model_params",
                                 nulldeviance = "null.deviance",

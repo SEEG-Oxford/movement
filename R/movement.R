@@ -323,7 +323,10 @@ predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_
 #' @name print.movement_model
 #' @method print movement_model
 print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
+  flux_model  <- x$trainingresults$flux_model
+  cat('Model:  ')
+  print(flux_model)
+  cat('\n')
   if(length(coef(x))) {
     cat("Coefficients")
     cat(":\n")
@@ -362,7 +365,7 @@ summary.movement_model <- function(object, ...) {
   } )
 
   ans <- list(
-    model = object$trainingresults$predictionmodel,
+    model = object$trainingresults$flux_model,
     deviance.resid = 1,
     coefficients = coef.p,
     nulldeviance = object$null.deviance,
@@ -375,11 +378,12 @@ summary.movement_model <- function(object, ...) {
   return (ans)
 }
 
-
 #' @export
 #' @method print summary.movement_model
 print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste('Model:  ', x$model, '\n\n'))
+  cat('Model:  ')
+  print(x$model)
+  cat('\n')
   cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
   if(length(coef(x))) {
     cat("Coefficients")
@@ -389,7 +393,7 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
   } else cat("No coefficients\n\n")
   cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
   cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
-  cat(paste('AIC:  ', x$aic, '\n'))
+  cat(paste('AIC:  ', x$aic, '\n\n'))
 }
 
 #' @title Plot a movement model object
@@ -649,12 +653,14 @@ gravityWithDistance  <- function(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03, gam
 #' print(flux)
 #' @export
 print.flux  <- function(x, ...){
-  cat(paste('flux object for a ', x$name, 'model with parameters\n\n'))
+  cat(paste('flux object for a', x$name, 'model with parameters\n\n'))
+  cat(" with model parameters:\n")
   print.default(format(x$params),
-                print.gap = 2, quote = FALSE)
+                print.gap = 2, quote = FALSE, digits = 3)
   cat('\n')
   cat('See ?')
-  cat(paste(x$name, 'for the model formulation and explanation of parameters\n'))
+  help_phrase  <- toCamelCase(x$name, " ")
+  cat(paste(help_phrase, 'for the model formulation and explanation of parameters\n'))
 }
 
 #' @title Print summary of a flux object 
@@ -2801,4 +2807,32 @@ unitTransform  <- function(x, inverse = FALSE){
 # no transformation required; simple return the input variable 
 identityTransform  <- function(x, inverse = FALSE){  
   return (x) 
+}
+
+# Function to convert a string phrase into a camelCase notation
+# 
+# Convert a given string phrase into the camelCase notation using the \code{\link{strsplit}}
+# function.
+# 
+# @param phrase Character vector, each element of which is to be split. Other inputs, including a factor, 
+# will give an error.
+# @param split Character vector (or object which can be coerced to such) containing regular expression(s) 
+# (unless fixed = TRUE) to use for splitting. If empty matches occur, in particular if split has length 0, 
+# phrase is split into single characters. If split has length greater than 1, it is re-cycled along phrase 
+# @param \dots additional parameters which are passed to the \code{\link{strsplit}} function.
+# @return A string in camelCase notation. 
+# @seealso \code{\link{strsplit}}
+toCamelCase  <- function(phrase, split, ...){
+  
+  # convert the entire phrase to lower case
+  phrase  <- tolower(phrase)
+
+  # helper function which capitalise the first letter of each sub string 
+  capit <- function(phrase) paste0(toupper(substring(phrase, 1, 1)), substring(phrase, 2, nchar(phrase)))
+  
+  # split the phrase privided, capitalize each first letter and finally paste the substrings together  
+  CamelCase  <- sapply(strsplit(phrase, split, ...), function(phrase) paste(capit(phrase), collapse=""))  
+  
+  # then convert the starting letter of the entire phrase to lower case
+  camelCase  <- paste0(tolower(substring(CamelCase, 1, 1)), substring(CamelCase, 2, nchar(CamelCase)))
 }
