@@ -323,7 +323,10 @@ predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_
 #' @name print.movement_model
 #' @method print movement_model
 print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  cat(paste('Model:  ', x$trainingresults$predictionmodel, '\n\n'))
+  flux_model  <- x$trainingresults$flux_model
+  cat('Model:  ')
+  print(flux_model)
+  cat('\n')
   if(length(coef(x))) {
     cat("Coefficients")
     cat(":\n")
@@ -378,7 +381,6 @@ summary.movement_model <- function(object, ...) {
 #' @export
 #' @method print summary.movement_model
 print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  #cat(paste('Model:  ', x$model, '\n\n'))
   cat('Model:  ')
   print(x$model)
   cat('\n')
@@ -651,8 +653,8 @@ gravityWithDistance  <- function(theta1 = 0.01, alpha1 = 0.06, beta1 = 0.03, gam
 #' print(flux)
 #' @export
 print.flux  <- function(x, digits = 3, ...){
-  print("Call print.flux")
   cat(paste('flux object for a', x$name, 'model with parameters\n\n'))
+  cat(" with model Paramaters:\n")
   print.default(format(x$params),
                 print.gap = 2, quote = FALSE, digits = digits)
   cat('\n')
