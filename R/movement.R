@@ -349,9 +349,18 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 #' @method summary movement_model
 #' @export
 summary.movement_model <- function(object, ...) {
+  
   coef.p <- object$trainingresults$modelparams
   dn <- c("Estimate", "Std. Error")
-  stderrors <- sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
+  
+  # in some test cases, the std error cannot be calculated using the hessian; in this case return NA and print a message to the user
+  stderrors <- tryCatch({
+    sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
+  } , error = function(err) {
+    message(paste("ERROR while calculating the standard error: ", err))
+    return(NA) 
+  } )
+
   ans <- list(
     model = object$trainingresults$predictionmodel,
     deviance.resid = 1,
@@ -365,6 +374,7 @@ summary.movement_model <- function(object, ...) {
   class(ans) <- "summary.movement_model"
   return (ans)
 }
+
 
 #' @export
 #' @method print summary.movement_model
