@@ -357,7 +357,7 @@ summary.movement_model <- function(object, ...) {
   stderrors <- tryCatch({
     sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
   } , error = function(err) {
-    message(paste("ERROR while calculating the standard error: ", err))
+    warning(paste("ERROR while calculating the standard error: ", err))
     return(NA) 
   } )
 

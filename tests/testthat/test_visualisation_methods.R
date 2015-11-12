@@ -87,5 +87,5 @@ test_that("summary.movement_model prints a message to the user of function canno
                                aic = "aic") 
   class(dummy_movement_model)  <- 'movement_model'   
   
-  expect_message(summary(dummy_movement_model), "ERROR while calculating the standard error:")
+  expect_warning(summary(dummy_movement_model), "ERROR while calculating the standard error:")
 })
