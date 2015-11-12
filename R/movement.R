@@ -35,19 +35,19 @@
 #' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
 #' values, the function will use rounding to return a valid matrix and display a warning to inform the user of this
 #' additional rounding.
-
-#' @seealso \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
-#' \code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}}, 
-#' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
-#' \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
-#' @note The most likely format of the location data will be as a single
-#' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
-#' \code{long}. This can be extracted from a larger dataframe with
+#' 
+#' The format of the location data must be as a single \code{data.frame} with the columns \code{location}, 
+#' \code{population}, \code{lat} and \code{long}. This can be extracted from a larger dataframe with
 #' \code{\link{as.location_dataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
 #' using \code{\link{as.movement_matrix}}. To check that the given objects are suitable, 
 #' the helper functions \code{\link{is.location_dataframe}} and \code{\link{is.movement_matrix}}
 #' can be used.
+#' @seealso \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
+#' \code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}}, 
+#' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
+#' \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
+
 #' @export
 #' @examples
 #' \dontrun{
@@ -55,16 +55,16 @@
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, 
+#' location_data <- data.frame(location = net$locations, 
 #'                            population = net$population, 
 #'                            x = net$coordinate[,1], 
 #'                            y = net$coordinate[,2])
-#' locationData  <- as.location_dataframe(locationData)
+#' location_data  <- as.location_dataframe(location_data)
 #' # simulate movements (note the values of movementmatrix must be integer)
-#' predictedMovement  <- predict(radiationWithSelection(theta = 0.5), locationData, symmetric = TRUE)
-#' movementMatrix <- round(predictedMovement$movement_matrix)
+#' predicted_movement  <- predict(radiationWithSelection(theta = 0.5), location_data, symmetric = TRUE)
+#' movement_matrix <- round(predicted_movement$movement_matrix)
 #' # fit a new model to these data
-#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' movement_model <- movement(movement_matrix ~ location_data, radiationWithSelection(theta = 0.5))
 #' # print movement_model
 #' print(movement_model)
 #' # predict the population movements
@@ -114,13 +114,13 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   }
   
   # create the prediction model which is an internal used prediction_model object (not exported to end user!)
-  predictionModel <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
+  prediction_model <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptOptimisation(predictionModel, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) #, upper=upper, lower=lower
+  optimresults <- attemptOptimisation(prediction_model, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) #, upper=upper, lower=lower
   
   # populate the training results (so we can see the end result); this is also a prediction_model object
-  training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
+  training_results <- predict.prediction_model(prediction_model, location_data, progress=FALSE)
   training_results$flux_model$params <- optimresults$par
   training_results$dataset  <- list(movement_matrix = rounded_matrix, location_dataframe = location_data)
   
