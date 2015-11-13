@@ -1,11 +1,11 @@
 Package: movement
 Type: Package
-Title: Modelling and Analysing Movement Data for Epidemiology
-Version: 0.3-1
-Date: 2015-10-08
-Author: Nick Golding, Andrew Schofield, Moritz Kraemer, Alex T. Perkins
+Title: Modelling and Analysing Human Movement Data
+Version: 0.4
+Date: 2015-11-13
+Author: Nick Golding, Kathrin Wuensch, Andrew Schofield, Alex T. Perkins, C. Jess Metcalf, Moritz Kraemer
 Maintainer: Nick Golding <nick.golding.research@gmail.com>
-Description: Human and animal movements have a crucial role in the epidemiology of a number of diseases. Movement data is increasingly available to epidemiologists and its incorporation in models and maps of disease is increasingly popular. This package is a collaborative effort to improve our ability to analyses movement data and to build and apply epidemiological movement models.
+Description: Fitting, analysing and making predictions from mathematical models of population-scale human movement patterns.
 License: GPL(>=2)
 Depends: R (>= 2.10)
 Imports: raster, rgdal, tools, sp, methods, gdistance, viridis, snowfall
