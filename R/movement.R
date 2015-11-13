@@ -451,7 +451,6 @@ plot.movement_model  <- function(x, ...){
 #' @param object a \code{movement_model} object
 #' @param \dots further arguments to be passed to or from other methods. Won't be used here.  
 #' @return A numeric value with the corresponding AIC.
-#' @seealso 
 #' @name AIC.movement_model
 #' @method AIC movement_model
 #' @export

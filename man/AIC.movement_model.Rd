@@ -11,6 +11,9 @@
 
 \item{\dots}{further arguments to be passed to or from other methods. Won't be used here.}
 }
+\value{
+A numeric value with the corresponding AIC.
+}
 \description{
 Calculate the AIC for the \code{movement_model} object provided.
 }
