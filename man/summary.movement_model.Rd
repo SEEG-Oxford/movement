@@ -14,14 +14,15 @@
 \value{
 Returns a \code{summary.movement_model} object containing a list of the following parameters
 \item{model}{The \code{flux} model objects used}
-\item{deviance.resid}{the deviance residuals}
+\item{deviance_resid}{the deviance residuals}
 \item{coefficients}{The parameters estimates on the true scale used in the flux model equations}
-\item{optimised_coeff}{The parameters estimates on the continuous scale used for the optimisation process}
-\item{optimised_coeff_std_errors}{The standard error of the optimised parameters}
-\item{nulldeviance}{The null deviance}
-\item{df.null}{the degree of freedom on the null deviance}
-\item{residdeviance}{the residual deviance}
-\item{df.residual}{the degree of freedom on the residual deviance}
+\item{trans_coeff}{The parameters estimates on the continuous scale, after parameter transformation,
+ used for the optimisation process}
+\item{trans_coeff_std_errors}{The standard error of the optimised parameters}
+\item{null_deviance}{The null deviance}
+\item{df_null}{the degree of freedom on the null deviance}
+\item{resid_deviance}{the residual deviance}
+\item{df_residual}{the degree of freedom on the residual deviance}
 \item{aic}{the aic}
 }
 \description{

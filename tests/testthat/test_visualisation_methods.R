@@ -15,9 +15,9 @@ test_that("summary.movement_model returns a summary.movement_model object", {
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                               training_results = dummy_training_results,
                               coefficients = "coefficients",
-                              df.null = "df.null",
-                              df.residual = "df.residual", 
-                              null.deviance = "null.deviance",
+                              df_null = "df_null",
+                              df_residual = "df_residual", 
+                              null_deviance = "null_deviance",
                               deviance = "deviance",
                               aic = "aic") 
   class(dummy_movement_model)  <- 'movement_model' 
@@ -33,23 +33,23 @@ test_that("summary.movement_model returns a correct summary.movement_model objec
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
-                               df.null = "df.null",
-                               df.residual = "df.residual", 
-                               null.deviance = "null.deviance",
+                               df_null = "df_null",
+                               df_residual = "df_residual", 
+                               null_deviance = "null_deviance",
                                deviance = "deviance",
                                aic = "aic") 
   class(dummy_movement_model)  <- 'movement_model'   
   
   expected_summary_model = list(model = dummy_flux_model,
-                                deviance.resid = 1,
+                                deviance_resid = 1,
                                 coefficients = "flux_params",
-                                nulldeviance = "null.deviance",
-                                residdeviance = "deviance",
+                                null_deviance = "null_deviance",
+                                resid_deviance = "deviance",
                                 aic = "aic",
-                                df.null = "df.null",
-                                df.residual = "df.residual", 
-                                optimised_coeff = "optimised_params",
-                                optimised_coeff_std_errors = sqrt(abs(diag(solve(dummy_hessian_matrix))))
+                                df_null = "df_null",
+                                df_residual = "df_residual", 
+                                trans_coeff = "optimised_params",
+                                trans_coeff_std_errors = sqrt(abs(diag(solve(dummy_hessian_matrix))))
                                 )
   class(expected_summary_model)  <- 'summary.movement_model'
 
@@ -65,15 +65,15 @@ test_that("summary.movement_model returns NA value for stderror is hessian canno
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
-                               df.null = "df.null",
-                               df.residual = "df.residual", 
-                               null.deviance = "null.deviance",
+                               df_null = "df_null",
+                               df_residual = "df_residual", 
+                               null_deviance = "null_deviance",
                                deviance = "deviance",
                                aic = "aic") 
   class(dummy_movement_model)  <- 'movement_model'   
   
   actual_summary_model  <- summary(dummy_movement_model)
-  expect_true(is.na(actual_summary_model$optimised_coeff_std_errors))
+  expect_true(is.na(actual_summary_model$trans_coeff_std_errors))
 })
 
 test_that("summary.movement_model prints a message to the user of function cannot calculate a std error", {
@@ -84,9 +84,9 @@ test_that("summary.movement_model prints a message to the user of function canno
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
-                               df.null = "df.null",
-                               df.residual = "df.residual", 
-                               null.deviance = "null.deviance",
+                               df_null = "df_null",
+                               df_residual = "df_residual", 
+                               null_deviance = "null_deviance",
                                deviance = "deviance",
                                aic = "aic") 
   class(dummy_movement_model)  <- 'movement_model'   

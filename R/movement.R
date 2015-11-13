@@ -133,9 +133,9 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   me <- list(optimisation_results = optim_results,
              training_results = training_results,
              coefficients = optim_results$par,
-             df.null = nulldf, # not checked
-             df.residual = nulldf - length(optim_results$value), # not checked
-             null.deviance = analysePredictionUsingdPois(training_results, c(0,0)), # intercept only model, this is clearly wrong
+             df_null = nulldf, # not checked
+             df_residual = nulldf - length(optim_results$value), # not checked
+             null_deviance = analysePredictionUsingdPois(training_results, c(0,0)), # intercept only model, this is clearly wrong
              deviance = optim_results$value, # -2* log likelihood, which is what we are optimising on anyway
              aic = optim_results$value + 2 * length(optim_results$value)) # deviance + (2* number of params)
   class(me) <- "movement_model"
@@ -333,10 +333,10 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
     print.default(format(x$coefficients, digits = digits),
                   print.gap = 2, quote = FALSE)
   } else cat("No coefficients\n\n")
-  cat("\nDegrees of Freedom:", x$df.null, "Total (i.e. Null); ",
-      x$df.residual, "Residual\n")
+  cat("\nDegrees of Freedom:", x$df_null, "Total (i.e. Null); ",
+      x$df_residual, "Residual\n")
   if(nzchar(mess <- naprint(x$na.action))) cat("  (",mess, ")\n", sep = "")
-  cat("Null Deviance:     ", x$null.deviance,
+  cat("Null Deviance:     ", x$null_deviance,
       "\nResidual Deviance: ", x$deviance,
       "\tAIC:", x$aic)
   cat("\n")
@@ -350,14 +350,15 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 #' @param \dots additional arguments affecting the summary produced.
 #' @return Returns a \code{summary.movement_model} object containing a list of the following parameters
 #' \item{model}{The \code{flux} model objects used}
-#' \item{deviance.resid}{the deviance residuals}
+#' \item{deviance_resid}{the deviance residuals}
 #' \item{coefficients}{The parameters estimates on the true scale used in the flux model equations}
-#' \item{optimised_coeff}{The parameters estimates on the continuous scale used for the optimisation process}
-#' \item{optimised_coeff_std_errors}{The standard error of the optimised parameters}
-#' \item{nulldeviance}{The null deviance}
-#' \item{df.null}{the degree of freedom on the null deviance}
-#' \item{residdeviance}{the residual deviance}
-#' \item{df.residual}{the degree of freedom on the residual deviance}
+#' \item{trans_coeff}{The parameters estimates on the continuous scale, after parameter transformation, 
+#'  used for the optimisation process}
+#' \item{trans_coeff_std_errors}{The standard error of the optimised parameters}
+#' \item{null_deviance}{The null deviance}
+#' \item{df_null}{the degree of freedom on the null deviance}
+#' \item{resid_deviance}{the residual deviance}
+#' \item{df_residual}{the degree of freedom on the residual deviance}
 #' \item{aic}{the aic}
 #' @name summary.movement_model
 #' @method summary movement_model
@@ -377,15 +378,15 @@ summary.movement_model <- function(object, ...) {
 
   ans <- list(
     model = object$training_results$flux_model,
-    deviance.resid = 1,
+    deviance_resid = 1,
     coefficients = coef_params,
-    nulldeviance = object$null.deviance,
-    residdeviance = object$deviance,
+    null_deviance = object$null_deviance,
+    resid_deviance = object$deviance,
     aic = object$aic,
-    df.null = object$df.null,
-    df.residual = object$df.residual,
-    optimised_coeff = object$optimisation_results$optimised_params,
-    optimised_coeff_std_errors = std_errors)
+    df_null = object$df_null,
+    df_residual = object$df_residual,
+    trans_coeff = object$optimisation_results$optimised_params,
+    trans_coeff_std_errors = std_errors)
   class(ans) <- "summary.movement_model"
   return (ans)
 }
@@ -397,7 +398,7 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
   cat('Model:  ')
   print(x$model)
   cat('\n')
-  cat(paste('Deviance Residuals:  ', x$deviance.resid, '\n\n'))
+  cat(paste('Deviance Residuals:  ', x$deviance_resid, '\n\n'))
   if(length(coef(x))) {
     cat("Coefficients")
     cat(":\n")
@@ -407,14 +408,14 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
     # print the optimised coefficients
     cat("Optimised coefficients")
     cat(":\n")
-    print.default(format(x$optimised_coeff, digits = digits),
+    print.default(format(x$trans_coeff, digits = digits),
                   print.gap = 2, quote = FALSE)
     cat("\n")
     
   } else cat("No coefficients\n\n")
-  cat(paste('Std error of optimised coefficients:     ', x$optimised_coeff_std_errors, '\n\n'))
-  cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
-  cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
+  cat(paste('Std error of optimised coefficients:     ', x$trans_coeff_std_errors, '\n\n'))
+  cat(paste('Null Deviance:     ', x$null_deviance, 'on', x$df_null, 'degrees of freedom\n'))
+  cat(paste('Residual Deviance: ', x$resid_deviance, 'on', x$df_residual, 'degrees of freedom\n'))
   cat(paste('AIC:  ', x$aic, '\n\n'))
 }
 
