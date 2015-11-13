@@ -36,14 +36,6 @@ prediction <- predict(m, location_data)
 prediction <- predict(m, raster)
 ```
 
-### Contributors
-
-[Nick Golding][Nick] @ [Spatial Ecology and Epidemiology Group, Oxford][seeg]
-
-Andrew Schofield @ [Tessella][tessella]
-
-Moritz Kraemer @ [Spatial Ecology and Epidemiology Group, Oxford][seeg]
-
 ### Reporting Bugs
 
 You can report bugs, issues and suggestions for extra functions using the issues button on the right hand side of this page.
@@ -53,7 +45,4 @@ You can report bugs, issues and suggestions for extra functions using the issues
 
 Development of this software package is partly funded by the Research for Health in Humanitarian Crises (R2HC) Programme, managed by ELRHA. The Research for Health in Humanitarian Crises (R2HC) programme aims to improve health outcomes by strengthening the evidence base for public health interventions in humanitarian crises. Visit www.elrha.org/work/r2hc for more information. The £8 million R2HC programme is funded equally by the Wellcome Trust and DFID, with Enhancing Learning and Research for Humanitarian Assistance (ELRHA) overseeing the programme’s execution and management.
 
-[Nick]: http://seeg.zoo.ox.ac.uk/members/dr-nick-golding
-[seeg]: http://seeg.zoo.ox.ac.uk
 [devtools]: http://cran.r-project.org/package=devtools
-[tessella]: http://www.tessella.com
