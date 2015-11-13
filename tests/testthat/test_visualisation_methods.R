@@ -11,7 +11,7 @@ test_that("plot.prediction_model passes correct parameters to show.prediction", 
 
 test_that("summary.movement_model returns a summary.movement_model object", {
   dummy_training_results  <- list(flux_model = list(params = "flux_params"))
-  dummy_optimisation_results  <- list(hessian = matrix(c(1,2,3,4), nrow = 2))
+  dummy_optimisation_results  <- list(hessian = matrix(c(1,2,3,4), nrow = 2), optimised_params = "optimised_params")
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                               training_results = dummy_training_results,
                               coefficients = "coefficients",
@@ -29,7 +29,7 @@ test_that("summary.movement_model returns a correct summary.movement_model objec
   dummy_flux_model  <- list(name = "flux_model_name", params = "flux_params")
   dummy_training_results  <- list(flux_model = dummy_flux_model)
   dummy_hessian_matrix  <- matrix(c(1,2,3,4), nrow = 2)
-  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix)
+  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix, optimised_params = "optimised_params")
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
@@ -48,7 +48,8 @@ test_that("summary.movement_model returns a correct summary.movement_model objec
                                 aic = "aic",
                                 df.null = "df.null",
                                 df.residual = "df.residual", 
-                                std_errors = sqrt(abs(diag(solve(dummy_hessian_matrix))))
+                                optimised_coeff = "optimised_params",
+                                optimised_coeff_std_errors = sqrt(abs(diag(solve(dummy_hessian_matrix))))
                                 )
   class(expected_summary_model)  <- 'summary.movement_model'
 
@@ -60,7 +61,7 @@ test_that("summary.movement_model returns NA value for stderror is hessian canno
   dummy_flux_model  <- list(name = "flux_model_name", params = "flux_params")
   dummy_training_results  <- list(flux_model = dummy_flux_model)
   dummy_hessian_matrix  <- matrix(c(1,1,1,1), nrow = 2)
-  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix)
+  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix, optimised_params = "optimised_params")
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
@@ -72,14 +73,14 @@ test_that("summary.movement_model returns NA value for stderror is hessian canno
   class(dummy_movement_model)  <- 'movement_model'   
   
   actual_summary_model  <- summary(dummy_movement_model)
-  expect_true(is.na(actual_summary_model$std_error))
+  expect_true(is.na(actual_summary_model$optimised_coeff_std_errors))
 })
 
 test_that("summary.movement_model prints a message to the user of function cannot calculate a std error", {
   dummy_flux_model  <- list(name = "flux_model_name", params = "flux_params")
   dummy_training_results  <- list(flux_model = dummy_flux_model)
   dummy_hessian_matrix  <- matrix(c(1,1,1,1), nrow = 2)
-  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix)
+  dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix, optimised_params = "optimised_params")
   dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",

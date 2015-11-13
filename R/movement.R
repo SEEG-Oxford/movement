@@ -373,7 +373,8 @@ summary.movement_model <- function(object, ...) {
     aic = object$aic,
     df.null = object$df.null,
     df.residual = object$df.residual,
-    std_errors = std_errors)
+    optimised_coeff = object$optimisation_results$optimised_params,
+    optimised_coeff_std_errors = std_errors)
   class(ans) <- "summary.movement_model"
   return (ans)
 }
@@ -392,7 +393,15 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
     print.default(format(x$coefficients, digits = digits),
                   print.gap = 2, quote = FALSE)
     cat("\n")
+    # print the optimised coefficients
+    cat("Optimised coefficients")
+    cat(":\n")
+    print.default(format(x$optimised_coeff, digits = digits),
+                  print.gap = 2, quote = FALSE)
+    cat("\n")
+    
   } else cat("No coefficients\n\n")
+  cat(paste('Std error of optimised coefficients:     ', x$optimised_coeff_std_errors, '\n\n'))
   cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
   cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
   cat(paste('AIC:  ', x$aic, '\n\n'))
