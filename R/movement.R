@@ -350,7 +350,6 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 #' @param \dots additional arguments affecting the summary produced.
 #' @return Returns a \code{summary.movement_model} object containing a list of the following parameters
 #' \item{model}{The \code{flux} model objects used}
-#' \item{deviance_resid}{the deviance residuals}
 #' \item{coefficients}{The parameters estimates on the true scale used in the flux model equations}
 #' \item{trans_coeff}{The parameters estimates on the continuous scale, after parameter transformation, 
 #'  used for the optimisation process}
@@ -378,10 +377,8 @@ summary.movement_model <- function(object, ...) {
 
   ans <- list(
     model = object$training_results$flux_model,
-    deviance_resid = 1,
     coefficients = coef_params,
     null_deviance = object$null_deviance,
-    resid_deviance = object$deviance,
     aic = object$aic,
     df_null = object$df_null,
     df_residual = object$df_residual,
@@ -394,7 +391,11 @@ summary.movement_model <- function(object, ...) {
 #' @export
 #' @method print summary.movement_model
 print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-
+  
+  cat('Fitted radiation with', x$model$name, 'model \n\n')
+  cat('Call: \n')
+  
+  cat('========= old ============== \n')
   cat('Model:  ')
   print(x$model)
   cat('\n')

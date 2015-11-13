@@ -41,10 +41,8 @@ test_that("summary.movement_model returns a correct summary.movement_model objec
   class(dummy_movement_model)  <- 'movement_model'   
   
   expected_summary_model = list(model = dummy_flux_model,
-                                deviance_resid = 1,
                                 coefficients = "flux_params",
                                 null_deviance = "null_deviance",
-                                resid_deviance = "deviance",
                                 aic = "aic",
                                 df_null = "df_null",
                                 df_residual = "df_residual", 
