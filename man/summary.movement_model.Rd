@@ -11,7 +11,20 @@
 
 \item{\dots}{additional arguments affecting the summary produced.}
 }
+\value{
+Returns a \code{summary.movement_model} object containing a list of the following parameters
+\item{model}{The \code{flux} model objects used}
+\item{deviance.resid}{the deviance residuals}
+\item{coefficients}{The parameters estimates on the true scale used in the flux model equations}
+\item{optimised_coeff}{The parameters estimates on the continuous scale used for the optimisation process}
+\item{optimised_coeff_std_errors}{The standard error of the optimised parameters}
+\item{nulldeviance}{The null deviance}
+\item{df.null}{the degree of freedom on the null deviance}
+\item{residdeviance}{the residual deviance}
+\item{df.residual}{the degree of freedom on the residual deviance}
+\item{aic}{the aic}
+}
 \description{
-Print a summary of a optimised movement model
+Creates a summary of an optimised \code{movement_model} object.
 }
 
