@@ -35,19 +35,19 @@
 #' @note The \code{movement_matrix} must contain integer values. If the input \code{object} contains non-integer
 #' values, the function will use rounding to return a valid matrix and display a warning to inform the user of this
 #' additional rounding.
-
-#' @seealso \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
-#' \code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}}, 
-#' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
-#' \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
-#' @note The most likely format of the location data will be as a single
-#' \code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and 
-#' \code{long}. This can be extracted from a larger dataframe with
+#' 
+#' The format of the location data must be as a single \code{data.frame} with the columns \code{location}, 
+#' \code{population}, \code{lat} and \code{long}. This can be extracted from a larger dataframe with
 #' \code{\link{as.location_dataframe}}
 #' The \code{movement_matrix} can be extracted from a list of movements
 #' using \code{\link{as.movement_matrix}}. To check that the given objects are suitable, 
 #' the helper functions \code{\link{is.location_dataframe}} and \code{\link{is.movement_matrix}}
 #' can be used.
+#' @seealso \code{\link{as.location_dataframe}}, \code{\link{is.location_dataframe}},
+#' \code{\link{as.movement_matrix}}, \code{\link{is.movement_matrix}}, \code{\link{originalRadiation}}, 
+#' \code{\link{radiationWithSelection}}, \code{\link{uniformSelection}}, 
+#' \code{\link{interveningOpportunities}}, \code{\link{gravity}} and \code{\link{gravityWithDistance}}
+
 #' @export
 #' @examples
 #' \dontrun{
@@ -55,16 +55,16 @@
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, 
+#' location_data <- data.frame(location = net$locations, 
 #'                            population = net$population, 
 #'                            x = net$coordinate[,1], 
 #'                            y = net$coordinate[,2])
-#' locationData  <- as.location_dataframe(locationData)
+#' location_data  <- as.location_dataframe(location_data)
 #' # simulate movements (note the values of movementmatrix must be integer)
-#' predictedMovement  <- predict(radiationWithSelection(theta = 0.5), locationData, symmetric = TRUE)
-#' movementMatrix <- round(predictedMovement$movement_matrix)
+#' predicted_flux  <- predict(radiationWithSelection(theta = 0.5), location_data, symmetric = TRUE)
+#' movement_matrix <- round(predicted_flux$movement_matrix)
 #' # fit a new model to these data
-#' movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+#' movement_model <- movement(movement_matrix ~ location_data, radiationWithSelection(theta = 0.5))
 #' # print movement_model
 #' print(movement_model)
 #' # predict the population movements
@@ -114,14 +114,14 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   }
   
   # create the prediction model which is an internal used prediction_model object (not exported to end user!)
-  predictionModel <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
+  prediction_model <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
-  optimresults <- attemptoptimisation(predictionModel, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) #, upper=upper, lower=lower
+  optim_results <- attemptOptimisation(prediction_model, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) 
   
   # populate the training results (so we can see the end result); this is also a prediction_model object
-  training_results <- predict.prediction_model(predictionModel, location_data, progress=FALSE)
-  training_results$flux_model$params <- optimresults$par
+  training_results <- predict.prediction_model(prediction_model, location_data, progress=FALSE)
+  training_results$flux_model$params <- optim_results$par
   training_results$dataset  <- list(movement_matrix = rounded_matrix, location_dataframe = location_data)
   
   if(go_parallel){
@@ -130,14 +130,14 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
-  me <- list(optimisationresults = optimresults,
-             trainingresults = training_results,
-             coefficients = optimresults$par,
+  me <- list(optimisation_results = optim_results,
+             training_results = training_results,
+             coefficients = optim_results$par,
              df.null = nulldf, # not checked
-             df.residual = nulldf - length(optimresults$value), # not checked
-             null.deviance = analysepredictionusingdpois(training_results, c(0,0)), # intercept only model, this is clearly wrong
-             deviance = optimresults$value, # -2* log likelihood, which is what we are optimising on anyway
-             aic = optimresults$value + 2 * length(optimresults$value)) # deviance + (2* number of params)
+             df.residual = nulldf - length(optim_results$value), # not checked
+             null.deviance = analysePredictionUsingdPois(training_results, c(0,0)), # intercept only model, this is clearly wrong
+             deviance = optim_results$value, # -2* log likelihood, which is what we are optimising on anyway
+             aic = optim_results$value + 2 * length(optim_results$value)) # deviance + (2* number of params)
   class(me) <- "movement_model"
   return (me)
 }
@@ -211,7 +211,7 @@ extractArgumentsFromFormula <- function (formula, other = NULL) {
 #' # generate a flux object
 #' flux <- radiationWithSelection()
 #' # run the prediction for the theoretical model
-#' predictedMovement  <- predict(flux, kenya10)
+#' predicted_movement  <- predict(flux, kenya10)
 #' @export
 #' @importFrom parallel detectCores
 #' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
@@ -219,8 +219,8 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
   
   if(is(location_dataframe, "RasterLayer")) {
     # create the prediction model object
-    predictionModel <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
-    prediction <- predict.prediction_model(predictionModel, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
+    prediction_model <- makePredictionModel(dataset = location_dataframe, min_network_pop = min_network_pop, flux_model = object, symmetric = symmetric)    
+    prediction <- predict.prediction_model(prediction_model, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)    
     return (list(
@@ -228,8 +228,8 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
       movement_matrix = movement_matrix))
   } else if (is(location_dataframe, "data.frame")) {
     # create the prediction model object
-    predictionModel <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
-    prediction <- predict.prediction_model(predictionModel, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
+    prediction_model <- makePredictionModel(dataset=location_dataframe, min_network_pop=min_network_pop, flux_model = object, symmetric = symmetric)   
+    prediction <- predict.prediction_model(prediction_model, location_dataframe, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)
     df <- data.frame(location=prediction$net$locations, population=prediction$net$population, coordinates=prediction$net$coordinates)
     movement_matrix  <- as.movement_matrix(prediction$prediction)
     return (list(
@@ -250,7 +250,7 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' \code{x} (numeric) and \code{y} (numeric).
 #' 
 #' @param object A configured prediction model of class \code{movement_model}
-#' @param newdata An optional \code{location_dataframe} object or RasterLayer 
+#' @param new_data An optional \code{location_dataframe} object or RasterLayer 
 #' containing population data
 #' @param \dots Extra arguments to pass to the flux function
 #' @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
@@ -272,16 +272,16 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' data(kenya)
 #' kenya10 <- raster::aggregate(kenya, 10, sum)
 #' net <- getNetwork(kenya10, min = 50000)
-#' locationData <- data.frame(location = net$locations, 
+#' location_data <- data.frame(location = net$locations, 
 #'                            population = net$population, 
 #'                            x = net$coordinate[,1], 
 #'                            y = net$coordinate[,2])
-#' locationData  <- as.location_dataframe(locationData)
+#' location_data  <- as.location_dataframe(location_data)
 #' # simulate movements (note the values of movementmatrix must be integer)
-#' predictedMovement  <- predict(originalRadiation(theta = 0.1), locationData, symmetric = TRUE)
-#' movementMatrix <- round(predictedMovement$movement_matrix)
+#' predicted_flux  <- predict(originalRadiation(theta = 0.1), location_data, symmetric = TRUE)
+#' movement_matrix <- round(predicted_flux$movement_matrix)
 #' # fit a new model to these data
-#' movement_model <- movement(movementMatrix ~ locationData, originalRadiation(theta = 0.1))
+#' movement_model <- movement(movement_matrix ~ location_data, originalRadiation(theta = 0.1))
 #' # predict the population movements
 #' predicted_movements  <- predict(movement_model, kenya10)
 #' # display the predicted movements
@@ -290,10 +290,10 @@ predict.flux <- function(object, location_dataframe, min_network_pop = 50000, sy
 #' @export
 #' @importFrom parallel detectCores
 #' @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
-predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_of_cores = NULL, ...) {
-  m <- object$trainingresults
-  m$dataset <- newdata
-  if(is(newdata, "RasterLayer")) {
+predict.movement_model <- function(object, new_data, go_parallel = FALSE, number_of_cores = NULL, ...) {
+  m <- object$training_results
+  m$dataset <- new_data
+  if(is(new_data, "RasterLayer")) {
     prediction <- predict.prediction_model(m, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
@@ -301,8 +301,8 @@ predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_
       dataset = m$dataset)
     class(ans) <- "movement_predictions" 
     return(ans)
-  } else if (is(newdata, "data.frame")) {
-    prediction <- predict.prediction_model(m, newdata, go_parallel = go_parallel, number_of_cores = number_of_cores)
+  } else if (is(new_data, "data.frame")) {
+    prediction <- predict.prediction_model(m, new_data, go_parallel = go_parallel, number_of_cores = number_of_cores)
     ans  <- list(
       net = prediction$net,
       movement_matrix = as.movement_matrix(prediction$prediction),
@@ -310,7 +310,7 @@ predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_
     class(ans) <- "movement_predictions" 
     return(ans)
   } else {
-    stop('Error: Expected parameter `newdata` to be either a RasterLayer or a data.frame')
+    stop('Error: Expected parameter `new_data` to be either a RasterLayer or a data.frame')
   }  
 }
 
@@ -323,7 +323,7 @@ predict.movement_model <- function(object, newdata, go_parallel = FALSE, number_
 #' @name print.movement_model
 #' @method print movement_model
 print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
-  flux_model  <- x$trainingresults$flux_model
+  flux_model  <- x$training_results$flux_model
   cat('Model:  ')
   print(flux_model)
   cat('\n')
@@ -345,7 +345,7 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 
 #' @title Summarize a movement model object
 #' @description Print a summary of a optimised movement model
-#' @param object an \code{movement_model} object
+#' @param object a \code{movement_model} object
 #' @param \dots additional arguments affecting the summary produced.
 #' 
 #' @name summary.movement_model
@@ -353,27 +353,27 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 #' @export
 summary.movement_model <- function(object, ...) {
   
-  coef.p <- object$trainingresults$modelparams
+  coef_params <- object$training_results$modelparams
   dn <- c("Estimate", "Std. Error")
   
   # in some test cases, the std error cannot be calculated using the hessian; in this case return NA and print a message to the user
-  stderrors <- tryCatch({
-    sqrt(abs(diag(solve(object$optimisationresults$hessian)))) # need to plug this into the coef table
+  std_errors <- tryCatch({
+    sqrt(abs(diag(solve(object$optimisation_results$hessian)))) # need to plug this into the coef table
   } , error = function(err) {
     warning(paste("ERROR while calculating the standard error: ", err))
     return(NA) 
   } )
 
   ans <- list(
-    model = object$trainingresults$flux_model,
+    model = object$training_results$flux_model,
     deviance.resid = 1,
-    coefficients = coef.p,
+    coefficients = coef_params,
     nulldeviance = object$null.deviance,
     residdeviance = object$deviance,
     aic = object$aic,
     df.null = object$df.null,
     df.residual = object$df.residual,
-    stderrors = stderrors)
+    std_errors = std_errors)
   class(ans) <- "summary.movement_model"
   return (ans)
 }
@@ -381,6 +381,7 @@ summary.movement_model <- function(object, ...) {
 #' @export
 #' @method print summary.movement_model
 print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+
   cat('Model:  ')
   print(x$model)
   cat('\n')
@@ -410,9 +411,9 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
 plot.movement_model  <- function(x, ...){
   
   #extract the relevant parameters from the movement_model object
-  obs <- x$trainingresults$dataset$movement_matrix # observed movemenent
-  pred <- x$trainingresults$prediction # predicted movements
-  distances <- x$trainingresults$net$distance_matrix # distances  
+  obs <- x$training_results$dataset$movement_matrix # observed movemenent
+  pred <- x$training_results$prediction # predicted movements
+  distances <- x$training_results$net$distance_matrix # distances  
   
   # convert to vectors
   obs <- as.vector(obs)
@@ -1899,7 +1900,7 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 #  \item{coordinate }{A two-column matrix giving the coordinates of the cells
 # of interest in the units of \code{raster}}
 # \item{locations}{A vector giving the locations at the cells of interest}
-getNetworkFromdataframe <- function(dataframe, min = 1, matrix = TRUE) {
+getNetworkFromDataframe <- function(dataframe, min = 1, matrix = TRUE) {
   
   dataframe <- dataframe[!duplicated(dataframe$location),]
   pop <- as.numeric(dataframe["population"]$population)
@@ -1960,7 +1961,7 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # \code{dots} argument.
 # 
 # @param object A configured prediction model of class \code{prediction_model}
-# @param newdata An optional data.frame or RasterLayer containing population data
+# @param new_data An optional data.frame or RasterLayer containing population data
 # @param \dots Extra arguments to pass to the flux function
 # @param go_parallel Flag to enable parallel calculations (if set to TRUE). 
 # Note that parallel programming will only improve the performance with larger datasets; for smaller 
@@ -1975,12 +1976,12 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # @method predict prediction_model
 # @importFrom parallel detectCores
 # @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
-predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE, number_of_cores = NULL, parallel_setup = FALSE, ...) {
-  if(is.null(newdata)) {
+predict.prediction_model <- function(object, new_data = NULL, go_parallel = FALSE, number_of_cores = NULL, parallel_setup = FALSE, ...) {
+  if(is.null(new_data)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
   else {
-    net <- getNetworkFromdataframe(newdata, min = object$min_network_pop)
+    net <- getNetworkFromDataframe(new_data, min = object$min_network_pop)
   }
   object$net = net
   
@@ -2008,7 +2009,7 @@ predict.prediction_model <- function(object, newdata = NULL, go_parallel = FALSE
 # @param prediction A square matrix containing the predicted movements between location IDs
 # @param observed A square matrix containing the observed movements between location IDs
 # @return The log likelihood
-analysepredictionusingdpois <- function(prediction, observed) {	
+analysePredictionUsingdPois <- function(prediction, observed) {	
   observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
   predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
   
@@ -2032,13 +2033,13 @@ analysepredictionusingdpois <- function(prediction, observed) {
 # @param populationdata A dataframe containing population coordinate data
 # @param \dots Parameters passed to \code{\link{ict}}
 # @return The log likelihood of the prediction given the observed data.
-fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
+fittingWrapper <- function(par, predictionModel, observedmatrix, populationdata, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   # the flux function requires the untransformed (i.e. original, constraint) parameters and therefore, need to perform 
   # the inverse transformation here 
   originalParams  <- transformFluxObjectParameters(par, predictionModel$flux_model$transform, inverse = TRUE)
   predictionModel$flux_model$params <- originalParams
   predictedResults <- predict.prediction_model(predictionModel, populationdata, parallel_setup, go_parallel, number_of_cores, ...)
-  loglikelihood <- analysepredictionusingdpois(predictedResults, observedmatrix)
+  loglikelihood <- analysePredictionUsingdPois(predictedResults, observedmatrix)
   return (loglikelihood)
 }
 
@@ -2059,8 +2060,8 @@ fittingwrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # @param \dots Parameters passed to \code{movement.predict}
 # @return See \code{\link{optim}}
 #
-# @seealso \code{\link{createobservedmatrixfromcsv}}
-attemptoptimisation <- function(predictionModel, populationdata, observedmatrix, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
+# @seealso \code{\link{createObservedMatrixFromCsv}}
+attemptOptimisation <- function(predictionModel, populationdata, observedmatrix, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   
   # transform the flux object parameters to unconstraint values using the helper function
   transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
@@ -2068,7 +2069,7 @@ attemptoptimisation <- function(predictionModel, populationdata, observedmatrix,
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
   # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
   optimresults <- tryCatch({
-    optimresults <- optim(transformedParams, fittingwrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
+    optimresults <- optim(transformedParams, fittingWrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   }, error = function(err) {
     message(paste("ERROR: optimiser failed: ", err))
     return(NULL) 
@@ -2139,7 +2140,7 @@ rasterizeShapeFile <- function(filename, keeplist,n=5)  {
 #' numbers correspond to the indexes of a sorted list of the origins found in
 #' the csv file. Values are the actual population movements.
 #' @export
-createobservedmatrixfromcsv <- function(filename, origincolname, destcolname, valcolname) {
+createObservedMatrixFromCsv <- function(filename, origincolname, destcolname, valcolname) {
   data <- read.csv(file=filename,header=TRUE,sep=",")
   nrows = length(unique(data[origincolname])[,1])
   ncols = length(unique(data[destcolname])[,1])
@@ -2443,8 +2444,8 @@ correlateregions <- function(location, regionlist, movementdata) {
 showcomparisonplot <- function(optimisedmodel, observed) {
   par(mfrow=c(2,2))
   plot(raster::raster(observed), main="Observed movement matrix")
-  plot(raster::raster(optimisedmodel$trainingresults$prediction), main="Predicted movement matrix")
-  plot(raster::raster(observed - optimisedmodel$trainingresults$prediction), main="Difference")
+  plot(raster::raster(optimisedmodel$training_results$prediction), main="Predicted movement matrix")
+  plot(raster::raster(observed - optimisedmodel$training_results$prediction), main="Difference")
 }
 
 #' @title Convert a movement_matrix object into a data.frame

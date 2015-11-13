@@ -41,9 +41,8 @@ The \code{movement_matrix} must contain integer values. If the input \code{objec
 values, the function will use rounding to return a valid matrix and display a warning to inform the user of this
 additional rounding.
 
-The most likely format of the location data will be as a single
-\code{data.frame} with the columns \code{location}, \code{population}, \code{lat} and
-\code{long}. This can be extracted from a larger dataframe with
+The format of the location data must be as a single \code{data.frame} with the columns \code{location},
+\code{population}, \code{lat} and \code{long}. This can be extracted from a larger dataframe with
 \code{\link{as.location_dataframe}}
 The \code{movement_matrix} can be extracted from a list of movements
 using \code{\link{as.movement_matrix}}. To check that the given objects are suitable,
@@ -56,16 +55,16 @@ can be used.
 data(kenya)
 kenya10 <- raster::aggregate(kenya, 10, sum)
 net <- getNetwork(kenya10, min = 50000)
-locationData <- data.frame(location = net$locations,
+location_data <- data.frame(location = net$locations,
                            population = net$population,
                            x = net$coordinate[,1],
                            y = net$coordinate[,2])
-locationData  <- as.location_dataframe(locationData)
+location_data  <- as.location_dataframe(location_data)
 # simulate movements (note the values of movementmatrix must be integer)
-predictedMovement  <- predict(radiationWithSelection(theta = 0.5), locationData, symmetric = TRUE)
-movementMatrix <- round(predictedMovement$movement_matrix)
+predicted_flux  <- predict(radiationWithSelection(theta = 0.5), location_data, symmetric = TRUE)
+movement_matrix <- round(predicted_flux$movement_matrix)
 # fit a new model to these data
-movement_model <- movement(movementMatrix ~ locationData, radiationWithSelection(theta = 0.5))
+movement_model <- movement(movement_matrix ~ location_data, radiationWithSelection(theta = 0.5))
 # print movement_model
 print(movement_model)
 # predict the population movements

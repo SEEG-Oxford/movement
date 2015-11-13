@@ -133,9 +133,9 @@ test_that("correlate regions throws an error is any of the parameters are not da
 
 })
 
-test_that("createobservedmatrixfromcsv can correctly process csv file", {
+test_that("createObservedMatrixFromCsv can correctly process csv file", {
 	expectedobserved <- matrix(c(0,300,500,100,0,600,200,400,0), nrow=3)
-	actual <- createobservedmatrixfromcsv("data/observedmatrixtest.csv", "origin", "destination", "movement")
+	actual <- createObservedMatrixFromCsv("data/observedmatrixtest.csv", "origin", "destination", "movement")
 	expect_equal(actual, expectedobserved)
 })
 

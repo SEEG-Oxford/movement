@@ -53,6 +53,6 @@ kenya10 <- raster::aggregate(kenya, 10, sum)
 # generate a flux object
 flux <- radiationWithSelection()
 # run the prediction for the theoretical model
-predictedMovement  <- predict(flux, kenya10)
+predicted_movement  <- predict(flux, kenya10)
 }
 
