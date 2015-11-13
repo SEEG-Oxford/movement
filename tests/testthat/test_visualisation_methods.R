@@ -12,7 +12,8 @@ test_that("plot.prediction_model passes correct parameters to show.prediction", 
 test_that("summary.movement_model returns a summary.movement_model object", {
   dummy_training_results  <- list(flux_model = list(params = "flux_params"))
   dummy_optimisation_results  <- list(hessian = matrix(c(1,2,3,4), nrow = 2), optimised_params = "optimised_params")
-  dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
+  dummy_movement_model <- list(call = "call",
+                              optimisation_results = dummy_optimisation_results,
                               training_results = dummy_training_results,
                               coefficients = "coefficients",
                               df_null = "df_null",
@@ -30,7 +31,8 @@ test_that("summary.movement_model returns a correct summary.movement_model objec
   dummy_training_results  <- list(flux_model = dummy_flux_model)
   dummy_hessian_matrix  <- matrix(c(1,2,3,4), nrow = 2)
   dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix, optimised_params = "optimised_params")
-  dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
+  dummy_movement_model <- list(call = "call",
+                               optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
                                df_null = "df_null",
@@ -40,7 +42,8 @@ test_that("summary.movement_model returns a correct summary.movement_model objec
                                aic = "aic") 
   class(dummy_movement_model)  <- 'movement_model'   
   
-  expected_summary_model = list(model = dummy_flux_model,
+  expected_summary_model = list(call = "call",
+                                model = dummy_flux_model,
                                 coefficients = "flux_params",
                                 null_deviance = "null_deviance",
                                 aic = "aic",
@@ -60,7 +63,8 @@ test_that("summary.movement_model returns NA value for stderror is hessian canno
   dummy_training_results  <- list(flux_model = dummy_flux_model)
   dummy_hessian_matrix  <- matrix(c(1,1,1,1), nrow = 2)
   dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix, optimised_params = "optimised_params")
-  dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
+  dummy_movement_model <- list(call = "call",
+                               optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
                                df_null = "df_null",
@@ -79,7 +83,8 @@ test_that("summary.movement_model prints a message to the user of function canno
   dummy_training_results  <- list(flux_model = dummy_flux_model)
   dummy_hessian_matrix  <- matrix(c(1,1,1,1), nrow = 2)
   dummy_optimisation_results  <- list(hessian = dummy_hessian_matrix, optimised_params = "optimised_params")
-  dummy_movement_model <- list(optimisation_results = dummy_optimisation_results,
+  dummy_movement_model <- list(call = "call",
+                               optimisation_results = dummy_optimisation_results,
                                training_results = dummy_training_results,
                                coefficients = "coefficients",
                                df_null = "df_null",

@@ -75,6 +75,8 @@
 #' @importFrom stats plogis qlogis
 movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, number_of_cores = NULL, ...) {
   
+  call <- match.call()
+  
   # receive the movement_matrix and the location_dataframe from the formula
   args  <- extractArgumentsFromFormula(formula)
   movement_matrix  <- args$movement_matrix
@@ -130,7 +132,8 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   
   cat("Training complete.\n")
   dimnames(training_results$prediction) <- dimnames(movement_matrix)
-  me <- list(optimisation_results = optim_results,
+  me <- list(call = call,
+             optimisation_results = optim_results,
              training_results = training_results,
              coefficients = optim_results$par,
              df_null = nulldf, # not checked
@@ -375,15 +378,16 @@ summary.movement_model <- function(object, ...) {
     return(NA) 
   } )
 
-  ans <- list(
-    model = object$training_results$flux_model,
-    coefficients = coef_params,
-    null_deviance = object$null_deviance,
-    aic = object$aic,
-    df_null = object$df_null,
-    df_residual = object$df_residual,
-    trans_coeff = object$optimisation_results$optimised_params,
-    trans_coeff_std_errors = std_errors)
+  ans <- list(call = object$call,
+              model = object$training_results$flux_model,
+              coefficients = coef_params,
+              null_deviance = object$null_deviance,
+              aic = object$aic,
+              df_null = object$df_null,
+              df_residual = object$df_residual,
+              trans_coeff = object$optimisation_results$optimised_params,
+              trans_coeff_std_errors = std_errors
+              )
   class(ans) <- "summary.movement_model"
   return (ans)
 }
@@ -392,8 +396,9 @@ summary.movement_model <- function(object, ...) {
 #' @method print summary.movement_model
 print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
   
-  cat('Fitted radiation with', x$model$name, 'model \n\n')
-  cat('Call: \n')
+  cat('Fitted radiation with', x$model$name, 'model \n')
+  cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+      "\n\n", sep = "")
   
   cat('========= old ============== \n')
   cat('Model:  ')
