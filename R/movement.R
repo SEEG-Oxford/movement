@@ -353,7 +353,7 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 #' @export
 summary.movement_model <- function(object, ...) {
   
-  coef_params <- object$training_results$modelparams
+  coef_params <- object$training_results$flux_model$params
   dn <- c("Estimate", "Std. Error")
   
   # in some test cases, the std error cannot be calculated using the hessian; in this case return NA and print a message to the user
@@ -391,6 +391,7 @@ print.summary.movement_model <- function(x, digits = max(3L, getOption("digits")
     cat(":\n")
     print.default(format(x$coefficients, digits = digits),
                   print.gap = 2, quote = FALSE)
+    cat("\n")
   } else cat("No coefficients\n\n")
   cat(paste('Null Deviance:     ', x$nulldeviance, 'on', x$df.null, 'degrees of freedom\n'))
   cat(paste('Residual Deviance: ', x$residdeviance, 'on', x$df.residual, 'degrees of freedom\n'))
@@ -2028,18 +2029,19 @@ analysePredictionUsingdPois <- function(prediction, observed) {
 # used as the \code{\link{optim}} minimisation value
 #
 # @param par theta values for the flux function
-# @param predictionModel The prediction_model object type being optimised 
-# @param observedmatrix A matrix containing the observed population movements
-# @param populationdata A dataframe containing population coordinate data
+# @param prediction_model The prediction_model object type being optimised 
+# @param observed_matrix A matrix containing the observed population movements
+# @param population_data A dataframe containing population coordinate data
 # @param \dots Parameters passed to \code{\link{ict}}
 # @return The log likelihood of the prediction given the observed data.
-fittingWrapper <- function(par, predictionModel, observedmatrix, populationdata, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
+fittingWrapper <- function(par, prediction_model, observed_matrix, population_data, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   # the flux function requires the untransformed (i.e. original, constraint) parameters and therefore, need to perform 
   # the inverse transformation here 
-  originalParams  <- transformFluxObjectParameters(par, predictionModel$flux_model$transform, inverse = TRUE)
-  predictionModel$flux_model$params <- originalParams
-  predictedResults <- predict.prediction_model(predictionModel, populationdata, parallel_setup, go_parallel, number_of_cores, ...)
-  loglikelihood <- analysePredictionUsingdPois(predictedResults, observedmatrix)
+  original_params  <- transformFluxObjectParameters(par, prediction_model$flux_model$transform, inverse = TRUE)
+  prediction_model$flux_model$params <- original_params
+  
+  predicted_results <- predict.prediction_model(prediction_model, population_data, parallel_setup, go_parallel, number_of_cores, ...)
+  loglikelihood <- analysePredictionUsingdPois(predicted_results, observed_matrix)
   return (loglikelihood)
 }
 
@@ -2049,11 +2051,11 @@ fittingWrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # Runs the optim function using the BFGS optimisation method to try and
 # optimise the parameters of the given prediction model.
 #
-# @param predictionModel A configured prediction model
-# @param populationdata A dataframe containing population data linked to the
-# IDs in the predictionModel raster. Requires 4 columns named \code{origin},
+# @param prediction_model A configured prediction model
+# @param population_data A dataframe containing population data linked to the
+# IDs in the prediction_model raster. Requires 4 columns named \code{origin},
 # \code{pop_origin}, \code{long_origin}, \code{lat_origin}
-# @param observedmatrix A matrix containing observed population movements. Row
+# @param observed_matrix A matrix containing observed population movements. Row
 # and column numbers correspond to the indexes of a sorted list of the origins
 # and destinations used in populationdata. Values are the actual population
 # movements.
@@ -2061,29 +2063,32 @@ fittingWrapper <- function(par, predictionModel, observedmatrix, populationdata,
 # @return See \code{\link{optim}}
 #
 # @seealso \code{\link{createObservedMatrixFromCsv}}
-attemptOptimisation <- function(predictionModel, populationdata, observedmatrix, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
+attemptOptimisation <- function(prediction_model, population_data, observed_matrix, parallel_setup = FALSE, go_parallel = FALSE, number_of_cores = NULL, ...) {
   
   # transform the flux object parameters to unconstraint values using the helper function
-  transformedParams  <- transformFluxObjectParameters(predictionModel$flux_model$params,predictionModel$flux_model$transform, FALSE)
+  transformed_params  <- transformFluxObjectParameters(prediction_model$flux_model$params,prediction_model$flux_model$transform, FALSE)
   
   # run optimisation on the prediction model using the BFGS method. The initial parameters set in the prediction model are used as the initial par value for optimisation
   # the optim() function require the transformed (i.e. = unconstraint) parameters to be optimized over  
-  optimresults <- tryCatch({
-    optimresults <- optim(transformedParams, fittingWrapper, method="BFGS", predictionModel = predictionModel, observedmatrix = observedmatrix, populationdata = populationdata, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
+  optim_results <- tryCatch({
+    optim_results <- optim(transformed_params, fittingWrapper, method="BFGS", prediction_model = prediction_model, observed_matrix = observed_matrix, population_data = population_data, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   }, error = function(err) {
     message(paste("ERROR: optimiser failed: ", err))
     return(NULL) 
   })
   
   # check if the tryCatch returns null in which case the program should stop!
-  if(is.null(optimresults[[1]])){
+  if(is.null(optim_results[[1]])){
     stop("Error: Optimser failed.")
   }
   
-  # perform the inverse transformation on the optimised parameters into its true (i.e. constraint) scale
-  optimresults$par  <- transformFluxObjectParameters(optimresults$par, predictionModel$flux_model$transform, TRUE)
+  # store the optimised parameters in a separate value for reporting
+  optim_results$optimised_params  <- optim_results$par
   
-  return (optimresults)
+  # perform the inverse transformation on the optimised parameters into its true (i.e. constraint) scale
+  optim_results$par  <- transformFluxObjectParameters(optim_results$par, prediction_model$flux_model$transform, TRUE)
+  
+  return (optim_results)
 }
 
 ###############################################################################
