@@ -446,6 +446,19 @@ plot.movement_model  <- function(x, ...){
   plotComparePredictions(obs, pred, distances)
 }
 
+#' @title Akaike's An Information Criterion for the movement model oject
+#' @description Calculate the AIC for the \code{movement_model} object provided. 
+#' @param object a \code{movement_model} object
+#' @param \dots further arguments to be passed to or from other methods. Won't be used here.  
+#' @return A numeric value with the corresponding AIC.
+#' @name AIC.movement_model
+#' @method AIC movement_model
+#' @export
+AIC.movement_model  <- function(object,...){
+  aic  <- object$optimisation_results$value + 2 * length(object$optimisation_results$value)
+  return(aic)
+}
+
 ###############################################################################
 # Model definition and prediction methods                                     #
 ###############################################################################

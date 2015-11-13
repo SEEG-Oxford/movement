@@ -274,3 +274,21 @@ test_that("predict.flux returns list of correct data when given a data.frame", {
   )  
 })
 
+test_that("AIC.movement_model returns correct value", {
+  dummy_movement_model <- list(call = "call",
+                               optimisation_results = list(value = 2),
+                               training_results = "training_results",
+                               coefficients = "coefficients",
+                               df_null = "df_null",
+                               df_residual = "df_residual", 
+                               null_deviance = "null_deviance",
+                               deviance = "deviance",
+                               aic = "aic") 
+  class(dummy_movement_model)  <- 'movement_model'  
+  
+  expected_aic  <- 4
+  actual_aic  <- AIC(dummy_movement_model)
+  expect_equal(actual_aic, expected_aic)
+})
+
+
