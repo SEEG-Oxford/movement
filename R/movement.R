@@ -366,10 +366,11 @@ print.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), 
 #' @method summary movement_model
 #' @export
 summary.movement_model <- function(object, ...) {
-  
-  coef_params <- object$training_results$flux_model$params
-  dn <- c("Estimate", "Std. Error")
-  
+    
+  true_coeff <- object$training_results$flux_model$params
+  trans_coeff <- object$optimisation_results$optimised_params
+  number_of_coeff  <- length(true_coeff)
+    
   # in some test cases, the std error cannot be calculated using the hessian; in this case return NA and print a message to the user
   std_errors <- tryCatch({
     sqrt(abs(diag(solve(object$optimisation_results$hessian)))) # need to plug this into the coef table
@@ -377,16 +378,18 @@ summary.movement_model <- function(object, ...) {
     warning(paste("ERROR while calculating the standard error: ", err))
     return(NA) 
   } )
-
+  
+  # construct a matrix object containing the true & trans coeff with the std error
+  coefficients  <- cbind(true_coeff, trans_coeff, std_errors)
+  colnames(coefficients) <- list("Estimate", "Estimate (trans.)", "Std. Error (trans.)")
+  
   ans <- list(call = object$call,
               model = object$training_results$flux_model,
-              coefficients = coef_params,
+              coefficients = coefficients,
               null_deviance = object$null_deviance,
               aic = object$aic,
               df_null = object$df_null,
-              df_residual = object$df_residual,
-              trans_coeff = object$optimisation_results$optimised_params,
-              trans_coeff_std_errors = std_errors
+              df_residual = object$df_residual            
               )
   class(ans) <- "summary.movement_model"
   return (ans)
@@ -394,32 +397,21 @@ summary.movement_model <- function(object, ...) {
 
 #' @export
 #' @method print summary.movement_model
-print.summary.movement_model <- function(x, digits = max(3L, getOption("digits") - 3L), ...) {
+print.summary.movement_model <- function(x, digits = max(5L, getOption("digits") - 5L), ...) {
   
   cat('Fitted radiation with', x$model$name, 'model \n')
   cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
-      "\n\n", sep = "")
+      "\n", sep = "")
   
-  cat('========= old ============== \n')
-  cat('Model:  ')
-  print(x$model)
-  cat('\n')
-  cat(paste('Deviance Residuals:  ', x$deviance_resid, '\n\n'))
-  if(length(coef(x))) {
-    cat("Coefficients")
-    cat(":\n")
-    print.default(format(x$coefficients, digits = digits),
-                  print.gap = 2, quote = FALSE)
-    cat("\n")
-    # print the optimised coefficients
-    cat("Optimised coefficients")
-    cat(":\n")
-    print.default(format(x$trans_coeff, digits = digits),
-                  print.gap = 2, quote = FALSE)
-    cat("\n")
-    
-  } else cat("No coefficients\n\n")
-  cat(paste('Std error of optimised coefficients:     ', x$trans_coeff_std_errors, '\n\n'))
+  cat("\nCoefficients:\n")
+  print.default(format(x$coefficients, digits = digits),
+                print.gap = 2, quote = FALSE)
+  cat("\n")
+  cat("Columns labelled 'trans.' give values on the continuous scale, after parameter transformation.\n")
+  cat('See ?')
+  help_phrase  <- toCamelCase(x$model$name, " ")
+  cat(paste(help_phrase, 'for the model formulation and explanation of parameters.\n\n'))
+  
   cat(paste('Null Deviance:     ', x$null_deviance, 'on', x$df_null, 'degrees of freedom\n'))
   cat(paste('Residual Deviance: ', x$resid_deviance, 'on', x$df_residual, 'degrees of freedom\n'))
   cat(paste('AIC:  ', x$aic, '\n\n'))
