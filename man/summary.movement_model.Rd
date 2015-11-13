@@ -14,7 +14,6 @@
 \value{
 Returns a \code{summary.movement_model} object containing a list of the following parameters
 \item{model}{The \code{flux} model objects used}
-\item{deviance_resid}{the deviance residuals}
 \item{coefficients}{The parameters estimates on the true scale used in the flux model equations}
 \item{trans_coeff}{The parameters estimates on the continuous scale, after parameter transformation,
  used for the optimisation process}

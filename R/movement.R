@@ -124,6 +124,8 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   # populate the training results (so we can see the end result); this is also a prediction_model object
   training_results <- predict.prediction_model(prediction_model, location_data, progress=FALSE)
   training_results$flux_model$params <- optim_results$par
+  # assign the names attribute from the original flux model params to the trained flux model params
+  names(training_results$flux_model$params)  <- names(flux_model$params)
   training_results$dataset  <- list(movement_matrix = rounded_matrix, location_dataframe = location_data)
   
   if(go_parallel){
@@ -382,7 +384,8 @@ summary.movement_model <- function(object, ...) {
   # construct a matrix object containing the true & trans coeff with the std error
   coefficients  <- cbind(true_coeff, trans_coeff, std_errors)
   colnames(coefficients) <- list("Estimate", "Estimate (trans.)", "Std. Error (trans.)")
-  
+  rownames(coefficients) <- names(true_coeff)
+    
   ans <- list(call = object$call,
               model = object$training_results$flux_model,
               coefficients = coefficients,
