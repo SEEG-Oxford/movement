@@ -2109,6 +2109,7 @@ attemptOptimisation <- function(prediction_model, population_data, observed_matr
     optim_results <- optim(transformed_params, fittingWrapper, method="BFGS", prediction_model = prediction_model, observed_matrix = observed_matrix, population_data = population_data, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   }, error = function(err) {
     message(paste("ERROR: optimiser failed: ", err))
+    message(paste("failing parameters:" , dput(prediction_model$flux_model$params)))
     return(NULL) 
   })
   
