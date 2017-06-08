@@ -2077,7 +2077,7 @@ fittingWrapper <- function(par, prediction_model, observed_matrix, population_da
   
   predicted_results <- predict.prediction_model(prediction_model, population_data, parallel_setup, go_parallel, number_of_cores, ...)
   loglikelihood <- analysePredictionUsingdPois(predicted_results, observed_matrix)
-  if (!is.finite(loglikelihood)) {
+  if (is.na(loglikelihood)) {
     message("failing parameters:\n",
             capture.output(dput(original_params)))
   }
