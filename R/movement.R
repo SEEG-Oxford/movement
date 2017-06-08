@@ -2077,6 +2077,13 @@ fittingWrapper <- function(par, prediction_model, observed_matrix, population_da
   
   predicted_results <- predict.prediction_model(prediction_model, population_data, parallel_setup, go_parallel, number_of_cores, ...)
   loglikelihood <- analysePredictionUsingdPois(predicted_results, observed_matrix)
+  if (!is.finite(loglikelihood)) {
+    message("failing parameters:\n",
+            capture.output(dput(original_params)))
+  }
+
+  
+  
   return (loglikelihood)
 }
 
@@ -2109,7 +2116,6 @@ attemptOptimisation <- function(prediction_model, population_data, observed_matr
     optim_results <- optim(transformed_params, fittingWrapper, method="BFGS", prediction_model = prediction_model, observed_matrix = observed_matrix, population_data = population_data, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...)    
   }, error = function(err) {
     message(paste("ERROR: optimiser failed: ", err))
-    message(paste("failing parameters:" , dput(prediction_model$flux_model$params)))
     return(NULL) 
   })
   
