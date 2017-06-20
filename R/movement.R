@@ -94,7 +94,7 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
-  nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
+  nobs <- sum(!is.na(movement_matrix))
   nulldf <- nobs # no predictors for null degrees of freedom
   
   # check to ensure that the given observed movement has only integer values
@@ -2076,7 +2076,10 @@ fittingWrapper <- function(par, prediction_model, observed_matrix, population_da
   prediction_model$flux_model$params <- original_params
   
   predicted_results <- predict.prediction_model(prediction_model, population_data, parallel_setup, go_parallel, number_of_cores, ...)
-  loglikelihood <- analysePredictionUsingdPois(predicted_results, observed_matrix)
+  
+  # find the edges for which the observation is not NA, calculate likelihood on these
+  not_na_idx <- which(!is.na(observed_matrix))
+  loglikelihood <- analysePredictionUsingdPois(predicted_results[not_na_idx], observed_matrix[not_na_idx])
   if (is.na(loglikelihood)) {
     message("failing parameters:\n",
             capture.output(dput(original_params)))
