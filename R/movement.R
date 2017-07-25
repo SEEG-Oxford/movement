@@ -2049,6 +2049,11 @@ analysePredictionUsingdPois <- function(prediction, observed) {
   observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
   predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
   
+  # drop NAs in observed data
+  not_na_idx <- which(!is.na(observed))
+  observed <- observed[not_na_idx]
+  predicted <- predicted[not_na_idx]
+  
   retval <- sum(dpois(observed, predicted, log = TRUE)) * -2;
   #if(is.nan(retval)) {
   #	cat(paste('Warning: Likelihood was NaN, changing to Max Value to allow simulation to continue\n'))
@@ -2078,8 +2083,7 @@ fittingWrapper <- function(par, prediction_model, observed_matrix, population_da
   predicted_results <- predict.prediction_model(prediction_model, population_data, parallel_setup, go_parallel, number_of_cores, ...)
   
   # find the edges for which the observation is not NA, calculate likelihood on these
-  not_na_idx <- which(!is.na(observed_matrix))
-  loglikelihood <- analysePredictionUsingdPois(predicted_results$prediction[not_na_idx], observed_matrix[not_na_idx])
+  loglikelihood <- analysePredictionUsingdPois(predicted_results, observed_matrix)
   if (is.na(loglikelihood)) {
     message("failing parameters:\n",
             capture.output(dput(original_params)))
