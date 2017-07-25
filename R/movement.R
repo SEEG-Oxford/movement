@@ -2079,7 +2079,7 @@ fittingWrapper <- function(par, prediction_model, observed_matrix, population_da
   
   # find the edges for which the observation is not NA, calculate likelihood on these
   not_na_idx <- which(!is.na(observed_matrix))
-  loglikelihood <- analysePredictionUsingdPois(predicted_results[not_na_idx], observed_matrix[not_na_idx])
+  loglikelihood <- analysePredictionUsingdPois(predicted_results$prediction[not_na_idx], observed_matrix[not_na_idx])
   if (is.na(loglikelihood)) {
     message("failing parameters:\n",
             capture.output(dput(original_params)))
