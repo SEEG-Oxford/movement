@@ -118,6 +118,13 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   # create the prediction model which is an internal used prediction_model object (not exported to end user!)
   prediction_model <- makePredictionModel(dataset=NULL, min_network_pop=1, flux_model = flux_model, symmetric=FALSE)
   
+  # compute the distance matrix and add to the location data as an attribute, so
+  # that it doesn't need to be recalculated
+  coords <- as.matrix(location_data[c("x", "y")])
+  coords <- matrix(coords, ncol = 2)
+  colnames(coords)  <- c("x","y")
+  attr(location_data, "distance_matrix") <- dist(coords) 
+  
   # attempt to parameterise the model using optim  
   optim_results <- attemptOptimisation(prediction_model, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) 
   
@@ -1943,7 +1950,13 @@ getNetworkFromDataframe <- function(dataframe, min = 1, matrix = TRUE) {
   coords <- as.matrix(dataframe[c("x", "y")])
   coords <- matrix(coords, ncol=2)
   colnames(coords)  <- c("x","y")
-  dis <- dist(coords)
+  
+  # if it already has a distance matrix attribute, just reuse that
+  dis <- attr(dataframe, "distance_matrix")
+  if (is.null(dis)) {
+    dis <- dist(coords)
+  }
+  
   locations <- dataframe["location"]$location
   
   # if we want a matrix, not a 'dist' object convert it
