@@ -66,7 +66,7 @@ test_that("movement function throws an error if given the wrong matrix type", {
 test_that("movement function throws an error if not given formula as expected", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
   expect_true(is.movement_matrix(movementData))  # ensure that matrix is not of expected class  
-  expect_error(movement(movementData, data, radiationWithSelection()), "Error in extractArgumentsFromFormula")
+  expect_error(movement(movementData, data, radiationWithSelection()))
 })
 
 movement_matrix_with_non_integer_values  <- matrix(c(0.192,1.2,2.02,3.34,0.42,4.921,5.282,6.282,0.012),nrow=3) # movement cannot be given in decimal numbers (must be integer!)
