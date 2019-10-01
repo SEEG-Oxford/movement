@@ -116,7 +116,7 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   }
   
   # create the prediction model which is an internal used prediction_model object (not exported to end user!)
-  prediction_model <- makePredictionModel(dataset=NULL, min_network_pop=50000, flux_model = flux_model, symmetric=FALSE)
+  prediction_model <- makePredictionModel(dataset=NULL, min_network_pop=1, flux_model = flux_model, symmetric=FALSE)
   
   # attempt to parameterise the model using optim  
   optim_results <- attemptOptimisation(prediction_model, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) 
@@ -1516,7 +1516,7 @@ gravityWithDistanceFlux <- function(i, j, distance, population,
 # @param \dots Arguments to pass to the flux function
 # @return A matrix giving predicted movements between sites stored in the indices vector
 calculateFlux  <- function(indices, flux, distance, population,  symmetric, progress = FALSE, ...){
-  
+
   # set up optional text progress bar which will be shown when running the calculation in serial only 
   if (progress) {
     start <- Sys.time()
@@ -2013,6 +2013,7 @@ makePredictionModel <- function(dataset, min_network_pop = 50000, flux_model = o
 # @importFrom parallel detectCores
 # @importFrom snowfall sfInit sfLibrary sfExport sfLapply sfStop
 predict.prediction_model <- function(object, new_data = NULL, go_parallel = FALSE, number_of_cores = NULL, parallel_setup = FALSE, ...) {
+
   if(is.null(new_data)) {
     net <- getNetwork(object$dataset, min = object$min_network_pop)
   }
