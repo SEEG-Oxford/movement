@@ -1,5 +1,3 @@
-library(movement)
-library(raster)
 context("Main Interface Methods")
 
 test_that("predict.movement_model returns list of correct data when given a RasterLayer", {
@@ -39,11 +37,13 @@ test_that("predict.movement_model throws an error if given the wrong type", {
 })
 
 locations <- c("a","b","c")
-coords <- data.frame(c(1,2,3,4,5,6), nrow=3)
+coords <- matrix(1:6, nrow = 3)
 population <- c(1000,2000,3000)
 data <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]) 
 class(data) <- c('location_dataframe', 'data.frame')
+attr(data, "distance_matrix") <- dist(coords)
 movementData <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+rownames(movementData) <- colnames(movementData) <- locations
 class(movementData) <- c('movement_matrix', 'matrix') 
 assign("movementData", movementData, envir = .GlobalEnv)
 assign("data", data, envir = .GlobalEnv)
@@ -55,7 +55,7 @@ test_that("movement function throws an error if given the wrong flux type", {
   expect_error(movement(movementData ~ data, "dummy flux object"), "Error: Unknown flux model type given. The input 'flux_model' has to be a flux object.")
 })
 
-notMovementMatrix <- matrix(c(0,1,2,3,0,4,5,6,0),nrow=3)
+notMovementMatrix <- matrix(c(0,1,2,3,0,4,5,6,0), nrow = 3)
 
 test_that("movement function throws an error if given the wrong matrix type", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
@@ -69,8 +69,8 @@ test_that("movement function throws an error if not given formula as expected", 
   expect_error(movement(movementData, data, radiationWithSelection()))
 })
 
-movement_matrix_with_non_integer_values  <- matrix(c(0.192,1.2,2.02,3.34,0.42,4.921,5.282,6.282,0.012),nrow=3) # movement cannot be given in decimal numbers (must be integer!)
-class(movement_matrix_with_non_integer_values) <- c('movement_matrix', 'matrix') 
+movement_matrix_with_non_integer_values <- movementData
+movement_matrix_with_non_integer_values[] <- c(0.192,1.2,2.02,3.34,0.42,4.921,5.282,6.282,0.012) # movement cannot be given in decimal numbers (must be integer!)
 assign("movement_matrix_with_non_integer_values", movement_matrix_with_non_integer_values, envir = .GlobalEnv)
 
 test_that("movement function throws an error if given an invalid movement matrix", {
@@ -91,17 +91,25 @@ test_that("movement function correctly round the movement_matrix when containing
     return (list(prediction=NULL))
   },		
   `movement:::analysePredictionUsingdPois` = function(x, y) return (1),
-  actual_movement_object <- movement(movement_matrix_with_non_integer_values ~ data, originalRadiation()),
-  expected_rounded_matrix  <- matrix(c(0,1,2,3,0,5,5,6,0),nrow=3),
+  expect_warning(
+    actual_movement_object <- movement(movement_matrix_with_non_integer_values ~ data, originalRadiation()),
+    "contains non-integer values"
+  ),
+  expected_rounded_matrix  <- movement_matrix_with_non_integer_values, 
+  expected_rounded_matrix[] <- c(0,1,2,3,0,5,5,6,0),
   class(expected_rounded_matrix)  <- c('movement_matrix', 'matrix'),
   actual_movement_matrix  <- actual_movement_object$training_results$dataset$movement_matrix,
   expect_equal(actual_movement_matrix, expected_rounded_matrix)
   )
 })
 
+movement_matrix_no_names <- movementData 
+rownames(movement_matrix_no_names) <- colnames(movement_matrix_no_names) <- NULL
+assign("movement_matrix_no_names", movement_matrix_no_names, envir = .GlobalEnv)
+
 test_that("movement function print warning when inconsistency in locations between movement matrix and location data are found", {
   expect_true(is.location_dataframe(data)) # check that the data are of correct class
-  expect_true(is.movement_matrix(movementData))  # check that the data are of correct class  
+  expect_true(is.movement_matrix(movement_matrix_no_names))  # check that the data are of correct class  
   with_mock(`movement:::attemptOptimisation` = function(predictionModel, location_data, movementData, progress, hessian, ...) {
     return (list(par=predictionModel$flux_model$params, value=2,inputs=list(predictionModel=predictionModel, population_data=location_data, movement_matrix=movementData, progress=progress, hessian=hessian)))
   },   
@@ -109,7 +117,7 @@ test_that("movement function print warning when inconsistency in locations betwe
     return (list(prediction=NULL))
   },		
   `movement:::analysePredictionUsingdPois` = function(x, y) return (1),  
-  expect_warning(movement(movementData ~ data, originalRadiation()), 
+  expect_warning(movement(movement_matrix_no_names ~ data, originalRadiation()), 
                  "The given movement_matrix and the location_dataframe having non-matching location information.")
   )
 })
@@ -217,6 +225,7 @@ test_that("movement creates population_data correctly", {
 		actual_movement_object <- movement(movementData ~ data, gravity()),
 		expected_population_data  <- data.frame(location = locations, population = population, x = coords[,1], y = coords[,2]),
     class(expected_population_data)  <- c('location_dataframe', 'data.frame'),
+		attr(expected_population_data, "distance_matrix") <- dist(coords),
     expect_equal(actual_movement_object$optimisation_results$inputs$population_data, expected_population_data)
 	)
 })

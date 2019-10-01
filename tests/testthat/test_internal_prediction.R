@@ -1,5 +1,3 @@
-library(movement)
-
 context("Internal prediction and optimisation methods")
 	
 test_that("getNetworkFromDataframe returns population list", {

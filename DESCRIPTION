@@ -7,6 +7,6 @@ Author: Nick Golding, Kathrin Wuensch, Andrew Schofield, Alex T. Perkins, C. Jes
 Maintainer: Nick Golding <nick.golding.research@gmail.com>
 Description: Fitting, analysing and making predictions from mathematical models of population-scale human movement patterns.
 License: GPL(>=2)
-Depends: R (>= 2.10)
-Imports: raster, rgdal, tools, sp, methods, gdistance, viridis, snowfall
+Depends: R (>= 2.10), snowfall
+Imports: raster, rgdal, tools, sp, methods, gdistance, viridis
 Suggests: testthat
