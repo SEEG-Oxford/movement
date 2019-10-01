@@ -139,8 +139,10 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
     stopParallelSetup()
   }
   
-  cat("Training complete.\n")
-  dimnames(training_results$prediction) <- dimnames(movement_matrix)
+  message("Training complete.\n")
+  if (!is.null(training_results$prediction)) {
+    dimnames(training_results$prediction) <- dimnames(movement_matrix)
+  }
   me <- list(call = call,
              optimisation_results = optim_results,
              training_results = training_results,
@@ -1945,7 +1947,9 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 # \item{locations}{A vector giving the locations at the cells of interest}
 getNetworkFromDataframe <- function(dataframe, min = 1, matrix = TRUE) {
   
-  dataframe <- dataframe[!duplicated(dataframe$location),]
+  duplicates <- duplicated(dataframe$location)
+  
+  dataframe <- dataframe[!duplicates,]
   pop <- as.numeric(dataframe["population"]$population)
   coords <- as.matrix(dataframe[c("x", "y")])
   coords <- matrix(coords, ncol=2)
@@ -1954,15 +1958,33 @@ getNetworkFromDataframe <- function(dataframe, min = 1, matrix = TRUE) {
   # if it already has a distance matrix attribute, just reuse that
   dis <- attr(dataframe, "distance_matrix")
   if (is.null(dis)) {
+    
     dis <- dist(coords)
+    
+    if (matrix) {
+      dis <- as.matrix(dis)
+    }
+  
+  } else {
+    if (any(duplicates)) {
+      # otherwise, remove duplicates
+      dis <- as.matrix(dis)
+      dis <- dis[!duplicates, !duplicates]
+      # these needs to be done as a matrix, so change back if needed
+      if (!matrix) {
+        dis <- as.dist(dis)
+      }
+    } else {
+      if (matrix) {
+        dis <- as.matrix(dis)
+      }
+    }
+    
   }
   
   locations <- dataframe["location"]$location
   
   # if we want a matrix, not a 'dist' object convert it
-  if (matrix) {
-    dis <- as.matrix(dis)
-  }
   
   return (list(population = pop,
                distance_matrix = dis,
