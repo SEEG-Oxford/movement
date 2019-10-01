@@ -2342,8 +2342,9 @@ as.location_dataframe.data.frame <- function(input, ...) {
   # find duplicated rows and print a warning message if any duplicated entries were found
   duplicated_rows  <- input[duplicated(input$location),]
   if(nrow(duplicated_rows) > 0){
-    warning("Warning: The following duplicated rows were removed from the location data frame:")
-    warning(duplicated_rows)
+    msg <- paste("Warning: The following duplicated rows were removed from the location data frame:",
+                 paste(duplicated_rows, collapse = ","))
+    warning(msg)
   }
    
   #remove duplicated locations/origins

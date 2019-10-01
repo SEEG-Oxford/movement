@@ -1,5 +1,3 @@
-library(movement)
-library(raster)
 context("Main Interface Methods")
 
 test_that("predict.movement_model returns list of correct data when given a RasterLayer", {
