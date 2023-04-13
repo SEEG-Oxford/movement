@@ -26,7 +26,7 @@ Code to fit such a model might look like this:
 m <- movement(observed_movement ~ location_data, model = radiationWithSelection())
 ```
 
-where ```observed_movement``` is a ```movement_matrix``` object containing observations about movements between pairs of locations, ```location_data``` is a ```location_dataframe``` object containing the coordinates and populations of those locations, and ```radiationWithSelection()``` creates a ```flux``` object, representing the type of movement model to by fitted. Current supported movement models are: radiation with selection, original radiation, gravity, gravity with distance cutoff, intervening opportunities and uniform selection.
+where ```observed_movement``` is a ```movement_matrix``` object containing observations about movements between pairs of locations, ```location_data``` is a ```location_dataframe``` object containing the coordinates and populations of those locations, and ```radiationWithSelection()``` creates a ```flux``` object, representing the type of movement model to be fitted. Current supported movement models are: radiation with selection, original radiation, gravity, gravity with distance cutoff, intervening opportunities and uniform selection.
 
 The ```movement``` model fits the parameters of the specified movement model, and returns a ```movement_model``` object. This object can be plotted, or used to predict to populations movements to new ```location_dataframe``` object, or even a ```RasterLayer``` object giving populations in each cell:
 
