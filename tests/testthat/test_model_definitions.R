@@ -1,4 +1,3 @@
-library(movement)
 context("Model definitions")
 
 test_that("original radiation model is of class flux",{

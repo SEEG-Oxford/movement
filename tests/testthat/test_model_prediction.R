@@ -1,6 +1,3 @@
-library(movement)
-library(snow)
-library(snowfall)
 context("Model Prediction")
 
 test_that("gravityWithDistanceFlux gives expected results with default parameters", {

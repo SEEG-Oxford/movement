@@ -94,7 +94,7 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   
   # statistics
   # http://stats.stackexchange.com/questions/108995/interpreting-residual-and-null-deviance-in-glm-r
-  nobs <- nrow(movement_matrix) * ncol(movement_matrix) - nrow(movement_matrix) # all values in the movement_matrix except the diagonal
+  nobs <- sum(!is.na(movement_matrix))
   nulldf <- nobs # no predictors for null degrees of freedom
   
   # check to ensure that the given observed movement has only integer values
@@ -118,6 +118,13 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
   # create the prediction model which is an internal used prediction_model object (not exported to end user!)
   prediction_model <- makePredictionModel(dataset=NULL, min_network_pop=1, flux_model = flux_model, symmetric=FALSE)
   
+  # compute the distance matrix and add to the location data as an attribute, so
+  # that it doesn't need to be recalculated
+  coords <- as.matrix(location_data[c("x", "y")])
+  coords <- matrix(coords, ncol = 2)
+  colnames(coords)  <- c("x","y")
+  attr(location_data, "distance_matrix") <- dist(coords) 
+  
   # attempt to parameterise the model using optim  
   optim_results <- attemptOptimisation(prediction_model, location_data, rounded_matrix, progress=FALSE, hessian=TRUE, parallel_setup = parallel_setup, go_parallel = go_parallel, number_of_cores = number_of_cores, ...) 
   
@@ -132,8 +139,10 @@ movement <- function(formula, flux_model = gravity(), go_parallel = FALSE, numbe
     stopParallelSetup()
   }
   
-  cat("Training complete.\n")
-  dimnames(training_results$prediction) <- dimnames(movement_matrix)
+  message("Training complete.\n")
+  if (!is.null(training_results$prediction)) {
+    dimnames(training_results$prediction) <- dimnames(movement_matrix)
+  }
   me <- list(call = call,
              optimisation_results = optim_results,
              training_results = training_results,
@@ -1938,18 +1947,44 @@ getNetwork <- function(raster, min = 1, matrix = TRUE) {
 # \item{locations}{A vector giving the locations at the cells of interest}
 getNetworkFromDataframe <- function(dataframe, min = 1, matrix = TRUE) {
   
-  dataframe <- dataframe[!duplicated(dataframe$location),]
+  duplicates <- duplicated(dataframe$location)
+  
+  dataframe <- dataframe[!duplicates,]
   pop <- as.numeric(dataframe["population"]$population)
   coords <- as.matrix(dataframe[c("x", "y")])
   coords <- matrix(coords, ncol=2)
   colnames(coords)  <- c("x","y")
-  dis <- dist(coords)
+  
+  # if it already has a distance matrix attribute, just reuse that
+  dis <- attr(dataframe, "distance_matrix")
+  if (is.null(dis)) {
+    
+    dis <- dist(coords)
+    
+    if (matrix) {
+      dis <- as.matrix(dis)
+    }
+  
+  } else {
+    if (any(duplicates)) {
+      # otherwise, remove duplicates
+      dis <- as.matrix(dis)
+      dis <- dis[!duplicates, !duplicates]
+      # these needs to be done as a matrix, so change back if needed
+      if (!matrix) {
+        dis <- as.dist(dis)
+      }
+    } else {
+      if (matrix) {
+        dis <- as.matrix(dis)
+      }
+    }
+    
+  }
+  
   locations <- dataframe["location"]$location
   
   # if we want a matrix, not a 'dist' object convert it
-  if (matrix) {
-    dis <- as.matrix(dis)
-  }
   
   return (list(population = pop,
                distance_matrix = dis,
@@ -2050,6 +2085,11 @@ analysePredictionUsingdPois <- function(prediction, observed) {
   observed = c(observed[upper.tri(observed)], observed[lower.tri(observed)])
   predicted = c(prediction$prediction[upper.tri(prediction$prediction)], prediction$prediction[lower.tri(prediction$prediction)])
   
+  # drop NAs in observed data
+  not_na_idx <- which(!is.na(observed))
+  observed <- observed[not_na_idx]
+  predicted <- predicted[not_na_idx]
+  
   retval <- sum(dpois(observed, predicted, log = TRUE)) * -2;
   #if(is.nan(retval)) {
   #	cat(paste('Warning: Likelihood was NaN, changing to Max Value to allow simulation to continue\n'))
@@ -2077,7 +2117,16 @@ fittingWrapper <- function(par, prediction_model, observed_matrix, population_da
   prediction_model$flux_model$params <- original_params
   
   predicted_results <- predict.prediction_model(prediction_model, population_data, parallel_setup, go_parallel, number_of_cores, ...)
+  
+  # find the edges for which the observation is not NA, calculate likelihood on these
   loglikelihood <- analysePredictionUsingdPois(predicted_results, observed_matrix)
+  if (is.na(loglikelihood)) {
+    message("failing parameters:\n",
+            capture.output(dput(original_params)))
+  }
+
+  
+  
   return (loglikelihood)
 }
 
@@ -2293,8 +2342,9 @@ as.location_dataframe.data.frame <- function(input, ...) {
   # find duplicated rows and print a warning message if any duplicated entries were found
   duplicated_rows  <- input[duplicated(input$location),]
   if(nrow(duplicated_rows) > 0){
-    warning("Warning: The following duplicated rows were removed from the location data frame:")
-    warning(duplicated_rows)
+    msg <- paste("Warning: The following duplicated rows were removed from the location data frame:",
+                 paste(duplicated_rows, collapse = ","))
+    warning(msg)
   }
    
   #remove duplicated locations/origins

@@ -1,4 +1,3 @@
-library(movement)
 context("Visualisation methods")
 
 test_that("plot.prediction_model passes correct parameters to show.prediction", {

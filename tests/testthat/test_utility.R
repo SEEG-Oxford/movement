@@ -1,4 +1,3 @@
-library(movement)
 context("Utility functions")
 
 test_that("text is capitalised", {
@@ -11,12 +10,18 @@ test_that("spaces are replaced with underscores", {
 
 test_that("as.location_dataframe removes duplicate locations when all values are the same", {
   testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,10,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
-	expect_equal(nrow(as.location_dataframe(testdata)), 4)
+  expect_warning(
+    expect_equal(nrow(as.location_dataframe(testdata)), 4),
+    "duplicated rows were removed"
+  )
 })
 
 test_that("as.location_dataframe removes duplicate locations with different population values", {
   testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
-  expect_equal(nrow(as.location_dataframe(testdata)), 4)
+  expect_warning(
+    expect_equal(nrow(as.location_dataframe(testdata)), 4),
+    "duplicated rows were removed"
+  )
 })
 
 test_that("as.location_dataframe print warning when removing duplicate locations", {
@@ -37,22 +42,34 @@ test_that("as.location_dataframe creates data.frame with 4 columns", {
 
 test_that("as.location_dataframe creates data.frame with correct location column", {
   testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
-	expect_equal(as.location_dataframe(testdata)$location, c(1,2,3,4))
+	expect_warning(
+	  expect_equal(as.location_dataframe(testdata)$location, c(1,2,3,4)),
+	  "duplicated rows were removed"
+	)
 })
 
 test_that("as.location_dataframe creates data.frame with correct population column", {
   testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
-	expect_equal(as.location_dataframe(testdata)$population, c(10,20,30,40))
+	expect_warning(
+	  expect_equal(as.location_dataframe(testdata)$population, c(10,20,30,40)),
+	  "duplicated rows were removed"
+	)
 })
 
 test_that("as.location_dataframe creates data.frame with correct x (lat) column", {
   testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
-	expect_equal(as.location_dataframe(testdata)$x, c(-1,0,1,2))
+	expect_warning(
+	  expect_equal(as.location_dataframe(testdata)$x, c(-1,0,1,2)),
+	  "duplicated rows were removed"
+	)
 })
 
 test_that("as.location_dataframe creates data.frame with correct y (long) column", {
   testdata <- data.frame(location=c(1,1,2,3,4), population=c(10,5,20,30,40), x=c(-1,-1,0,1,2), y=c(-5,-5,-4,-3,-2))
-	expect_equal(as.location_dataframe(testdata)$y, c(-5,-4,-3,-2))
+	expect_warning(
+	  expect_equal(as.location_dataframe(testdata)$y, c(-5,-4,-3,-2)),
+	  "duplicated rows were removed"
+	)
 })
 
 test_that("as.movement_matrix.data.frame returns error for a non-square matrix", {
@@ -238,6 +255,7 @@ test_that("as.data.frame.movement_matrix correctly returns the data.frame", {
 
 test_that("as.data.frame.movement_matrix returns data.frame with default origin/destinations when missing row / column names", {
   testmatrix  <- matrix(c(0,1,2,0),nrow=2)
+  rownames(testmatrix) <- colnames(testmatrix) <- 1:2 
   testmatrix  <- as.movement_matrix(testmatrix)
   expected_data.frame  <- data.frame(origin=c("1","2"), destination=c("2", "1"), movement=c(2,1), stringsAsFactors = FALSE)
   actual_data.frame  <- as.data.frame.movement_matrix(testmatrix) 
